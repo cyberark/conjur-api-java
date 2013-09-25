@@ -1,3 +1,12 @@
+# Eclicpse Garbage
 /.settings
 /.classpath
 /.project
+
+# Don't check in binaries
+*.class
+
+# Package Files
+*.jar
+*.war
+*.ear
