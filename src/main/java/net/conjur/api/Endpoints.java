@@ -35,21 +35,19 @@ public class Endpoints {
 		if(useLocalhost(environment)){
 			return localEndpoint(AUTHN_PORT);
 		}
-		return String.format("https://authn-%s-conjur.herokuapp.com",account);
+		return realEndpoint("authn", account);
 	}
 	
 	public static String authzUrl(String environment, String stack, String account){
-		if(useLocalhost(environment)){
+		if(useLocalhost(environment))
 			return localEndpoint(AUTHZ_PORT);
-		}
-		return String.format("https://authz-%s-conjur.herokuapp.com",stack);
+		return realEndpoint("authz", stack);
 	}
 	
 	public static String directoryUrl(String environment, String stack, String account){
-		if(useLocalhost(environment)){
+		if(useLocalhost(environment))
 			return localEndpoint(DIRECTORY_PORT);
-		}
-		return String.format("https://core-%s-conjur.herokuapp.com",account);
+		return realEndpoint("core", account);
 	}
 
 	private static boolean useLocalhost(String environment){
@@ -60,5 +58,9 @@ public class Endpoints {
 	
 	private static String localEndpoint(int port){
 		return String.format("http://localhost:%d", port);
+	}
+	
+	private static String realEndpoint(String service, String name){
+		return String.format("https://%s-%s-conjur.herokuapp.com", service, name);
 	}
 }
