@@ -9,15 +9,19 @@ import net.conjur.api.ConjurApiException;
 import net.conjur.api.Endpoints;
 import net.conjur.api.HttpStatusException;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 
 public class Authn extends Client {
 
+	private static String LOGIN_PATH = "/users/login";
+	private static String AUTHENTICATE_PATH = "/users/%s/login";
+	
+	private static String authenticatePath(String username){
+		return String.format(AUTHENTICATE_PATH, fullyEscape(username));
+	}
+	
 	private String endpoint;
 	
 	public Authn(String endpoint){
@@ -28,7 +32,7 @@ public class Authn extends Client {
 		this(endpoint.toString());
 	}
 	
-	public Authn(Endpoints endpoints, String account){
+	public Authn(Endpoints endpoints){
 		this(endpoints.authn());
 	}
 	
@@ -39,29 +43,27 @@ public class Authn extends Client {
 	 * @param apiKey an api key as returned by {@link #authenticate(String, String)}
 	 * @return a base64 encoded string that can be used to authenticate api calls.
 	 */
-	public String authenticate(String username, String apiKey) throws ConjurApiException{
+	public Token authenticate(String username, String apiKey) throws ConjurApiException{
 		try{
 			return authenticateThrowing(username, apiKey);
-		}catch(IOException e){
-			throw new ConjurApiException(e);
-		} catch (URISyntaxException e) {
-			throw new ConjurApiException(e);
 		}catch(HttpStatusException e){
 			if(e.getStatusCode() == 401){
 				throw  new AuthenticationFailure(e);
 			}
 			throw new ConjurApiException(e);
+		}catch(IOException e){
+			throw new ConjurApiException(e);
+		} catch (URISyntaxException e) {
+			throw new ConjurApiException(e);
 		}
 	}
 	
-	private String authenticateThrowing(String username, String apiKey) throws IOException, HttpStatusException, URISyntaxException{
-		CloseableHttpClient client = defaultHttpClient();
-		URI uri = new URIBuilder(getURI()).setPath("users/" + fullyEscape(username) + "/authenticate")
-				.build();
-		HttpPost post = new HttpPost(uri);
-		post.setHeader("Content-Type", "text/plain");
-		post.setEntity(new StringEntity(apiKey));
-		return Base64.encodeBase64URLSafeString(requestString(client, post).getBytes());
+	private Token authenticateThrowing(String username, String apiKey) throws IOException, URISyntaxException{
+		HttpClient client = createHttpClient();
+		HttpUriRequest request = createRequestBuilder("POST",  authenticatePath(username))
+				.setHeader("Content-Type", "text/plain")
+				.setEntity(new StringEntity(apiKey)).build();
+		return Token.fromJson(responseJson(client, request));
 	}
 	
 	/**
@@ -74,24 +76,23 @@ public class Authn extends Client {
 	public String login(String username, String password) throws ConjurApiException{
 		try{
 			return loginThrowing(username, password);
-		}catch(IOException e){
-			throw new ConjurApiException(e);
-		}catch(URISyntaxException e){
-			throw new ConjurApiException(e);
 		}catch(HttpStatusException e){
 			if(e.getStatusCode() == 401){
 				throw new AuthenticationFailure(e);
 			}else{
 				throw new ConjurApiException(e);
 			}
+		}catch(IOException e){
+			throw new ConjurApiException(e);
+		}catch(URISyntaxException e){
+			throw new ConjurApiException(e);
 		}
 	}
 	
-	private String loginThrowing(String username, String password) throws IOException, URISyntaxException, HttpStatusException{
-		CloseableHttpClient client = httpClientWithBasicAuth(username, password);
-		URI uri = new URIBuilder(getURI()).setPath("users/login").build();
-		HttpGet get = new HttpGet(uri);
-		return requestString(client, get);
+	private String loginThrowing(String username, String password) throws IOException, URISyntaxException{
+		HttpClient client = createHttpClient(username, password);
+		HttpUriRequest get = createRequest("GET", LOGIN_PATH);
+		return responseString(client, get);
 	}
 	
 	@Override

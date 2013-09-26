@@ -1,8 +1,10 @@
 package net.conjur.api;
 
+import java.io.IOException;
+
 import org.apache.http.HttpResponse;
 
-public class HttpStatusException extends Exception {
+public class HttpStatusException extends IOException {
 	private static final long serialVersionUID = -6383794072715460307L;
 	private int statusCode;
 	private String reasonPhrase;

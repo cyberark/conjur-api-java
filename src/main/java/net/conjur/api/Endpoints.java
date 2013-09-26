@@ -1,5 +1,8 @@
 package net.conjur.api;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 public class Endpoints {
 	public static final int AUTHN_PORT = 5000;
 	public static final int AUTHZ_PORT = 5100;
@@ -22,6 +25,7 @@ public class Endpoints {
 	}
 	
 	
+	
 	public String authn(){
 		return Endpoints.authnUrl(environment, stack, account);
 	}
@@ -33,7 +37,6 @@ public class Endpoints {
 	public String directory(){
 		return Endpoints.directoryUrl(environment, stack, account);
 	}
-	
 	
 	public static String authnUrl(String environment, String stack, String account){
 		if(useLocalhost(environment)){

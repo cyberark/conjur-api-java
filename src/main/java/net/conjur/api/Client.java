@@ -1,70 +1,114 @@
 package net.conjur.api;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 public abstract class Client {
-	private CloseableHttpClient httpClient;
-	
+
 	protected abstract String getEndpoint();
 	
 	/**
 	 * Return a URI for our endpoint.
 	 * @return a URI for our endpoint
 	 */
-	protected URI getURI(){
+	protected URI getUri(){
 		return URI.create(getEndpoint());
 	}
 	
+	protected HttpResponse response(HttpUriRequest request) throws IOException{
+		return response(createHttpClient(), request);
+	}
 	
-	protected String requestString(CloseableHttpClient client, HttpUriRequest request) throws IOException, HttpStatusException {
+	protected HttpResponse response(HttpClient client, HttpUriRequest request) throws IOException{
 		try{
-			CloseableHttpResponse response = client.execute(request);
-			try{
-				HttpStatusException.throwErrors(response);
-				if(response.getEntity() == null)
-					return "";
-				return EntityUtils.toString(response.getEntity());
-			}finally{
-				response.close();
-			}
+			HttpResponse response = client.execute(request);
+			HttpStatusException.throwErrors(response);
+			return response;		
 		}finally{
-			client.close();
+			if(client instanceof CloseableHttpClient){
+				((CloseableHttpClient)client).close();
+			}
 		}
 	}
 	
-	/**
-	 * Create an HttpClient configured to use basic auth
-	 * @param username Basic auth username
-	 * @param password Basic auth password
-	 * @return An HttpClient instance that will authenticate as the given username/password.
-	 */
-	protected CloseableHttpClient httpClientWithBasicAuth(String username, String password){
+	protected JsonElement responseJson(HttpClient client, HttpUriRequest request) throws IOException {
+		return new JsonParser().parse(responseString(client, request));
+	}
+	
+	protected JsonElement responseJson(HttpUriRequest request) throws IOException {
+		return responseJson(createHttpClient(), request);
+	}
+	
+	protected String responseString(HttpClient client, HttpUriRequest request) throws IOException {
+		try{
+			HttpResponse response =  response(client, request);
+			try{
+				HttpStatusException.throwErrors(response);
+				return response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity());
+			}finally{
+				maybeClose(response);
+			}
+		}finally{
+			maybeClose(client);
+		}
+	}
+	
+	protected String responseString(HttpUriRequest request) throws IOException{
+		return responseString(createHttpClient(), request);
+	}
+	
+	private void maybeClose(Object maybeClosable) throws IOException {
+		if(maybeClosable instanceof Closeable){
+			((Closeable)maybeClosable).close();
+		}
+	}
+
+	
+
+	protected HttpClient createHttpClient(CredentialsProvider credentialsProvider){
 		return HttpClients.custom()
-				.setDefaultCredentialsProvider(credentialsFor(username, password))
+				.setDefaultCredentialsProvider(credentialsProvider)
 				.build();
 	}
 	
-	/**
-	 * Return a (cached) default {@link CloseableHttpClient}
-	 */
-	protected CloseableHttpClient defaultHttpClient(){
-		if(httpClient == null){
-			httpClient = HttpClients.createDefault();
-		}
-		return  httpClient;
+	protected HttpClient createHttpClient(String username){
+		return createHttpClient(credentialsFor(username));
+	}
+	
+	protected HttpClient createHttpClient(String username, String password){
+		return createHttpClient(credentialsFor(username,password));
+	}
+	
+	protected HttpClient createHttpClient(){
+		return HttpClients.createDefault();
+	}
+	
+	protected HttpUriRequest createRequest(String method, String path){
+		return createRequestBuilder(method, path).build();
+	}
+	
+	protected RequestBuilder createRequestBuilder(String method, String path){
+		return RequestBuilder.create(method).setUri(getUriWithPath(path));
 	}
 	
 	/**
@@ -75,11 +119,27 @@ public abstract class Client {
 	 * @return a {@link CredentialsProvider} configured to authenticate as the given identity.
 	 */
 	protected CredentialsProvider credentialsFor(String username, String password){
-		URI uri = getURI();
+		URI uri = getUri();
 		CredentialsProvider creds = new BasicCredentialsProvider();
 		creds.setCredentials(new AuthScope(uri.getHost(), uri.getPort()), 
 				new UsernamePasswordCredentials(username, password));
 		return creds;
+	}
+	
+	protected CredentialsProvider credentialsFor(String username){
+		return credentialsFor(username, null);
+	}
+	
+	protected URI getUriWithPath(String path){
+		URIBuilder builder = new URIBuilder(getUri());
+		if(path != null){
+			builder.setPath(path);
+		}
+		try {
+			return builder.build();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Should not happen!", e);
+		}
 	}
 	
 	/**
