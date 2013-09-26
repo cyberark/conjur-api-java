@@ -29,7 +29,7 @@ public class Authn extends Client {
 	}
 	
 	public Authn(Endpoints endpoints, String account){
-		this(endpoints.authn(account));
+		this(endpoints.authn());
 	}
 	
 	/**

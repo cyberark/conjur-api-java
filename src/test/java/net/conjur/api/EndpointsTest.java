@@ -46,19 +46,19 @@ public class EndpointsTest {
 	
 	@Test
 	public void instanceMethodsReturnLocalhostInTest(){
-		Endpoints ep = Endpoints.of("test", stack);
-		assertEquals("http://localhost:5000", ep.authn(account));
-		assertEquals("http://localhost:5100", ep.authz(account));
-		assertEquals("http://localhost:5200", ep.directory(account));
+		Endpoints ep = new Endpoints("test", stack, account);
+		assertEquals("http://localhost:5000", ep.authn());
+		assertEquals("http://localhost:5100", ep.authz());
+		assertEquals("http://localhost:5200", ep.directory());
 	}
 	
 	@Test
 	public void instanceMethodsReturnEndpointsInProduction(){
-		Endpoints ep = Endpoints.of("production", stack);
+		Endpoints ep = new Endpoints("production", stack, account);
 
-		assertEquals("https://authn-the-account-conjur.herokuapp.com", ep.authn(account));
-		assertEquals("https://authz-stack-conjur.herokuapp.com", ep.authz(account));
-		assertEquals("https://core-the-account-conjur.herokuapp.com", ep.directory(account));
+		assertEquals("https://authn-the-account-conjur.herokuapp.com", ep.authn());
+		assertEquals("https://authz-stack-conjur.herokuapp.com", ep.authz());
+		assertEquals("https://core-the-account-conjur.herokuapp.com", ep.directory());
 	}
 
 }

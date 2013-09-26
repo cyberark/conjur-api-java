@@ -9,27 +9,31 @@ public class Endpoints {
 	
 	private final String stack;
 	
-	private Endpoints(String environment, String stack){
+	private final String account;
+	
+	public Endpoints(String environment, String stack, String account){
 		this.environment = environment;
 		this.stack = stack;
+		this.account = account;
 	}
 	
-	public String authn(String account){
+	public Endpoints(String stack, String account){
+		this("production", stack, account);
+	}
+	
+	
+	public String authn(){
 		return Endpoints.authnUrl(environment, stack, account);
 	}
 	
-	public String authz(String account){
+	public String authz(){
 		return Endpoints.authzUrl(environment, stack, account);
 	}
 	
-	public String directory(String account){
+	public String directory(){
 		return Endpoints.directoryUrl(environment, stack, account);
 	}
 	
-	// I can't think of a decent name for this method...
-	public static Endpoints of(String environment, String stack){
-		return new Endpoints(environment, stack);
-	}
 	
 	public static String authnUrl(String environment, String stack, String account){
 		if(useLocalhost(environment)){
