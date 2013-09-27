@@ -43,15 +43,15 @@ public class Authn extends Client {
 	 * Exchange a username/apiKey pair for a token that can be used to authenticate
 	 * future API calls.
 	 * @param username a conjur username
-	 * @param apiKey an api key as returned by {@link #authenticate(String, String)}
-	 * @return a base64 encoded string that can be used to authenticate api calls.
+	 * @param apiKey an api key as returned by {@link #login(String, String)}
+	 * @return a Token that can be used to create authenticated clients
 	 */
 	public Token authenticate(String username, String apiKey) throws ConjurApiException{
 		try{
 			return authenticateThrowing(username, apiKey);
 		}catch(HttpStatusException e){
 			if(e.getStatusCode() == 401)
-				throw  new AuthenticationFailure(e);
+				throw  new AuthenticationFailureException(e);
 			throw new ConjurApiException(e);
 		}catch(IOException e){
 			throw new ConjurApiException(e);
@@ -78,7 +78,7 @@ public class Authn extends Client {
 			return loginThrowing(username, password);
 		}catch(HttpStatusException e){
 			if(e.getStatusCode() == 401){
-				throw new AuthenticationFailure(e);
+				throw new AuthenticationFailureException(e);
 			}else{
 				throw new ConjurApiException(e);
 			}
@@ -95,7 +95,8 @@ public class Authn extends Client {
 		return execute(request);
 	}
 	
-
+	// Since conjur services don't issue auth challenges at the moment we have to cobble together
+	// our own auth header instead of relying on the facilities provided by the httpclient library.
 	private Header basicAuthHeader(HttpRequest request, String username, String password){
 		try {
 			return new BasicScheme().authenticate(

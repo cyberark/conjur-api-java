@@ -59,7 +59,7 @@ public class User {
 		return new Gson().toJson(this);
 	}
 
-	public Token authenticate(Authn authn) throws ConjurApiException{
+	public Token authenticate(Authn authn) throws ConjurApiException {
 		return authn.authenticate(getLogin(), getApiKey());
 	}
 
