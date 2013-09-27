@@ -1,5 +1,6 @@
-package net.conjur.api;
+package net.conjur.api.directory;
 
+import net.conjur.api.ConjurApiException;
 import net.conjur.api.authn.Authn;
 import net.conjur.api.authn.Token;
 

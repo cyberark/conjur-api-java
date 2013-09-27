@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 
 import net.conjur.api.ConjurApiException;
 import net.conjur.api.Endpoints;
-import net.conjur.api.User;
 import net.conjur.api.authn.Authn;
 import net.conjur.api.authn.Token;
 import net.conjur.api.directory.Directory;
+import net.conjur.api.directory.User;
 
 /*
  * This example shows how to create an Endpoint configuration, login as an existing
