@@ -9,27 +9,30 @@ import net.conjur.api.ConjurApiException;
 import net.conjur.api.Endpoints;
 import net.conjur.api.HttpStatusException;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.Header;
+import org.apache.http.HttpRequest;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.protocol.BasicHttpContext;
 
 public class Authn extends Client {
 
 	private static String LOGIN_PATH = "/users/login";
-	private static String AUTHENTICATE_PATH = "/users/%s/login";
+	private static String AUTHENTICATE_PATH = "/users/%s/authenticate";
 	
 	private static String authenticatePath(String username){
 		return String.format(AUTHENTICATE_PATH, fullyEscape(username));
 	}
 	
-	private String endpoint;
-	
-	public Authn(String endpoint){
-		this.endpoint = endpoint;
+	public Authn(URI endpoint){
+		super(endpoint);
 	}
 	
-	public Authn(URI endpoint){
-		this(endpoint.toString());
+	public Authn(String endpoint){
+		super(endpoint);
 	}
 	
 	public Authn(Endpoints endpoints){
@@ -47,23 +50,20 @@ public class Authn extends Client {
 		try{
 			return authenticateThrowing(username, apiKey);
 		}catch(HttpStatusException e){
-			if(e.getStatusCode() == 401){
+			if(e.getStatusCode() == 401)
 				throw  new AuthenticationFailure(e);
-			}
 			throw new ConjurApiException(e);
 		}catch(IOException e){
-			throw new ConjurApiException(e);
-		} catch (URISyntaxException e) {
 			throw new ConjurApiException(e);
 		}
 	}
 	
-	private Token authenticateThrowing(String username, String apiKey) throws IOException, URISyntaxException{
-		HttpClient client = createHttpClient();
-		HttpUriRequest request = createRequestBuilder("POST",  authenticatePath(username))
-				.setHeader("Content-Type", "text/plain")
-				.setEntity(new StringEntity(apiKey)).build();
-		return Token.fromJson(responseJson(client, request));
+	private Token authenticateThrowing(String username, String apiKey) throws IOException {
+		HttpUriRequest request = requestBuilder("POST",  authenticatePath(username))
+				.addHeader("Content-Type", "text/plain")
+				.setEntity(new StringEntity(apiKey))
+				.build();
+		return Token.fromJson(execute(request));
 	}
 	
 	/**
@@ -90,15 +90,21 @@ public class Authn extends Client {
 	}
 	
 	private String loginThrowing(String username, String password) throws IOException, URISyntaxException{
-		HttpClient client = createHttpClient(username, password);
-		HttpUriRequest get = createRequest("GET", LOGIN_PATH);
-		return responseString(client, get);
+		HttpUriRequest request = request("GET", LOGIN_PATH);
+		request.addHeader(basicAuthHeader(request, username, password));
+		return execute(request);
 	}
 	
-	@Override
-	protected String getEndpoint() {
-		return this.endpoint;
+
+	private Header basicAuthHeader(HttpRequest request, String username, String password){
+		try {
+			return new BasicScheme().authenticate(
+					new UsernamePasswordCredentials(username, password), 
+					request, 
+					new BasicHttpContext());
+		} catch (AuthenticationException e) {
+			// If you look at the method in question, it *does not* throw this exception!
+			throw new RuntimeException(e);
+		}
 	}
-
-
 }

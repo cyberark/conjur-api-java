@@ -1,7 +1,5 @@
 package net.conjur.api;
 
-import java.io.FileInputStream;
-import java.util.Properties;
 
 public class Endpoints {
 	public static final int AUTHN_PORT = 5000;

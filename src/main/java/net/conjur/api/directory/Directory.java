@@ -1,6 +1,9 @@
 package net.conjur.api.directory;
 
 import java.io.IOException;
+import java.net.URI;
+
+import org.apache.http.client.methods.HttpUriRequest;
 
 import net.conjur.api.AuthenticatedClient;
 import net.conjur.api.Endpoints;
@@ -11,25 +14,22 @@ import com.google.gson.JsonElement;
 
 public class Directory extends AuthenticatedClient {
 	private static final String USERS_PATH = "/users";
-	private String endpoint;
 	
 	public Directory(Endpoints endpoints, Token token) {
-		this(endpoints.directory(), token);
+		super(endpoints.directory(), token);
+	}
+	
+	public Directory(URI endpoint, Token token){
+		super(endpoint, token);
 	}
 	
 	public Directory(String endpoint, Token token){
-		super(token);
-		this.endpoint  = endpoint;
+		super(endpoint, token);
 	}
 	
 	public User createUser(String username) throws IOException{
-		JsonElement json = responseJson(createRequestBuilder("POST", USERS_PATH).addParameter("login", username).build());
-		return User.fromJson(json);
-	}
-
-	@Override
-	protected String getEndpoint() {
-		return endpoint;
+		HttpUriRequest request = requestBuilder("POST", USERS_PATH).addParameter("login", username).build();
+		return User.fromJson(execute(request));
 	}
 
 }

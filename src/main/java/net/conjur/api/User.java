@@ -8,19 +8,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
 public class User {
-	/*
-	  {
-  "login": "fobarar",
-  "userid": "rr3n00-alice",
-  "ownerid": "sandbox:user:fobarar",
-  "uidnumber": 1167,
-  "roleid": "sandbox:user:fobarar",
-  "resource_identifier": "sandbox:user:fobarar",
-  "api_key": "3fh7awt3jkph3v1513c953d87wqa3g3jyqc3t61wy41bdnst92xvvvg7"
-}
-
-	 */
-	
 	private String login;
 	@SerializedName("userid") private String userId;
 	@SerializedName("ownerid") private String ownerId;
@@ -59,6 +46,10 @@ public class User {
 
 	private User() {}
 
+	public static User fromJson(String jsonString){
+		return new Gson().fromJson(jsonString, User.class);
+	}
+	
 	public static User fromJson(JsonElement json){
 		return new Gson().fromJson(json, User.class);
 	}
@@ -76,19 +67,19 @@ public class User {
 		StringBuilder builder = new StringBuilder();
 		builder.append("User [");
 		if (getLogin() != null)
-			builder.append("getLogin()=").append(getLogin()).append(", ");
+			builder.append("login=").append(getLogin()).append(", ");
 		if (getUserId() != null)
-			builder.append("getUserId()=").append(getUserId()).append(", ");
+			builder.append("userId=").append(getUserId()).append(", ");
 		if (getOwnerId() != null)
-			builder.append("getOwnerId()=").append(getOwnerId()).append(", ");
-		builder.append("getUid()=").append(getUid()).append(", ");
+			builder.append("ownerId=").append(getOwnerId()).append(", ");
+		builder.append("uid=").append(getUid()).append(", ");
 		if (getRoleId() != null)
-			builder.append("getRoleId()=").append(getRoleId()).append(", ");
+			builder.append("roleId=").append(getRoleId()).append(", ");
 		if (getResourceIdentifier() != null)
-			builder.append("getResourceIdentifier()=")
+			builder.append("resourceIdentifier=")
 					.append(getResourceIdentifier()).append(", ");
 		if (getApiKey() != null)
-			builder.append("getApiKey()=").append(getApiKey());
+			builder.append("apiKey=").append(getApiKey());
 		builder.append("]");
 		return builder.toString();
 	}

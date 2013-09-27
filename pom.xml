@@ -27,8 +27,5 @@
   		<version>2.2.4</version>
   	</dependency>
   </dependencies>
-  <packaging>pom</packaging>
-  <modules>
-  	<module>examples</module>
-  </modules>
+  <packaging>jar</packaging>
 </project>

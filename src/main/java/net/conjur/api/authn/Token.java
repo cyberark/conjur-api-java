@@ -56,12 +56,18 @@ public class Token {
 		return toJson().getBytes();
 	}
 	
+	public byte[] toBase64(){
+		// the magic formula seems to be unchunked (obviously, since its going
+		// in a header), and url unsafe (so that it's padded -- conjur services exepct this)
+		return Base64.encodeBase64(toJsonBytes(), false, false);
+	}
+	
 	public String toBase64String(){
-		return Base64.encodeBase64String(toJsonBytes());
+		return new String(toBase64());
 	}
 	
 	public String toHeader(){
-		return "Token token=" + toBase64String();
+		return "Token token=\"" + toBase64String() + "\"";
 	}
 	
 	public static Token fromBase64(String base64){
