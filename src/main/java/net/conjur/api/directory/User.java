@@ -1,8 +1,5 @@
 package net.conjur.api.directory;
 
-import net.conjur.api.authn.AuthnClient;
-import net.conjur.api.authn.Token;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
@@ -59,9 +56,6 @@ public class User {
 		return new Gson().fromJson(json, User.class);
 	}
 
-	public Token authenticate(AuthnClient authn){
-		return authn.authenticate(this);
-	}
 
 	@Override
 	public String toString() {

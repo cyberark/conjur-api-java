@@ -4,8 +4,6 @@ import java.net.URI;
 
 import net.conjur.api.Client;
 import net.conjur.api.Endpoints;
-import net.conjur.api.directory.DirectoryClient;
-import net.conjur.api.directory.User;
 import net.conjur.util.HttpHelpers;
 
 import org.apache.http.client.methods.HttpUriRequest;
@@ -50,16 +48,6 @@ public class AuthnClient extends Client {
 				.setEntity(HttpHelpers.stringEntity(apiKey))
 				.build();
 		return Token.fromJson(execute(request));
-	}
-	
-	/**
-	 * Return a token that can be used to perform API calls as the given user.
-	 * @param user The {@link User}, retrieved from a {@link DirectoryClient}
-	 * @return A {@link Token} that can be used to create a {@link DirectoryClient} 
-	 * 	that can perform operations as this user.
-	 */
-	public Token authenticate(User user){
-		return authenticate(user.getLogin(), user.getApiKey());
 	}
 	
 	/**

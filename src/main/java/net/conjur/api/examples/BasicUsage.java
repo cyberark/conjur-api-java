@@ -1,12 +1,6 @@
 package net.conjur.api.examples;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import net.conjur.api.Endpoints;
 import net.conjur.api.authn.AuthnClient;
@@ -16,6 +10,9 @@ import net.conjur.api.directory.User;
 import net.conjur.api.directory.Variable;
 import net.conjur.api.exceptions.ConjurApiException;
 import net.conjur.api.exceptions.http.ForbiddenException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /*
  * This example shows how to create an Endpoint configuration, login as an existing
@@ -107,7 +104,10 @@ public class BasicUsage {
 		// Login and authenticate as the user we created using the 
 		// helper methods on the user instance.
 		fmt("Login and authenticate as %s", user.getLogin());
-		Token userToken = user.authenticate(authn);
+		
+		// Note that the user's apiKey is only available when the user has just been created,
+		// not when it is retrieved by getUser()
+		Token userToken = authn.authenticate(user.getLogin(), user.getApiKey());
 		fmt("OK!");
 		
 		// Use the token returned to perform actions as user
@@ -153,7 +153,7 @@ public class BasicUsage {
 		// Authenticate as bob and create a directory client to do evil stuff
 		// as him.
 		fmt("Fetching token for %s", bob.getLogin());
-		Token bobToken = authn.authenticate(bob);
+		Token bobToken = authn.authenticate(bob.getLogin(), bob.getApiKey());
 		fmt("OK!");
 		
 		DirectoryClient bobClient = new DirectoryClient(endpoints, bobToken);
