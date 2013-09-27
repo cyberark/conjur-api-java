@@ -5,6 +5,7 @@ import java.net.URI;
 
 import net.conjur.api.AuthenticatedClient;
 import net.conjur.api.Endpoints;
+import net.conjur.api.HttpStatusException;
 import net.conjur.api.authn.Token;
 
 import org.apache.http.client.methods.HttpUriRequest;
@@ -31,6 +32,22 @@ public class Directory extends AuthenticatedClient {
 		return User.fromJson(execute(request));
 	}
 
+	public User getUser(String login) throws IOException{
+		HttpUriRequest request = request("GET", USERS_PATH + "/" +login);
+		return User.fromJson(execute(request));
+	}
+	
+	public User tryGetUser(String username) throws IOException{
+		try{
+			return getUser(username);
+		}catch(HttpStatusException e){
+			if(e.getStatusCode() == 404){
+				return null;
+			}
+			throw e;
+		}
+	}
+	
 	public Variable createVariable(String kind, String mimeType, String id) throws IOException {
 		RequestBuilder builder = requestBuilder("POST", VARIABLES_PATH)
 				.addParameter("mime_type", mimeType)
