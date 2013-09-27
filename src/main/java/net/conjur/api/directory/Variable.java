@@ -5,14 +5,17 @@ import org.apache.http.util.Args;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.annotations.SerializedName;
 
 public class Variable {
 	private String id;
 	private String kind;
-	private String mimeType;
-	private int versionCount;
+	@SerializedName("mime_type") private String mimeType;
+	@SerializedName("version_count") private int versionCount;
+	@SerializedName("userid") private String userId;
+	@SerializedName("resource_identifier") private String resourceIdentifier;
+	@SerializedName("ownerid") private String ownerId;
 	
-
 	private DirectoryClient client;
 	
 	public String getId(){
@@ -31,6 +34,22 @@ public class Variable {
 		return mimeType;
 	}
 	
+	public String getUserId() {
+		return userId;
+	}
+
+	public String getResourceIdentifier() {
+		return resourceIdentifier;
+	}
+
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public DirectoryClient getClient() {
+		return client;
+	}
+
 	public String getValue(int version){
 		return getValue(version);
 	}
@@ -45,6 +64,18 @@ public class Variable {
 				: client.getVariableValue(id);
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Variable [id=").append(id).append(", kind=")
+				.append(kind).append(", mimeType=").append(mimeType)
+				.append(", versionCount=").append(versionCount)
+				.append(", userId=").append(userId)
+				.append(", resourceIdentifier=").append(resourceIdentifier)
+				.append(", ownerId=").append(ownerId).append("]");
+		return builder.toString();
+	}
+
 	public Variable addValue(String value) {
 		client.addVariableValue(getId(), value);
 		return refresh();
