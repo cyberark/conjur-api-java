@@ -35,7 +35,7 @@ public class AuthnClient extends Client {
 	private static String AUTHENTICATE_PATH = "/users/%s/authenticate";
 	
 	private static String authenticatePath(String username){
-		return String.format(AUTHENTICATE_PATH, fullyEscape(username));
+		return String.format(AUTHENTICATE_PATH, username);
 	}
 
 	/**

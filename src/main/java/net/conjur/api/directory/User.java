@@ -2,7 +2,6 @@ package net.conjur.api.directory;
 
 import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.Token;
-import net.conjur.api.exceptions.ConjurApiException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
