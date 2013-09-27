@@ -1,15 +1,14 @@
 /**
  * 
  */
-package net.conjur.api;
+package net.conjur.api.exceptions;
 
 /**
  * Exception thrown by the conjur api, typically when lower level components throw
  * checked exceptions.
  */
-public class ConjurApiException extends Exception {
-	private static final long serialVersionUID = 8235544304701005068L;
-
+@SuppressWarnings("serial")
+public class ConjurApiException extends RuntimeException {
 	public ConjurApiException() {}
 
 	public ConjurApiException(String msg) {

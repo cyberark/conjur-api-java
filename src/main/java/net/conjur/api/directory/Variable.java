@@ -1,22 +1,19 @@
 package net.conjur.api.directory;
 
-import java.io.IOException;
+import org.apache.http.util.Args;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 public class Variable {
-	private final Directory client;
+	private String id;
+	private String kind;
+	private String mimeType;
+	private int versionCount;
 	
-	private final String id;
-	private final int versionCount;
-	
-	
-	private Variable(Directory client, String id, int versionCount){
-		this.client = client;
-		this.id = id;
-		this.versionCount = versionCount;
-	}
+
+	private DirectoryClient client;
 	
 	public String getId(){
 		return id;
@@ -26,28 +23,44 @@ public class Variable {
 		return versionCount;
 	}
 	
+	public String getKind() {
+		return kind;
+	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+	
 	public String getValue(int version){
 		return getValue(version);
 	}
 	
-	public String getValue() throws IOException{
+	public String getValue(){
 		return getValue(null);
 	}
 	
-	private String getValue(Integer version) throws IOException{
+	private String getValue(Integer version){
 		return version != null ? 
 				client.getVariableValue(id, version)
 				: client.getVariableValue(id);
 	}
 	
-	public void addValue(String value) throws IOException{
+	public Variable addValue(String value) {
 		client.addVariableValue(getId(), value);
+		return refresh();
 	}
 	
-	public static Variable fromJson(Directory client, String jsonString){
-		JsonObject json = new JsonParser().parse(jsonString).getAsJsonObject();
-		String id = json.get("id").getAsString();
-		int versionCount = json.get("version_count").getAsInt();
-		return new Variable(client, id, versionCount);
+	public Variable refresh(){
+		return client.getVariable(getId());
+	}
+	
+	public static Variable fromJson(JsonElement json, DirectoryClient client){
+		Variable var = new Gson().fromJson(Args.notNull(json, "Json"), Variable.class);
+		var.client = Args.notNull(client, "Client");
+		return var;
+	}
+	
+	public static Variable fromJson(String jsonString, DirectoryClient client){
+		return fromJson(new JsonParser().parse(Args.notBlank(jsonString, "JsonString")), client);
 	}
 }

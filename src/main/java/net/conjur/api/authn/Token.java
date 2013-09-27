@@ -1,6 +1,9 @@
 package net.conjur.api.authn;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.Header;
+import org.apache.http.auth.AUTH;
+import org.apache.http.message.BasicHeader;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -58,7 +61,7 @@ public class Token {
 	
 	public byte[] toBase64(){
 		// the magic formula seems to be unchunked (obviously, since its going
-		// in a header), and url unsafe (so that it's padded -- conjur services exepct this)
+		// in a header), and url unsafe (so that it's padded -- conjur services exepect this)
 		return Base64.encodeBase64(toJsonBytes(), false, false);
 	}
 	
@@ -68,6 +71,14 @@ public class Token {
 	
 	public String toHeader(){
 		return "Token token=\"" + toBase64String() + "\"";
+	}
+	
+	public Header toHttpHeader(String name){
+		return new BasicHeader(name, toHeader());
+	}
+	
+	public Header toHttpHeader(){
+		return toHttpHeader(AUTH.WWW_AUTH_RESP);
 	}
 	
 	public static Token fromBase64(String base64){

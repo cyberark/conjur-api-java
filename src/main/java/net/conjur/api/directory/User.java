@@ -1,8 +1,8 @@
 package net.conjur.api.directory;
 
-import net.conjur.api.ConjurApiException;
-import net.conjur.api.authn.Authn;
+import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.Token;
+import net.conjur.api.exceptions.ConjurApiException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -10,6 +10,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class User {
 	private String login;
+	private String password;
 	@SerializedName("userid") private String userId;
 	@SerializedName("ownerid") private String ownerId;
 	@SerializedName("uidnumber") private int uid;
@@ -45,6 +46,10 @@ public class User {
 		return apiKey;
 	}
 
+	public String getPassword(){
+		return password;
+	}
+	
 	private User() {}
 
 	public static User fromJson(String jsonString){
@@ -54,34 +59,22 @@ public class User {
 	public static User fromJson(JsonElement json){
 		return new Gson().fromJson(json, User.class);
 	}
-	
-	public String toJson(){
-		return new Gson().toJson(this);
-	}
 
-	public Token authenticate(Authn authn) throws ConjurApiException {
-		return authn.authenticate(getLogin(), getApiKey());
+	public Token authenticate(AuthnClient authn){
+		return authn.authenticate(this);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("User [");
-		if (getLogin() != null)
-			builder.append("login=").append(getLogin()).append(", ");
-		if (getUserId() != null)
-			builder.append("userId=").append(getUserId()).append(", ");
-		if (getOwnerId() != null)
-			builder.append("ownerId=").append(getOwnerId()).append(", ");
-		builder.append("uid=").append(getUid()).append(", ");
-		if (getRoleId() != null)
-			builder.append("roleId=").append(getRoleId()).append(", ");
-		if (getResourceIdentifier() != null)
-			builder.append("resourceIdentifier=")
-					.append(getResourceIdentifier()).append(", ");
-		if (getApiKey() != null)
-			builder.append("apiKey=").append(getApiKey());
-		builder.append("]");
+		builder.append("User [login=").append(login).append(", password=")
+				.append(password).append(", userId=").append(userId)
+				.append(", ownerId=").append(ownerId).append(", uid=")
+				.append(uid).append(", roleId=").append(roleId)
+				.append(", resourceIdentifier=").append(resourceIdentifier)
+				.append(", apiKey=").append(apiKey).append("]");
 		return builder.toString();
 	}
+
+	
 }

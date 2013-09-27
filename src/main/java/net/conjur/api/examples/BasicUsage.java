@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import net.conjur.api.ConjurApiException;
 import net.conjur.api.Endpoints;
-import net.conjur.api.authn.Authn;
+import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.Token;
-import net.conjur.api.directory.Directory;
+import net.conjur.api.directory.DirectoryClient;
 import net.conjur.api.directory.User;
+import net.conjur.api.exceptions.ConjurApiException;
 
 /*
  * This example shows how to create an Endpoint configuration, login as an existing
@@ -60,7 +60,7 @@ public class BasicUsage {
 		 */
 		
 		// To authenticate we need an Authn client, which we create from the endpoints.
-		Authn authn = new Authn(endpoints);
+		AuthnClient authn = new AuthnClient(endpoints);
 		
 		// The login method exchanges a conjur username and password for an API key.
 		fmt("Login as %s", USERNAME);
@@ -73,7 +73,7 @@ public class BasicUsage {
 		puts("OK!");
 		
 		// Once we have a token, we can create an Directory client instance to manipulate users.
-		Directory directory = new Directory(endpoints, token);
+		DirectoryClient directory = new DirectoryClient(endpoints, token);
 		
 		// Ask for a username
 		System.out.print("Enter username to create: ");
