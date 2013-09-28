@@ -3,6 +3,10 @@ package net.conjur.api.exceptions.http;
 import net.conjur.api.exceptions.ConjurApiException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Thrown when an HTTP request returns an error (>= 400) status.  Some specific error codes
@@ -13,82 +17,83 @@ import org.apache.http.HttpResponse;
 public class HttpException extends ConjurApiException {
 	
 	private final int statusCode;
-	private final String reasonPhrase;
-	
-	/**
+    private Throwable cause;
+    private String statusText;
+    private String message;
+
+    public HttpException(int statusCode){
+        this.statusCode = statusCode;
+    }
+
+    public HttpException(int statusCode, Throwable cause){
+        this.cause = cause;
+        this.statusCode = statusCode;
+    }
+
+    @Override
+    public Throwable getCause() {
+        return cause;
+    }
+
+    void setCause(Throwable cause){
+        this.cause = cause;
+    }
+
+    /**
 	 * @return The HTTP status code that caused this exception to be raised.
 	 */
 	public int getStatusCode() {
 		return statusCode;
 	}
 
-	/**
-	 * @return The reason this status code was returned, taken from the HTTP response status 
-	 * line.
-	 */
-	public String getReasonPhrase() {
-		return reasonPhrase;
-	}
+    public String getStatusText(){
+        if(statusText == null)
+            statusText = getStatusText(getStatusCode());
+        return statusText;
+    }
 
-	private String message;
-	
-	/**
-	 * Creates an HttpException with the given status code and reason.
-	 * @param statusCode the status code
-	 * @param reasonPhrase the reason this status was returned
-	 */
-	public HttpException(int statusCode, String reasonPhrase){
-		this.statusCode = statusCode;
-		this.reasonPhrase = reasonPhrase;
-	}
-	
-	/**
-	 * Create an HttpException for the given HttpResponse.
-	 * @param httpResponse response to take the status code and reason from
-	 */
-	public HttpException(HttpResponse httpResponse){
-		this(httpResponse.getStatusLine().getStatusCode(), 
-			 httpResponse.getStatusLine().getReasonPhrase());
-	}
-	
-	
-	public static HttpException fromResponse(HttpResponse response){
-		return new HttpException(response.getStatusLine().getStatusCode(), 
-				response.getStatusLine().getReasonPhrase());
-	}
-	
+    public static HttpException fromStatusCode(int statusCode){
+        switch (statusCode){
+            case BadRequestException.STATUS_CODE: return new BadRequestException();
+            case UnauthorizedException.STATUS_CODE: return new UnauthorizedException();
+            case ForbiddenException.STATUS_CODE: return new ForbiddenException();
+            case NotFoundException.STATUS_CODE: return new NotFoundException();
+            case ConflictException.STATUS_CODE: return new ConflictException();
+            case InternalServerErrorException.STATUS_CODE: return new InternalServerErrorException();
+            default: return new HttpException(statusCode);
+        }
+    }
+
+    public static HttpException fromHttpResponseException(HttpResponseException e){
+        HttpException ex = fromStatusCode(e.getStatusCode());
+        ex.setCause(e);
+        return ex;
+    }
+
+
+
 	public static void throwErrors(HttpResponse response) throws HttpException{
 		int code = response.getStatusLine().getStatusCode();
 		
 		if(code < 400)
 			return;
-		
-		switch(code){
-		case 400:
-			throw new MalformedRequestException();
-		case 401:
-			throw new AuthenticationException();
-		case 403:
-			throw new ForbiddenException();
-		case 404:
-			throw new NotFoundException();
-		default:
-			if(code >= 500)
-				throw new ServerErrorException(response);
-			throw new HttpException(response);
-		}
+
+		throw fromStatusCode(code);
 	}
 	
 	@Override
 	public String getMessage() {
 		if(message == null){
-			message = formatMessage(getStatusCode(), getReasonPhrase());
+			message = getStatusText() + " " + getStatusCode();
 		}
 		return message;
 	}
-	
-	private static String formatMessage(int statusCode, String reasonPhrase){
-		return String.format("HTTP request failed (%d %s)", statusCode, reasonPhrase);
-	}
-	
+
+    private static String getStatusText(int statusCode){
+        try{
+            return (String)HttpStatus.class.getDeclaredMethod("statusText").invoke(null, statusCode);
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+    }
 }

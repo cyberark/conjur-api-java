@@ -9,7 +9,7 @@ import org.apache.http.HttpStatus;
  */
 @SuppressWarnings("serial")
 public class InternalServerErrorException extends HttpException {
-    private static final int STATUS_CODE = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+    public static final int STATUS_CODE = HttpStatus.SC_INTERNAL_SERVER_ERROR;
 
 	public InternalServerErrorException() {
 		super(STATUS_CODE);

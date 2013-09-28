@@ -7,9 +7,13 @@ import org.apache.http.HttpStatus;
  */
 @SuppressWarnings("serial")
 public class UnauthorizedException extends HttpException {
+    static final int STATUS_CODE = HttpStatus.SC_UNAUTHORIZED;
+
 	public UnauthorizedException() {
-		super(HttpStatus.SC_UNAUTHORIZED);
+		super(STATUS_CODE);
 	}
 
-    public UnauthorizedException
+    public UnauthorizedException(Throwable cause){
+        super(STATUS_CODE, cause);
+    }
 }
