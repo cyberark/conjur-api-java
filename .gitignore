@@ -13,3 +13,16 @@
 
 # Maven Output
 /target
+api.iml
+api.ipr
+api.iws
+bin/.idea/.name
+bin/.idea/bin.iml
+bin/.idea/encodings.xml
+bin/.idea/inspectionProfiles/Project_Default.xml
+bin/.idea/inspectionProfiles/profiles_settings.xml
+bin/.idea/misc.xml
+bin/.idea/modules.xml
+bin/.idea/scopes/scope_settings.xml
+bin/.idea/vcs.xml
+bin/.idea/workspace.xml
