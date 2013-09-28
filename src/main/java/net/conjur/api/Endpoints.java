@@ -1,6 +1,8 @@
 package net.conjur.api;
 
 
+import java.net.URI;
+
 public class Endpoints {
 	public static final int AUTHN_PORT = 5000;
 	public static final int AUTHZ_PORT = 5100;
@@ -68,4 +70,12 @@ public class Endpoints {
 	private static String realEndpoint(String service, String name){
 		return String.format("https://%s-%s-conjur.herokuapp.com", service, name);
 	}
+
+    public URI authnUri() {
+        return URI.create(authn());
+    }
+
+    public URI directoryUri() {
+        return URI.create(directory());
+    }
 }

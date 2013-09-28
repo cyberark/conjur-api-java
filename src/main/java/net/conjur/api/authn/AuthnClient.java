@@ -6,7 +6,10 @@ import net.conjur.api.Client;
 import net.conjur.api.Endpoints;
 import net.conjur.util.HttpHelpers;
 
+import org.apache.http.Header;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
 
 /**
  * Conjur authentication service client.
@@ -16,24 +19,10 @@ import org.apache.http.client.methods.HttpUriRequest;
  *
  */
 public class AuthnClient extends Client {
+    private URI uri;
 
 	public AuthnClient(Endpoints endpoints) {
 		super(endpoints);
-	}
-
-	public AuthnClient(String endpoint) {
-		super(endpoint);
-	}
-
-	public AuthnClient(URI endpoint) {
-		super(endpoint);
-	}
-
-	private static String LOGIN_PATH = "/users/login";
-	private static String AUTHENTICATE_PATH = "/users/%s/authenticate";
-	
-	private static String authenticatePath(String username){
-		return String.format(AUTHENTICATE_PATH, username);
 	}
 
 	/**
@@ -44,11 +33,14 @@ public class AuthnClient extends Client {
 	 * @return a Token that can be used to create authenticated clients
 	 */
 	public Token authenticate(String username, String apiKey) {
-		HttpUriRequest request = requestBuilder("POST",  authenticatePath(username))
-				.setEntity(HttpHelpers.stringEntity(apiKey))
-				.build();
-		return Token.fromJson(execute(request));
+        // POST users/<username>/authenticate with apiKey in body
+
+        Request request = Request.Post(getUri("users", username, "authenticate"))
+                .bodyString(apiKey, ContentType.TEXT_PLAIN);
+        return responseJson(request, Token.class);
 	}
+
+
 	
 	/**
 	 * Exchange a Conjur username and password for an API key.
@@ -58,14 +50,29 @@ public class AuthnClient extends Client {
 	 * @return an API key
 	 */
 	public String login(String username, String password){
-		HttpUriRequest request = requestBuilder("GET", LOGIN_PATH)
-				.addHeader(HttpHelpers.basicAuthHeader(username, password))
-				.build();
-		return execute(request);
+        // GET users/login with basic auth
+        return responseString(Request.Get(getUri("users/login"))
+                .addHeader(HttpHelpers.basicAuthHeader(username, password)));
 	}
-	
-	@Override
-	protected String getEndpointFromEndpoints(Endpoints endpoints) {
-		return endpoints.authn();
-	}
+
+    /**
+     * Change a user's password
+     * @param username the user whose password we want to change
+     * @param oldPass the user's current password or api key
+     * @param newPass the user's new password
+     */
+    public void updatePassword(String username, String oldPass, String newPass){
+        response(Request.Put("users/password")
+                .addHeader(HttpHelpers.basicAuthHeader(username,oldPass))
+                .bodyString(newPass, ContentType.TEXT_PLAIN)
+        );
+    }
+
+
+    @Override
+    public URI getUri() {
+        if(uri == null)
+            uri = getEndpoints().authnUri();
+        return uri;
+    }
 }

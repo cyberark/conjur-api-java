@@ -13,6 +13,20 @@ import org.apache.http.util.Args;
  */
 public final class TextUtils {
 
+    public static String join(final CharSequence glue, final CharSequence[] parts){
+        if(parts.length == 0)
+            return "";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(parts[0]);
+
+        for(int i=1;i < parts.length; i++){
+            sb.append(glue);
+            sb.append(parts[i]);
+        }
+        return sb.toString();
+    }
+
     public static boolean isEmpty(final CharSequence s) {
         if (s == null) {
             return true;
