@@ -16,8 +16,13 @@ public class Variable {
 	@SerializedName("resource_identifier") private String resourceIdentifier;
 	@SerializedName("ownerid") private String ownerId;
 	
-	private DirectoryClient client;
-	
+	private VariableDelagateMethods delegate;
+
+    public Variable withDelegate(VariableDelagateMethods delegate){
+        this.delegate = Args.notNull(delegate, "delegate");
+        return this;
+    }
+
 	public String getId(){
 		return id;
 	}
@@ -46,22 +51,22 @@ public class Variable {
 		return ownerId;
 	}
 
-	public DirectoryClient getClient() {
-		return client;
+	public VariableDelagateMethods getDelegate() {
+		return delegate;
 	}
 
 	public String getValue(int version){
-		return getValue(version);
+		return delegate.getVariableValue(getId(),version);
 	}
 	
 	public String getValue(){
-		return getValue(null);
+		return delegate.getVariableValue(getId());
 	}
 	
 	private String getValue(Integer version){
 		return version != null ? 
-				client.getVariableValue(id, version)
-				: client.getVariableValue(id);
+				delegate.getVariableValue(id, version)
+				: delegate.getVariableValue(id);
 	}
 	
 	@Override
@@ -77,18 +82,16 @@ public class Variable {
 	}
 
 	public Variable addValue(String value) {
-		client.addVariableValue(getId(), value);
+		delegate.addVariableValue(getId(), value);
 		return refresh();
 	}
 	
 	public Variable refresh(){
-		return client.getVariable(getId());
+		return delegate.getVariable(getId());
 	}
 	
-	public static Variable fromJson(JsonElement json, DirectoryClient client){
-		Variable var = new Gson().fromJson(Args.notNull(json, "Json"), Variable.class);
-		var.client = Args.notNull(client, "Client");
-		return var;
+	public static Variable fromJson(JsonElement json, VariableDelagateMethods client){
+		return new Gson().fromJson(Args.notNull(json, "Json"), Variable.class).withDelegate(client);
 	}
 	
 	public static Variable fromJson(String jsonString, DirectoryClient client){

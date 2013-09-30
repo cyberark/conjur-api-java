@@ -17,7 +17,7 @@ import org.apache.http.client.fluent.Request;
  * the "core" service).  All calls must be authenticated with an API token retrieved by 
  * an AuthnClient.
  */
-public class DirectoryClient extends AuthenticatedClient {
+public class DirectoryClient extends AuthenticatedClient implements VariableDelagateMethods {
 	private static final String USERS_PATH = "/users";
 	private static final String VARIABLES_PATH = "/variables";
 
@@ -189,20 +189,19 @@ public class DirectoryClient extends AuthenticatedClient {
 			return true;
 		}
 	}
-	
-	
-	void addVariableValue(String variableId, String value) {
+
+	public void addVariableValue(String variableId, String value) {
         Form body = Form.form().add("value", value);
         Request request = Request.Post(variableValuesUri(variableId));
         request.bodyForm(body.build());
         response(request);
 	}
 	
-	String getVariableValue(String variableId){
+	public String getVariableValue(String variableId){
         return responseString(Request.Get(variableValueUri(variableId)));
     }
 	
-	String getVariableValue(String variableId, int version){
+	public String getVariableValue(String variableId, int version){
         return responseString(Request.Get(variableValueUri(variableId, version)));
 	}
 

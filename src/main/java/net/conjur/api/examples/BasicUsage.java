@@ -47,8 +47,19 @@ public class BasicUsage {
 		username = parts[0];
 		password = parts[1];
 	}
-	
-	public static void main(String[] args) throws ConjurApiException, IOException {
+
+    public static void main(String[] args){
+        try{
+            mainWithExceptions(args);
+        }catch(Throwable e){
+            System.err.println("BasicUsage threw an exception: " + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    // We want to print exceptions ourselves, so we wrap this method in the real main()
+	public static void mainWithExceptions(String[] args) throws ConjurApiException, IOException {
 		
 		if(args.length == 1){
 			configureFromArg(args[0]);

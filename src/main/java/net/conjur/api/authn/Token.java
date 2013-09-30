@@ -61,7 +61,8 @@ public class Token {
 	}
 
 	public String toBase64(){
-		return Base64.encodeBase64URLSafeString(toJson().getBytes());
+        // NB url safe mode *does not* work
+		return Base64.encodeBase64String(toJson().getBytes());
 	}
 
 	public String toHeaderValue(){

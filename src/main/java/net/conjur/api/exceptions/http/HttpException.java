@@ -2,6 +2,7 @@ package net.conjur.api.exceptions.http;
 
 import net.conjur.api.exceptions.ConjurApiException;
 
+import net.conjur.util.HttpHelpers;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
@@ -91,9 +92,13 @@ public class HttpException extends ConjurApiException {
 
     private static String getStatusText(int statusCode){
         try{
-            return (String)HttpStatus.class.getDeclaredMethod("statusText").invoke(null, statusCode);
-        }catch(Exception e){
-            throw new RuntimeException(e);
+            return HttpHelpers.getReasonPhrase(statusCode);
+        }catch(Throwable e){
+            // Don't throw anything here, because this is called by toString() when
+            // we're trying to print an exception!
+            System.err.format("Couldn't get a reason phrase for %d!\n", statusCode);
+            e.printStackTrace();
+            return "Error!";
         }
     }
 }

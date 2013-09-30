@@ -6,9 +6,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.auth.AUTH;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EncodingUtils;
+
+import java.util.Locale;
 
 public class HttpHelpers {
 	public static final String DEFAULT_CHARSET = "UTF-8";
@@ -65,13 +68,25 @@ public class HttpHelpers {
         
         return new BufferedHeader(buffer);
 	}
-	
-	/**
-	 * Create a text/plain {@link HttpEntity}
-	 * @param content The content to send
-	 * @return An {@link HttpEntity} with content type text/plain and the given content.
-	 */
-	public static HttpEntity stringEntity(String content){
-		return new StringEntity(content, ContentType.TEXT_PLAIN);
-	}
+
+    /**
+     * Get a reason phrase for the given status code.  If a bogus status code is given,
+     * return a String like "Bogus HTTP status code: -53".
+     * @param statusCode An HTTP status code
+     * @return A reason phrase
+     */
+    public static String getReasonPhrase(int statusCode){
+        String reason = null;
+        if(statusCode >= 100 && statusCode < 600){
+            reason = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
+        }
+
+        if(reason == null){
+            reason = String.format(UNKNOWN_STATUS_CODE_MESSAGE, statusCode);
+        }
+
+        return reason;
+    }
+
+    private static final String UNKNOWN_STATUS_CODE_MESSAGE = "Bogus HTTP status code: %d";
 }

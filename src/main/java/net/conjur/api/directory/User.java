@@ -1,5 +1,6 @@
 package net.conjur.api.directory;
 
+import net.conjur.api.Credentials;
 import org.apache.http.util.Args;
 
 import com.google.gson.Gson;
@@ -75,7 +76,13 @@ public class User {
 	public String getPassword(){
 		return password;
 	}
-	
+
+    public Credentials getCredentials(){
+        if(password == null && apiKey == null)
+            throw new IllegalStateException("This user object doesn't include credentials: users only included credentials when returned from create");
+        return apiKey == null ? Credentials.fromPassword(login,password) : Credentials.fromKey(login, apiKey);
+    }
+
 	private User() {}
 
 	/**
