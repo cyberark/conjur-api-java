@@ -1,125 +1,71 @@
 package net.conjur.api;
 
 
+import net.conjur.util.Lang;
+
+import java.io.Serializable;
 import java.net.URI;
 
-public class Endpoints {
-    public static final String ENVIRONMENT_PROPERTY = "conjur.net.environment";
-    public static final String STACK_PROPERTY = "conjur.net.endpoints.stack";
-    public static final String ACCOUNT_PROPERTY = "conjur.net.endpoints.account";
-    public static final String DEFAULT_ENVIRONMENT = "production";
-    public static final String DEFAULT_STACK = "v3";
-    public static final String DEFAULT_ACCOUNT = "sandbox";
+import static net.conjur.util.Lang.getOrElse;
 
-	public static final int AUTHN_PORT = 5000;
-	public static final int AUTHZ_PORT = 5100;
-	public static final int DIRECTORY_PORT = 5200;
-	
-	private final String environment;
-	
-	private final String stack;
-	
-	private final String account;
-	
-	public Endpoints(String environment, String stack, String account){
-		this.environment = environment;
-		this.stack = stack;
-		this.account = account;
-	}
-	
-	public Endpoints(String stack, String account){
-		this("production", stack, account);
-	}
-	
-	
-	
-	public String authn(){
-		return Endpoints.authnUrl(environment, stack, account);
-	}
-	
-	public String authz(){
-		return Endpoints.authzUrl(environment, stack, account);
-	}
-	
-	public String directory(){
-		return Endpoints.directoryUrl(environment, stack, account);
-	}
-	
-	public static String authnUrl(String environment, String stack, String account){
-		if(useLocalhost(environment)){
-			return localEndpoint(AUTHN_PORT);
-		}
-		return realEndpoint("authn", account);
-	}
-	
-	public static String authzUrl(String environment, String stack, String account){
-		if(useLocalhost(environment))
-			return localEndpoint(AUTHZ_PORT);
-		return realEndpoint("authz", stack);
-	}
-	
-	public static String directoryUrl(String environment, String stack, String account){
-		if(useLocalhost(environment))
-			return localEndpoint(DIRECTORY_PORT);
-		return realEndpoint("core", account);
-	}
+/**
+ * An <code>Endpoints</code> instance provides endpoint URIs for the various conjur services.
+ * This is an abstract base class allowing users to provide their own endpoints, for example when
+ * the conjur services are being hosted on premises.
+ *
+ * @see HostedEndpoints
+ * @see BasicEndpoints
+ */
+public abstract class Endpoints implements Serializable {
+    /**
+     * Default endpoints implementation for convenience.  Uses
+     * {@link net.conjur.api.HostedEndpoints#fromSystemProperties()}.
+     */
+    public static final Endpoints DEFAULT_ENDPOINTS = HostedEndpoints.fromSystemProperties();
 
-	private static boolean useLocalhost(String environment){
-		if(environment == null)
-			throw new NullPointerException();
-		return "test".equals(environment) || "development".equals(environment);
-	}
-	
-	private static String localEndpoint(int port){
-		return String.format("http://localhost:%d", port);
-	}
-	
-	private static String realEndpoint(String service, String name){
-		return String.format("https://%s-%s-conjur.herokuapp.com", service, name);
-	}
+    // java constructors are silly
+    Endpoints(){}
 
-    public URI authnUri() {
-        return URI.create(authn());
-    }
+    /**
+     * Get the base URI for the conjur authentication (authn) service.
+     */
+    public abstract URI getAuthnUri();
 
-    public URI directoryUri() {
-        return URI.create(directory());
-    }
+    /**
+     *  <p>Get the base URI for the conjur directory service.</p>
+     *  <p><b>Note:</b> For historical reasons, the directory service is sometimes called the <em>core</em>
+     *  service.</p>
+     */
+    public abstract URI getDirectoryUri();
 
-    // TODO make this stuff thread safe!
+
+    /**
+     * The base URI for the conjur authorization (authz) service.
+     */
+    public abstract URI getAuthzUri();
+
     private static Endpoints defaultEndpoints;
-    private static final Endpoints systemEndpoints = createSystemEndpoints();
 
     /**
-     * Create endpoints configured from system properties or set globally.
-     * @warning Not thread safe
-     * @return
+     * Get global default endpoints.
+     *
+     * <p>Returns either the instance passed to {@link #setDefault(Endpoints)} {@link #DEFAULT_ENDPOINTS}
+     *
+     * @see HostedEndpoints#fromSystemProperties()
      */
-    public static Endpoints getDefault() {
-        return defaultEndpoints == null ? getSystemEndpoints() : defaultEndpoints;
+    public static Endpoints getDefault(){
+        return defaultEndpoints = getOrElse(defaultEndpoints, DEFAULT_ENDPOINTS);
     }
+
 
     /**
-     * Set global default endpoints
-     * @warning Not thread safe
-     * @param endpoints
+     * <p>Set global default endpoints, which will be returned by {@link #getDefault()}.</p>
+     *
+     * <p>Passing null to this method will cause {@link #getDefault()}to return
+     * {@link #DEFAULT_ENDPOINTS}</p>
      */
-    public static void setDefault(Endpoints endpoints){
-        defaultEndpoints = endpoints;
+    public static void setDefault(Endpoints defaultEndpoints){
+        Endpoints.defaultEndpoints = defaultEndpoints;
     }
 
-    /**
-     * Get endpoints configured from system properties
-     * @return
-     */
-    public static Endpoints getSystemEndpoints(){
-        return systemEndpoints;
-    }
-
-    public static Endpoints createSystemEndpoints(){
-        String environment = System.getProperty(ENVIRONMENT_PROPERTY, DEFAULT_ENVIRONMENT);
-        String stack = System.getProperty(STACK_PROPERTY, DEFAULT_STACK);
-        String account = System.getProperty(ACCOUNT_PROPERTY, DEFAULT_ACCOUNT);
-        return new Endpoints(environment, stack, account);
-    }
 }
