@@ -59,7 +59,9 @@ public class AuthnClient implements AuthnProvider {
     public Token authenticate() {
         // POST users/<username>/authenticate with apiKey in body
         try{
-            return authenticate.request("application/json").post(Entity.text(password), Token.class);
+            return Token.fromJson(
+                    authenticate.request("application/json").post(Entity.text(password), String.class)
+            );
         }catch(NotFoundException e){
             // shim to work around a conjur bug where authn returns 404 when given a non-existent user
             throw new NotAuthorizedException(e);
@@ -77,7 +79,7 @@ public class AuthnClient implements AuthnProvider {
      }
 
     public void updatePassword(String username, String oldPass, String newPass){
-        passwords.request().put(Entity.text(newPass));
+        passwords.request().put(Entity.text(newPass), String.class); // need to read the string for this to throw
     }
 
     private void init(){
