@@ -1,6 +1,8 @@
 package net.conjur.api;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,17 +23,17 @@ public class User {
      }
      */
     private String login;
-    @XmlElement(name="userid")
+    @JsonProperty("userid")
     private String userId;
-    @XmlElement(name="ownerid")
+    @JsonProperty("ownerid")
     private String ownerId;
-    @XmlElement(name="uidnumber")
+    @JsonProperty("uidnumber")
     private int uidNumber;
-    @XmlElement(name="roleid")
+    @JsonProperty("roleid")
     private String roleId;
-    @XmlElement(name="resource_identifier")
+    @JsonProperty("resource_identifier")
     private String resourceIdentifier;
-    @XmlElement(name="api_key")
+    @JsonProperty("api_key")
     private String apiKey;
 
     public String getUserId() {
