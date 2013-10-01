@@ -50,7 +50,7 @@ public class Variable extends Resource {
     // constructor injects a Resource from which we can initialize our client, auth providers, etc.
     @JsonCreator
     Variable(
-            @JacksonInject("resource") final Resource resource,
+            @JacksonInject final Resource resource,
             @JsonProperty("id") final String id){
         super(resource);
         this.id = id;
