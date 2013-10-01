@@ -1,15 +1,24 @@
 package net.conjur.api.authn;
 
-import java.net.URI;
-
-import net.conjur.api.Client;
+import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
-import net.conjur.util.HttpHelpers;
+import net.conjur.util.Args;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
+import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 
-import org.apache.http.Header;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ContentType;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.logging.Logger;
 
 /**
  * Conjur authentication service client.
@@ -18,61 +27,71 @@ import org.apache.http.entity.ContentType;
  * which can then be used to make authenticated calls to other conjur services.
  *
  */
-public class AuthnClient extends Client {
-    private URI uri;
+public class AuthnClient implements AuthnProvider {
+    private final String username;
+    private final String password;
+    private final Endpoints endpoints;
 
-	public AuthnClient(Endpoints endpoints) {
-		super(endpoints);
+    private Client client;
+    private WebTarget root;
+    private WebTarget login;
+    private WebTarget authenticate;
+    private WebTarget passwords;
+
+	public AuthnClient(final String username,
+                       final String password,
+                       final Endpoints endpoints) {
+        this.username = Args.notNull(username, "Username");
+        this.password = Args.notNull(password, "Password");
+        this.endpoints = Args.notNull(endpoints, "Endpoints");
+
+        init();
 	}
 
-	/**
-	 * Exchange a username/apiKey pair for a token that can be used to authenticate
-	 * future API calls.
-	 * @param username a conjur username
-	 * @param apiKey an api key as returned by {@link #login(String, String)}
-	 * @return a Token that can be used to create authenticated clients
-	 */
-	public Token authenticate(String username, String apiKey) {
+    public AuthnClient(final String username, final String password){
+        this(username, password, Endpoints.getDefault());
+    }
+
+    public AuthnClient(Credentials credentials) {
+        this(credentials.getUsername(), credentials.getPassword());
+    }
+
+    public Token authenticate() {
         // POST users/<username>/authenticate with apiKey in body
+        try{
+            return authenticate.request("application/json").post(Entity.text(password), Token.class);
+        }catch(NotFoundException e){
+            // shim to work around a conjur bug where authn returns 404 when given a non-existent user
+            throw new NotAuthorizedException(e);
+        }
+     }
 
-        Request request = Request.Post(getUri("users", username, "authenticate"))
-                .bodyString(apiKey, ContentType.TEXT_PLAIN);
-        return responseJson(request, Token.class);
-	}
+    // implementation of AuthnProvider method
+    public Token authenticate(boolean useCachedToken) {
+        return authenticate();
+    }
 
 
-	
-	/**
-	 * Exchange a Conjur username and password for an API key.
-	 * 
-	 * @param username the conjur username
-	 * @param password the password for the given username
-	 * @return an API key
-	 */
-	public String login(String username, String password){
-        // GET users/login with basic auth
-        return responseString(Request.Get(getUri("users/login"))
-                .addHeader(HttpHelpers.basicAuthHeader(username, password)));
-	}
+    public String login(){
+        return login.request("text/plain").get(String.class);
+     }
 
-    /**
-     * Change a user's password
-     * @param username the user whose password we want to change
-     * @param oldPass the user's current password or api key
-     * @param newPass the user's new password
-     */
     public void updatePassword(String username, String oldPass, String newPass){
-        response(Request.Put("users/password")
-                .addHeader(HttpHelpers.basicAuthHeader(username,oldPass))
-                .bodyString(newPass, ContentType.TEXT_PLAIN)
-        );
+        passwords.request().put(Entity.text(newPass));
+    }
+
+    private void init(){
+        client = ClientBuilder.newBuilder()
+                    .register(new HttpBasicAuthFilter(username, password))
+                    .register(JacksonFeature.class)
+                    // TODO logging support
+                    //.register(new LoggingFilter())
+                    .build();
+        final WebTarget root = client.target(endpoints.getAuthnUri()).path("users");
+        login = root.path("login");
+        authenticate = root.path(username).path("authenticate");
+        passwords = root.path("password");
     }
 
 
-    @Override
-    public URI getUri() {
-        if(uri == null)
-            uri = getEndpoints().authnUri();
-        return uri;
-    }
 }
