@@ -3,8 +3,6 @@ package net.conjur.api;
 import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.AuthnProvider;
 
-import javax.ws.rs.client.WebTarget;
-
 /**
  *
  */
@@ -14,6 +12,7 @@ public class Conjur extends Resource {
 
     public Conjur(AuthnProvider authn, Endpoints endpoints) {
         super(authn, endpoints);
+        init();
     }
 
     public Conjur(AuthnProvider authn){
@@ -28,12 +27,24 @@ public class Conjur extends Resource {
         this(new AuthnClient(username, password));
     }
 
+    public Conjur(Credentials credentials){
+        this(credentials.getUsername(), credentials.getPassword());
+    }
+
+    public Conjur(Credentials credentials, Endpoints endpoints){
+        this(credentials.getUsername(), credentials.getPassword(), endpoints);
+    }
+
     public Users users(){
         return users;
     }
 
     public Variables variables(){
         return variables;
+    }
+
+    public AuthnProvider getAuthn(){
+        return super.getAuthn();
     }
 
     private void init(){
