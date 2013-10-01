@@ -53,7 +53,7 @@ public class HostedEndpoints extends Endpoints {
         this.storage = new BasicEndpoints(
            getServiceUri("authn", account),
            getServiceUri("authz", stack),
-           getServiceUri("directory", account)
+           getServiceUri("core", account)
         );
     }
 
