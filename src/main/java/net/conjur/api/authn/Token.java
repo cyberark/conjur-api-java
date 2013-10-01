@@ -25,46 +25,57 @@ public class Token {
             // tokens use dates like 2013-10-01 18:48:32 UTC
             DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
 
-	private String data;
-	private String signature;
-	private String key;
-    @JsonProperty("timestamp")
-	private String rawTimestamp;
-    @JsonProperty("expiration") // TODO get this to conform to api
-    private String rawExpiration;
+    // Hold our fields in here to facilitate json serialization/deserialization
+    private static class Fields {
+        public String data;
+        public String signature;
+        public String key;
+        public String timestamp;
+        public String expiration;
+    }
 
-    @JsonIgnore private DateTime timestamp;
-    @JsonIgnore private DateTime expiration;
+    private Fields fields;
+    private final String json;
+    private DateTime timestamp;
+    private DateTime expiration;
+
+    Token(String json){
+        this.json = json;
+    }
+
+    private Fields fields(){
+        if(fields == null){
+            fields = JsonSupport.fromJson(json, Fields.class);
+        }
+        return fields;
+    }
 
     public String getData() {
-		return data;
+		return fields().data;
 	}
 	
 	public String getSignature() {
-		return signature;
+		return fields().signature;
 	}
 
 	public String getKey() {
-		return key;
+		return fields().key;
 	}
 
-    @JsonIgnore
-	public DateTime getTimestamp() {
-		if(timestamp == null){
-            parseTimestamps();
+    public DateTime getTimestamp(){
+        if(timestamp == null){
+            timestamp = DATE_TIME_FORMATTER.parseDateTime(fields().timestamp);
         }
         return timestamp;
-	}
+    }
 
-    @JsonIgnore
     public DateTime getExpiration(){
-        // check timestamp, because expiration can be null after we parse the timestamps
-        // if the token didn't include it.
-        if(timestamp == null){
-            parseTimestamps();
-        }
         if(expiration == null){
-            expiration = timestamp.plusSeconds(DEFAULT_LIFESPAN_SECONDS);
+            if(fields().expiration == null){
+                expiration = getTimestamp().plusSeconds(DEFAULT_LIFESPAN_SECONDS);
+            }else{
+                expiration = DATE_TIME_FORMATTER.parseDateTime(fields().expiration);
+            }
         }
         return expiration;
     }
@@ -73,7 +84,6 @@ public class Token {
         return DateTime.now().plusSeconds(seconds).isAfter(getExpiration());
     }
 
-    @JsonIgnore
     public boolean isExpired(){
         return willExpireWithin(0);
     }
@@ -84,11 +94,11 @@ public class Token {
     }
 
 	public String toJson(){
-		return JsonSupport.toJson(this);
+		return json;
 	}
 
     public static Token fromJson(String json){
-        return JsonSupport.fromJson(json, Token.class);
+        return new Token(json);
     }
 
 	public String toBase64(){
@@ -98,18 +108,8 @@ public class Token {
 
 	public String toHeader(){
         return new StringBuilder()
-                .append("Token authenticate=\"")
+                .append("Token token=\"")
                 .append(toBase64())
                 .append("\"").toString();
 	}
-
-    private void parseTimestamps(){
-        if(rawTimestamp  != null){
-            timestamp = DATE_TIME_FORMATTER.parseDateTime(rawTimestamp);
-        }
-        if(rawExpiration != null){
-            expiration = DATE_TIME_FORMATTER.parseDateTime(rawExpiration);
-        }
-    }
-
 }
