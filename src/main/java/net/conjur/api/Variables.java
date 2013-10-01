@@ -11,8 +11,9 @@ import javax.ws.rs.core.Form;
 public class Variables  extends Resource {
     private WebTarget variables;
 
-    public Variables(Resource relative) {
+    Variables(Resource relative) {
         super(relative);
+        init();
     }
 
     public Variable get(String id){
