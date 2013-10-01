@@ -1,7 +1,11 @@
 import cucumber.api.Scenario;
 import net.conjur.api.Conjur;
 import net.conjur.api.Credentials;
+import net.conjur.api.User;
+import net.conjur.api.Users;
 import net.conjur.api.authn.AuthnClient;
+
+import java.util.HashMap;
 
 public class BaseSteps {
     // TODO get these somewhere smarter
@@ -9,6 +13,21 @@ public class BaseSteps {
     public static class World{
         public Credentials adminCredentials = Credentials.fromSystemProperties();
         public Conjur conjur;
+        public User theUser;
+        private String namespace;
+
+        public String namespace(String name){
+            if(namespace == null)
+                namespace = adminClient().variables().createId();
+            if(name != null && !name.startsWith(namespace + "-")){
+                name = namespace + "-" + name;
+            }
+            return name;
+        }
+
+        public Conjur adminClient(){
+            return new Conjur(adminCredentials);
+        }
     }
 
     public Scenario current;

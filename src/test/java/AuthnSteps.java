@@ -4,9 +4,11 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.conjur.api.Conjur;
 import net.conjur.api.Credentials;
 import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.Token;
+import net.conjur.api.User;
 
 import javax.ws.rs.NotAuthorizedException;
 
@@ -81,4 +83,10 @@ public class AuthnSteps extends BaseSteps{
     public void I_show_the_token() throws Throwable {
         log("token=%s", token);
     }
+
+    @Given("^(?:that )?I am an admin$")
+    public void I_am_an_admin() throws Throwable{
+        world.conjur = world.adminClient();
+    }
+
 }
