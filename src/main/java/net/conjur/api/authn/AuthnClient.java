@@ -78,8 +78,8 @@ public class AuthnClient implements AuthnProvider {
         return login.request("text/plain").get(String.class);
      }
 
-    public void updatePassword(String username, String oldPass, String newPass){
-        passwords.request().put(Entity.text(newPass), String.class); // need to read the string for this to throw
+    public void updatePassword(String password){
+        passwords.request().put(Entity.text(password), String.class); // need to read the string for this to throw
     }
 
     private void init(){
