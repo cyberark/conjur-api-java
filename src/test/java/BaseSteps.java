@@ -4,6 +4,7 @@ import net.conjur.api.Credentials;
 import net.conjur.api.User;
 import net.conjur.api.Users;
 import net.conjur.api.authn.AuthnClient;
+import net.conjur.api.authn.CachingAuthnProvider;
 
 import java.util.HashMap;
 
@@ -26,13 +27,13 @@ public class BaseSteps {
         }
 
         public Conjur adminClient(){
-            return new Conjur(adminCredentials);
+            return new Conjur(new CachingAuthnProvider(new AuthnClient(adminCredentials)));
         }
     }
 
     public Scenario current;
 
-    public World world;
+    public static World world;
 
     public void useCredentials(Credentials credentials){
         world.conjur = new Conjur(new AuthnClient(credentials));

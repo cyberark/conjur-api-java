@@ -11,6 +11,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -42,8 +43,7 @@ public class Variable extends Resource {
     private String resourceIdentifier;
 
     private WebTarget target;
-    private WebTarget valuesTarget;
-    private WebTarget valueTarget;
+
     private boolean invalidated = false;
 
 
@@ -88,11 +88,11 @@ public class Variable extends Resource {
     }
 
     public <T> T getValue(Class<T> type){
-        return valueTarget.request(mimeType).get(type);
+        return target.path("value").request(mimeType).get(type);
     }
 
     public <T> T getValue(int version, Class<T> type){
-        return valueTarget.queryParam("version", String.valueOf(version))
+        return target.path("value").queryParam("version", String.valueOf(version))
                 .request(mimeType).get(type);
     }
 
@@ -104,18 +104,10 @@ public class Variable extends Resource {
         return getValue(version, String.class);
     }
 
-    public void addValue(String value){
+    public String addValue(String value){
         invalidated = true;
-        valuesTarget.request().put(Entity.text(value));
-    }
-
-    public <T> void addValue(T entity){
-        invalidated = true;
-        valuesTarget.request().put(Entity.entity(entity, getMimeType()));
-    }
-
-    public void delete(){
-        target.request().delete(String.class);
+        Form form = new Form("value", value);
+        return target.path("values").request().post(Entity.form(form), String.class);
     }
 
     public boolean exists(){
@@ -130,21 +122,13 @@ public class Variable extends Resource {
     }
 
     Variable update(){
-        final Variable variable = target.request(MediaType.APPLICATION_JSON_TYPE).get(Variable.class);
-        mimeType = variable.mimeType;
-        kind = variable.kind;
-        ownerId = variable.ownerId;
-        userId = variable.userId;
-        resourceIdentifier = variable.resourceIdentifier;
-        versionCount = variable.versionCount;
+        final Variable v = target.request(MediaType.APPLICATION_JSON_TYPE).get(Variable.class);
+        versionCount = v.versionCount;
         invalidated = false;
         return this;
     }
 
     private void buildTargets(){
-        target = target(getEndpoints().getDirectoryUri())
-                .path("variables").path(getId());
-        valuesTarget = target.path("values");
-        valueTarget = target.path("value");
+        target = target(getEndpoints().getDirectoryUri()).path("variables").path(id);
     }
 }

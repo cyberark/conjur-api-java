@@ -2,6 +2,7 @@ package net.conjur.api;
 
 import net.conjur.api.authn.AuthnProvider;
 import net.conjur.api.authn.TokenAuthFilter;
+import net.conjur.util.logging.LogFilter;
 import org.codehaus.jackson.map.InjectableValues;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.ClientConfig;
@@ -50,7 +51,7 @@ public class Resource {
 
     protected Client createClient(){
         return ClientBuilder.newBuilder()
-                .register(new LoggingFilter(Logger.getLogger(LoggingFilter.class.getName()), true))
+                .register(new LogFilter())
                 .register(new TokenAuthFilter(authn))
                 .register(JacksonFeature.class)
                 .register(contextResolver)

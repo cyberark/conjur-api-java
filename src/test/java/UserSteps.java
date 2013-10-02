@@ -70,13 +70,13 @@ public class UserSteps extends BaseSteps{
     }
 
 
-    @Given("^a user named \"([^\"]*)\"(?: with a password)?$")
+    @Given("^a user named \"([^\"]*)\"( with a password)?$")
     public void a_user_named_with_a_password(String login, boolean withPassword) throws Throwable {
         Conjur client =world.adminClient();
         if(withPassword){
-            client.users().create(world.namespace(login), password);
+            world.theUser = client.users().create(world.namespace(login), password);
         }else{
-            client.users().create(world.namespace(login));
+            world.theUser = client.users().create(world.namespace(login));
         }
     }
 

@@ -1,12 +1,11 @@
 package net.conjur.api;
 
 
-import net.conjur.util.Lang;
+import net.conjur.util.Args;
 
 import java.io.Serializable;
 import java.net.URI;
-
-import static net.conjur.util.Lang.getOrElse;
+import java.util.Properties;
 
 /**
  * An <code>Endpoints</code> instance provides endpoint URIs for the various conjur services.
@@ -16,61 +15,78 @@ import static net.conjur.util.Lang.getOrElse;
  * @see HostedEndpoints
  * @see BasicEndpoints
  */
-public abstract class Endpoints implements Serializable {
-    /**
-     * Default endpoints implementation for convenience.  Uses
-     * {@link net.conjur.api.HostedEndpoints#fromSystemProperties()}.
-     */
-    public static final Endpoints DEFAULT_ENDPOINTS = HostedEndpoints.fromSystemProperties();
+public class Endpoints implements Serializable {
+    public static final Endpoints DEFAULT_ENDPOINTS = fromSystemProperties();
 
-    // java constructors are silly
-    Endpoints(){}
+    private final URI authnUri;
+    private final URI authzUri;
+    private final URI directoryUri;
 
-    /**
-     * Return the conjur account for this endpoints
-     */
-    public abstract String getAccount();
+    private Endpoints(final URI authnUri,
+                     final URI authzUri,
+                     final URI directoryUri){
+        this.authnUri = Args.notNull(authnUri, "authnUri");
+        this.authzUri = Args.notNull(authzUri, "authzUri");
+        this.directoryUri = Args.notNull(directoryUri, "directoryUri");
+    }
 
-    /**
-     * Get the base URI for the conjur authentication (authn) service.
-     */
-    public abstract URI getAuthnUri();
+    private Endpoints(String authnUri, String authzUri, String directoryUri){
+        // My kingdom for varargs and map!
+        this(URI.create(authnUri), URI.create(authzUri), URI.create(directoryUri));
+    }
+    public URI getAuthnUri(){ return authnUri; }
+    public URI getDirectoryUri(){ return directoryUri; }
+    public URI getAuthzUri(){ return authzUri; };
 
-    /**
-     *  <p>Get the base URI for the conjur directory service.</p>
-     *  <p><b>Note:</b> For historical reasons, the directory service is sometimes called the <em>core</em>
-     *  service.</p>
-     */
-    public abstract URI getDirectoryUri();
+    public static Endpoints of(String authnUri, String authzUri, String directoryUri){
+        return new Endpoints(authnUri,authzUri,directoryUri);
+    }
 
+    public static Endpoints of(URI authnUri, URI authzUri, URI directoryUri){
+        return new Endpoints(authnUri, authzUri, directoryUri);
+    }
 
-    /**
-     * The base URI for the conjur authorization (authz) service.
-     */
-    public abstract URI getAuthzUri();
+    public static Endpoints getHostedEndpoints(String stack, String account){
+        return of(
+           getHostedServiceUri("authn", account),
+           getHostedServiceUri("authz", stack, account),
+           getHostedServiceUri("core", account)
+        );
+    }
 
-    private static Endpoints defaultEndpoints;
-
-    /**
-     * Get global default endpoints.
-     *
-     * <p>Returns either the instance passed to {@link #setDefault(Endpoints)} {@link #DEFAULT_ENDPOINTS}
-     *
-     * @see HostedEndpoints#fromSystemProperties()
-     */
-    public static Endpoints getDefault(){
-        return defaultEndpoints = getOrElse(defaultEndpoints, DEFAULT_ENDPOINTS);
+    public static Endpoints getHostedEndpoints(String account){
+        return getHostedEndpoints("v3", account);
     }
 
 
-    /**
-     * <p>Set global default endpoints, which will be returned by {@link #getDefault()}.</p>
-     *
-     * <p>Passing null to this method will cause {@link #getDefault()}to return
-     * {@link #DEFAULT_ENDPOINTS}</p>
-     */
+    public static Endpoints fromSystemProperties(){
+        return fromProperties(System.getProperties());
+    }
+
+    public static Endpoints fromProperties(Properties properties){
+        return getHostedEndpoints(
+                properties.getProperty("net.conjur.api.stack", "v3"),
+                properties.getProperty("net.conjur.api.account", "sandbox")
+        );
+    }
+
+    public static Endpoints getDefault(){
+        return defaultEndpoints == null ? DEFAULT_ENDPOINTS : defaultEndpoints;
+    }
+
     public static void setDefault(Endpoints defaultEndpoints){
         Endpoints.defaultEndpoints = defaultEndpoints;
     }
+
+    private static URI getHostedServiceUri(String service, String name){ return getHostedServiceUri(service, name, ""); }
+
+    private static URI getHostedServiceUri(String service, String name, String path){
+        // returns a uri like https://{service}-{name}-conjur.herokuapp.com/{path}
+        return URI.create(String.format("https://%s-%s-conjur.herokuapp.com/%s", service, name, path));
+    }
+
+    private static Endpoints defaultEndpoints = DEFAULT_ENDPOINTS;
+
+
 
 }

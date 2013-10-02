@@ -3,10 +3,10 @@ package net.conjur.api.authn;
 import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.util.Args;
+import net.conjur.util.logging.LogFilter;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 
@@ -87,7 +87,7 @@ public class AuthnClient implements AuthnProvider {
                     .register(new HttpBasicAuthFilter(username, password))
                     .register(JacksonFeature.class)
                     // TODO logging support
-                    //.register(new LoggingFilter())
+                    .register(new LogFilter())
                     .build();
         final WebTarget root = client.target(endpoints.getAuthnUri()).path("users");
         login = root.path("login");
