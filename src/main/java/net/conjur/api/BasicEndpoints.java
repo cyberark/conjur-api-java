@@ -12,28 +12,35 @@ public class BasicEndpoints extends Endpoints {
     public static final String AUTHN_URI_PROPERTY = "net.conjur.api.basicEndpoints.authnUri";
     public static final String AUTHZ_URI_PROPERTY = "net.conjur.api.basicEndpoints.authzUri";
     public static final String DIRECTORY_URI_PROPERTY = "net.conjur.api.basicEndpoints.directoryUri";
+    public static final String ACCOUNT_PROPERTY = "net.conjur.api.account";
 
-
+    private String account;
     private URI authnUri;
     private URI authzUri;
     private URI directoryUri;
 
     public BasicEndpoints(){}
 
-    public BasicEndpoints(final URI authnUri,
-                          final URI authzUri,
-                          final URI directoryUri) {
+    public BasicEndpoints(
+            final String account,
+            final URI authnUri,
+            final URI authzUri,
+            final URI directoryUri) {
         this.authnUri = authnUri;
         this.authzUri = authzUri;
         this.directoryUri = directoryUri;
+        this.account = account;
     }
 
-    public BasicEndpoints(final String authnUri,
-                          final String authzUri,
-                          final String directoryUri){
+    public BasicEndpoints(
+            final String account,
+            final String authnUri,
+            final String authzUri,
+            final String directoryUri){
         setAuthnUri(authnUri);
         setDirectoryUri(directoryUri);
         setAuthzUri(authzUri);
+        this.account = account;
     }
 
     /**
@@ -56,7 +63,9 @@ public class BasicEndpoints extends Endpoints {
      */
     public static BasicEndpoints fromProperties(final Properties properties){
         Args.notNull(properties);
-        return new BasicEndpoints(properties.getProperty(AUTHN_URI_PROPERTY),
+        return new BasicEndpoints(
+                properties.getProperty(ACCOUNT_PROPERTY),
+                properties.getProperty(AUTHN_URI_PROPERTY),
                 properties.getProperty(AUTHZ_URI_PROPERTY),
                 properties.getProperty(DIRECTORY_URI_PROPERTY));
     }
@@ -74,6 +83,15 @@ public class BasicEndpoints extends Endpoints {
     @Override
     public URI getAuthzUri() {
         return authzUri;
+    }
+
+    @Override
+    public String getAccount(){
+        return account;
+    }
+
+    public void setAccount(final String account){
+        this.account = account;
     }
 
     public void setAuthnUri(final URI authnUri) {

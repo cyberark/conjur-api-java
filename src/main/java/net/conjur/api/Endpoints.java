@@ -27,6 +27,11 @@ public abstract class Endpoints implements Serializable {
     Endpoints(){}
 
     /**
+     * Return the conjur account for this endpoints
+     */
+    public abstract String getAccount();
+
+    /**
      * Get the base URI for the conjur authentication (authn) service.
      */
     public abstract URI getAuthnUri();

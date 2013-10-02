@@ -51,11 +51,14 @@ public class HostedEndpoints extends Endpoints {
         account = getOrElse(account, DEFAULT_ACCOUNT);
         stack = getOrElse(stack, DEFAULT_STACK);
         this.storage = new BasicEndpoints(
+           account,
            getServiceUri("authn", account),
            getServiceUri("authz", stack),
            getServiceUri("core", account)
         );
     }
+
+
 
     /**
      * Create an instance using the given account and {@link HostedEndpoints#DEFAULT_STACK}.
@@ -104,6 +107,11 @@ public class HostedEndpoints extends Endpoints {
     @Override
     public URI getAuthzUri() {
         return storage.getAuthzUri();  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String getAccount(){
+        return storage.getAccount();
     }
 
     private static URI getServiceUri(String service, String designator){
