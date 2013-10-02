@@ -3,6 +3,8 @@ package net.conjur.api;
 import net.conjur.api.authn.AuthnProvider;
 import net.conjur.util.Args;
 
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
@@ -36,25 +38,27 @@ public class Users extends Resource {
     }
 
     public boolean exists(final String username){
-        Response response = roles.resolveTemplate("id", roleId(username)).request().head();
-        if(response.getStatusInfo() == Response.Status.NOT_FOUND)
+        try{
+            // we need to read it as a string to make jersey throw an exception, I believe.
+            roles.resolveTemplate("id", username).request().get(String.class);
+            return true;
+        }catch(ForbiddenException e){
+            // this indicates that the user does, in fact, exist, we just can't
+            // access them
+            return true;
+        }catch(NotFoundException e){
             return false;
-        if(response.getStatusInfo() == Response.Status.FORBIDDEN)
-            return true;
-        if(response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL)
-            return true;
-        // should throw?
-        response.readEntity(String.class);
-        throw new IllegalStateException("should be unreachable");
+        }
     }
 
-    private String roleId(final String username){
-        return "user:" + username;
-    }
 
     private void init(){
         users = target(getEndpoints().getDirectoryUri()).path("users");
-        roles = target(getEndpoints().getAuthzUri()).path("roles/{id}");
+        roles = target(getEndpoints().getAuthzUri())
+                .path(getEndpoints().getAccount())
+                .path("roles")
+                .path("user")
+                .path("{id}");
     }
 
     private WebTarget users(){

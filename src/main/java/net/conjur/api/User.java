@@ -8,7 +8,6 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlElement;
 
 public class User {
-    /*package*/ User(){}
 
     /*
      * Users#create returns json like
@@ -35,6 +34,8 @@ public class User {
     private String resourceIdentifier;
     @JsonProperty("api_key")
     private String apiKey;
+
+
 
     public String getUserId() {
         return userId;
