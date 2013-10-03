@@ -33,7 +33,7 @@ public class Resource {
         this(relative.getAuthn(), relative.getEndpoints());
     }
 
-    protected AuthnProvider getAuthn() {
+    public AuthnProvider getAuthn() {
         return authn;
     }
 
@@ -50,12 +50,23 @@ public class Resource {
     }
 
     protected Client createClient(){
-        return ClientBuilder.newBuilder()
-                .register(new LogFilter())
+        ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new TokenAuthFilter(authn))
                 .register(JacksonFeature.class)
-                .register(contextResolver)
-                .build();
+                .register(contextResolver);
+        if(requestLoggingEnabled()){
+            builder.register(new LogFilter());
+        }
+        return builder.build();
+    }
+
+    // TODO this is a stupid hack
+    private static final boolean requestLoggingEnabled(){
+        final String prop = System.getProperty("net.conjur.api.resource.requestLogging");
+        if(prop != null && prop.toLowerCase().equals("true")){
+            return true;
+        }
+        return false;
     }
 
     private final ContextResolver<ObjectMapper> contextResolver = new ContextResolver<ObjectMapper>() {

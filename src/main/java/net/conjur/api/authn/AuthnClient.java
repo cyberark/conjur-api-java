@@ -83,16 +83,27 @@ public class AuthnClient implements AuthnProvider {
     }
 
     private void init(){
-        client = ClientBuilder.newBuilder()
+        final ClientBuilder builder = ClientBuilder.newBuilder()
                     .register(new HttpBasicAuthFilter(username, password))
-                    .register(JacksonFeature.class)
-                    // TODO logging support
-                    .register(new LogFilter())
-                    .build();
+                    .register(JacksonFeature.class);
+
+        if(requestLoggingEnabled()){
+            builder.register(new LogFilter());
+        }
+        client = builder.build();
         final WebTarget root = client.target(endpoints.getAuthnUri()).path("users");
         login = root.path("login");
         authenticate = root.path(username).path("authenticate");
         passwords = root.path("password");
+    }
+
+    // TODO this is a stupid hack
+    private static final boolean requestLoggingEnabled(){
+        final String prop = System.getProperty("net.conjur.api.authn.requestLogging");
+        if(prop != null && prop.toLowerCase().equals("true")){
+            return true;
+        }
+        return false;
     }
 
 

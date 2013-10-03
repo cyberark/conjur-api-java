@@ -1,4 +1,4 @@
-package net.conjur
+package net.conjur.api.specs.support
 
 import org.joda.time.{DateTimeUtils, DateTime}
 

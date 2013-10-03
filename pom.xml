@@ -63,7 +63,7 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>info.cukes</groupId>
-      <artifactId>cucumber-java</artifactId>
+      <artifactId>cucumber-scala_2.10</artifactId>
       <version>1.1.5</version>
       <scope>test</scope>
     </dependency>
@@ -96,6 +96,11 @@
       <artifactId>scalatest_2.10</artifactId>
       <version>2.0.M8</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest-maven-plugin</artifactId>
+      <version>1.0-M2</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -160,9 +165,13 @@
         <artifactId>scalatest-maven-plugin</artifactId>
         <version>1.0-M2</version>
         <configuration>
-          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-          <junitxml>.</junitxml>
-          <filereports>WDF TestSuite.txt</filereports>
+          <logForkedProcessCommand>true</logForkedProcessCommand>
+          <systemProperties>
+            <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
+            <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
+            <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
+            <org.apache.commons.logging.simplelog.log.net.conjur.util.logging.LogFilter>error</org.apache.commons.logging.simplelog.log.net.conjur.util.logging.LogFilter>
+          </systemProperties>
         </configuration>
         <executions>
           <execution>

@@ -1,8 +1,9 @@
-package net.conjur
+package net.conjur.api.specs
 
 import org.scalatest.{ShouldMatchers, GivenWhenThen, FunSpec}
 import net.conjur.api.authn.Token
 import org.joda.time.{DateTime, DateTimeZone}
+import net.conjur.api.specs.support.Tardis
 
 /**
  *
