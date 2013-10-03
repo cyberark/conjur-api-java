@@ -3,6 +3,7 @@ package net.conjur.util;
  * Copied from org.apache.http.utils.Args to avoid dependencies.
  */
 
+import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -87,5 +88,9 @@ public class Args {
         return n;
     }
 
+
+    public static <T> T notNull(T value) {
+        return notNull(value, "argument");
+    }
 }
 

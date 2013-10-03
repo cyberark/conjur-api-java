@@ -2,8 +2,6 @@ package net.conjur.util;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.util.Args;
-
 /*
  * Copied from org.apache.http.utils.TextUtils to avoid dependencies.
  */

@@ -1,81 +1,92 @@
 package net.conjur.api;
 
 
+import net.conjur.util.Args;
+
+import java.io.Serializable;
 import java.net.URI;
+import java.util.Properties;
 
-public class Endpoints {
-	public static final int AUTHN_PORT = 5000;
-	public static final int AUTHZ_PORT = 5100;
-	public static final int DIRECTORY_PORT = 5200;
-	
-	private final String environment;
-	
-	private final String stack;
-	
-	private final String account;
-	
-	public Endpoints(String environment, String stack, String account){
-		this.environment = environment;
-		this.stack = stack;
-		this.account = account;
-	}
-	
-	public Endpoints(String stack, String account){
-		this("production", stack, account);
-	}
-	
-	
-	
-	public String authn(){
-		return Endpoints.authnUrl(environment, stack, account);
-	}
-	
-	public String authz(){
-		return Endpoints.authzUrl(environment, stack, account);
-	}
-	
-	public String directory(){
-		return Endpoints.directoryUrl(environment, stack, account);
-	}
-	
-	public static String authnUrl(String environment, String stack, String account){
-		if(useLocalhost(environment)){
-			return localEndpoint(AUTHN_PORT);
-		}
-		return realEndpoint("authn", account);
-	}
-	
-	public static String authzUrl(String environment, String stack, String account){
-		if(useLocalhost(environment))
-			return localEndpoint(AUTHZ_PORT);
-		return realEndpoint("authz", stack);
-	}
-	
-	public static String directoryUrl(String environment, String stack, String account){
-		if(useLocalhost(environment))
-			return localEndpoint(DIRECTORY_PORT);
-		return realEndpoint("core", account);
-	}
+/**
+ * An <code>Endpoints</code> instance provides endpoint URIs for the various conjur services.
+ * This is an abstract base class allowing users to provide their own endpoints, for example when
+ * the conjur services are being hosted on premises.
+ *
+ * @see HostedEndpoints
+ * @see BasicEndpoints
+ */
+public class Endpoints implements Serializable {
+    public static final Endpoints DEFAULT_ENDPOINTS = fromSystemProperties();
 
-	private static boolean useLocalhost(String environment){
-		if(environment == null)
-			throw new NullPointerException();
-		return "test".equals(environment) || "development".equals(environment);
-	}
-	
-	private static String localEndpoint(int port){
-		return String.format("http://localhost:%d", port);
-	}
-	
-	private static String realEndpoint(String service, String name){
-		return String.format("https://%s-%s-conjur.herokuapp.com", service, name);
-	}
+    private final URI authnUri;
+    private final URI authzUri;
+    private final URI directoryUri;
 
-    public URI authnUri() {
-        return URI.create(authn());
+    private Endpoints(final URI authnUri,
+                     final URI authzUri,
+                     final URI directoryUri){
+        this.authnUri = Args.notNull(authnUri, "authnUri");
+        this.authzUri = Args.notNull(authzUri, "authzUri");
+        this.directoryUri = Args.notNull(directoryUri, "directoryUri");
     }
 
-    public URI directoryUri() {
-        return URI.create(directory());
+    private Endpoints(String authnUri, String authzUri, String directoryUri){
+        // My kingdom for varargs and map!
+        this(URI.create(authnUri), URI.create(authzUri), URI.create(directoryUri));
     }
+    public URI getAuthnUri(){ return authnUri; }
+    public URI getDirectoryUri(){ return directoryUri; }
+    public URI getAuthzUri(){ return authzUri; };
+
+    public static Endpoints of(String authnUri, String authzUri, String directoryUri){
+        return new Endpoints(authnUri,authzUri,directoryUri);
+    }
+
+    public static Endpoints of(URI authnUri, URI authzUri, URI directoryUri){
+        return new Endpoints(authnUri, authzUri, directoryUri);
+    }
+
+    public static Endpoints getHostedEndpoints(String stack, String account){
+        return of(
+           getHostedServiceUri("authn", account),
+           getHostedServiceUri("authz", stack, account),
+           getHostedServiceUri("core", account)
+        );
+    }
+
+    public static Endpoints getHostedEndpoints(String account){
+        return getHostedEndpoints("v3", account);
+    }
+
+
+    public static Endpoints fromSystemProperties(){
+        return fromProperties(System.getProperties());
+    }
+
+    public static Endpoints fromProperties(Properties properties){
+        return getHostedEndpoints(
+                properties.getProperty("net.conjur.api.stack", "v3"),
+                properties.getProperty("net.conjur.api.account", "sandbox")
+        );
+    }
+
+    public static Endpoints getDefault(){
+        return defaultEndpoints == null ? DEFAULT_ENDPOINTS : defaultEndpoints;
+    }
+
+    public static void setDefault(Endpoints defaultEndpoints){
+        Endpoints.defaultEndpoints = defaultEndpoints;
+    }
+
+    private static URI getHostedServiceUri(String service, String name){ return getHostedServiceUri(service, name, ""); }
+
+    private static URI getHostedServiceUri(String service, String name, String path){
+        // returns a uri like https://{service}-{name}-conjur.herokuapp.com/{path}
+        return URI.create(String.format("https://%s-%s-conjur.herokuapp.com/%s", service, name, path));
+    }
+
+    private static Endpoints defaultEndpoints = DEFAULT_ENDPOINTS;
+
+
+
 }
