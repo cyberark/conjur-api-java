@@ -1,81 +1,115 @@
 package net.conjur.api.authn;
 
+import net.conjur.util.JsonSupport;
 import net.conjur.util.TextUtils;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.Header;
-import org.apache.http.auth.AUTH;
-import org.apache.http.message.BasicHeader;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import org.apache.http.util.CharsetUtils;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.JsonSerializer;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.charset.Charset;
 
 /**
- * Represents a Conjur API token.
- * 
- * This implementation doesn't support creation of tokens directly, only deserialization
- * from JSON.  This is because we don't include implementations of signature and timestamping
- * algorithms.
+ * Represents a Conjur API authentication token.
  */
 public class Token {
+    public static final int DEFAULT_LIFESPAN_SECONDS = 8 * 60;
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            // tokens use dates like 2013-10-01 18:48:32 UTC
+            DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
 
-	// no-arg constructor to make Gson happy
-	private Token(){}
-	
-	// can't make these final, Gson needs to write them after constructing
-	// object.
-	private String data;
-	private String signature;
-	private String key;
-	private String timestamp;
-	
-	public String getData() {
-		return data;
-	}
+    // Hold our fields in here to facilitate json serialization/deserialization
+    private static class Fields {
+        public String data;
+        public String signature;
+        public String key;
+        public String timestamp;
+        public String expiration;
+    }
 
-	/**
-	 * Alias for getData to clarify that the data is the username.
-	 * @return the Conjur username for this token
-	 */
-	public String getUsername(){
-		return getData();
+    private Fields fields;
+    private final String json;
+    private DateTime timestamp;
+    private DateTime expiration;
+
+    Token(String json){
+        this.json = json;
+    }
+
+    private Fields fields(){
+        if(fields == null){
+            fields = JsonSupport.fromJson(json, Fields.class);
+        }
+        return fields;
+    }
+
+    public String getData() {
+		return fields().data;
 	}
 	
 	public String getSignature() {
-		return signature;
+		return fields().signature;
 	}
 
 	public String getKey() {
-		return key;
+		return fields().key;
 	}
 
-	public String getTimestamp() {
-		return timestamp;
-	}
-	
+    public DateTime getTimestamp(){
+        if(timestamp == null){
+            timestamp = DATE_TIME_FORMATTER.parseDateTime(fields().timestamp);
+        }
+        return timestamp;
+    }
+
+    public DateTime getExpiration(){
+        if(expiration == null){
+            if(fields().expiration == null){
+                expiration = getTimestamp().plusSeconds(DEFAULT_LIFESPAN_SECONDS);
+            }else{
+                expiration = DATE_TIME_FORMATTER.parseDateTime(fields().expiration);
+            }
+        }
+        return expiration;
+    }
+
+    public boolean willExpireWithin(int seconds){
+        return DateTime.now().plusSeconds(seconds).isAfter(getExpiration());
+    }
+
+    public boolean isExpired(){
+        return willExpireWithin(0);
+    }
+
+
+    public String toString(){
+        return toJson();
+    }
+
 	public String toJson(){
-		return new Gson().toJson(this);
+		return json;
 	}
+
+    public static Token fromJson(String json){
+        return new Token(json);
+    }
 
 	public String toBase64(){
-		return Base64.encodeBase64URLSafeString(toJson().getBytes());
+        // NB url safe mode *does not* work
+		return Base64.encodeBase64String(toJson().getBytes());
 	}
 
-	public String toHeaderValue(){
+	public String toHeader(){
         return new StringBuilder()
                 .append("Token token=\"")
                 .append(toBase64())
                 .append("\"").toString();
-	}
-	
-	public Header toHeader(String name){
-		return new BasicHeader(name, toHeaderValue());
-	}
-	
-	public Header toHeader(){
-		return toHeader(AUTH.WWW_AUTH_RESP);
 	}
 }
