@@ -13,6 +13,10 @@ if [[ ! -z $CONJUR_STACK ]] ; then
 fi
 ARGS="$ARGS -Dnet.conjur.api.resource.requestLogging=$CONJUR_RESOURCE_LOGGING"
 ARGS="$ARGS -Dnet.conjur.api.authn.requestLogging=$CONJUR_AUTHN_LOGGING"
-ARGS="$ARGS net.conjur.api.examples.BasicUsage"
+NAME="BasicUsage"
+if [[ ! -z $1 ]] ; then
+    NAME=$1
+fi
+ARGS="$ARGS net.conjur.api.examples.$NAME"
 echo "JVM args=$ARGS"
 mvn -q exec:exec -Dexec.executable="java" -Dexec.args="$ARGS"
