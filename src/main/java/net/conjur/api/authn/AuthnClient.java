@@ -91,7 +91,7 @@ public class AuthnClient implements AuthnProvider {
             builder.register(new LogFilter());
         }
         client = builder.build();
-        final WebTarget root = client.target(endpoints.getAuthnUri()).path("users");
+        root = client.target(endpoints.getAuthnUri()).path("users");
         login = root.path("login");
         authenticate = root.path(username).path("authenticate");
         passwords = root.path("password");
