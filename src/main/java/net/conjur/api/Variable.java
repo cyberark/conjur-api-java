@@ -123,7 +123,13 @@ public class Variable extends Resource {
 
     Variable update(){
         final Variable v = target.request(MediaType.APPLICATION_JSON_TYPE).get(Variable.class);
+        id = v.id;
         versionCount = v.versionCount;
+        mimeType = v.mimeType;
+        kind = v.kind;
+        ownerId = v.ownerId;
+        userId = v.userId;
+        resourceIdentifier = v.resourceIdentifier;
         invalidated = false;
         return this;
     }
