@@ -4,7 +4,7 @@
 
   <groupId>net.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 
   <name>${project.artifactId}-${project.version}</name>
   <description>Client for the Conjur API</description>
@@ -149,7 +149,8 @@
             <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
             <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
             <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
-            <org.apache.commons.logging.simplelog.log.net.conjur.util.logging.LogFilter>error</org.apache.commons.logging.simplelog.log.net.conjur.util.logging.LogFilter>
+            <net.conjur.api.authn.requestLogging>${env.CONJUR_LOG_AUTHN}</net.conjur.api.authn.requestLogging>
+            <net.conjur.api.resource.requestLogging>${env.CONJUR_LOG_RESOURCE}</net.conjur.api.resource.requestLogging>
           </systemProperties>
         </configuration>
         <executions>
