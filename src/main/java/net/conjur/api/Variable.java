@@ -131,4 +131,17 @@ public class Variable extends Resource {
     private void buildTargets(){
         target = target(getEndpoints().getDirectoryUri()).path("variables").path(id);
     }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "resourceIdentifier='" + resourceIdentifier + '\'' +
+                ", userId='" + userId + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", versionCount=" + versionCount +
+                ", kind='" + kind + '\'' +
+                ", mimeType='" + mimeType + '\'' +
+                ", id='" + id + '\'' +
+                '}';
+    }
 }
