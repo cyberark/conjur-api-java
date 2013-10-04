@@ -1,10 +1,11 @@
 package net.conjur.api.integration
 
 import scala.collection.mutable
-import net.conjur.api.{User, Credentials, Conjur}
+import net.conjur.api.{Endpoints, User, Credentials, Conjur}
 import org.scalatest._
 import net.conjur.api.authn.CachingAuthnProvider
 import scala.util.Random
+import org.apache.commons.logging.LogFactory
 
 object RandomString {
   private lazy val pattern = "^(.*?)\\$(\\d+)\\$(.*)$".r
@@ -52,8 +53,14 @@ trait TestCredentials {
 
 
 trait ConjurFixtures extends SuiteMixin
-    with TestCredentials { this: Suite =>
+    with TestCredentials
+    with BeforeAndAfterAll { this: Suite =>
   import RandomString._
+
+  lazy val log = LogFactory getLog "net.api.conjur"
+  override def beforeAll = {
+    log.info("Conjur configured with endpoints " + Endpoints.getDefault)
+   }
 
   private val users = mutable.Map.empty[String, ClientWrapper]
 
