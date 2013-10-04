@@ -143,6 +143,13 @@
         <groupId>org.scalatest</groupId>
         <artifactId>scalatest-maven-plugin</artifactId>
         <version>1.0-M2</version>
+        <configuration>
+          <systemProperties>
+            <net.conjur.api.credentials>${net.conjur.api.credentials}</net.conjur.api.credentials>
+            <net.conjur.api.account>${net.conjur.api.account}</net.conjur.api.account>
+            <net.conjur.api.stack>${net.conjur.api.stack}</net.conjur.api.stack>
+          </systemProperties>
+        </configuration>
         <executions>
           <execution>
             <id>test</id>

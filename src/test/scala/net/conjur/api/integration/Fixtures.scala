@@ -10,10 +10,8 @@ object RandomString {
   private lazy val pattern = "^(.*?)\\$(\\d+)\\$(.*)$".r
   def randomString(n:Int):String = List.fill(n)(Random.nextPrintableChar()).mkString
   def randomString:String = randomString(12)
-  def randomString(fmt:String):String = fmt match {
-    case pattern(before, count, after) => before + randomString(count) + after
-    case s => throw new IllegalArgumentException(s"invalid format: $s")
-  }
+  def randomString(prefix:String):String = prefix + randomString
+  def randomString(prefix:String, count:Int):String = prefix + randomString(count)
 }
 
 trait RandomString
@@ -88,6 +86,6 @@ trait ConjurFixtures extends SuiteMixin
   def loginAs(name:Symbol):ClientWrapper = loginAs(name.toString)
 
 
-  def randomUsername = randomString("user-$8$")
-  def randomPassword = randomString("$8")
+  def randomUsername = randomString("user-",8)
+  def randomPassword = randomString(8)
 }

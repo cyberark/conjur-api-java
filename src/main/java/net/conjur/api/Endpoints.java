@@ -12,8 +12,6 @@ import java.util.Properties;
  * This is an abstract base class allowing users to provide their own endpoints, for example when
  * the conjur services are being hosted on premises.
  *
- * @see HostedEndpoints
- * @see BasicEndpoints
  */
 public class Endpoints implements Serializable {
     public static final Endpoints DEFAULT_ENDPOINTS = fromSystemProperties();
