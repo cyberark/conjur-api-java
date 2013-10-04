@@ -6,26 +6,17 @@ import org.scalatest._
 import net.conjur.api.authn.CachingAuthnProvider
 import scala.util.Random
 
-trait RandomStringLike {
-  def ++ = next
-  def next:String
-}
-
-object RandomString extends RandomStringLike {
-  private class Impl(prefix:String, length:Int) extends RandomStringLike {
-    def next = prefix + List.fill(length)(Random.nextPrintableChar()).mkString
+object RandomString {
+  private lazy val pattern = "^(.*?)\\$(\\d+)\\$(.*)$".r
+  def randomString(n:Int):String = List.fill(n)(Random.nextPrintableChar()).mkString
+  def randomString:String = randomString(12)
+  def randomString(fmt:String):String = fmt match {
+    case pattern(before, count, after) => before + randomString(count) + after
+    case s => throw new IllegalArgumentException(s"invalid format: $s")
   }
-
-  private lazy val impl = new Impl("", 6)
-
-  def apply(prefix:String, length:Int):RandomStringLike = new Impl(prefix, length)
-  def apply(prefix:String):RandomStringLike = new Impl(prefix, 16)
-  def apply(length:Int):RandomStringLike = new Impl("", length)
-  def apply():RandomStringLike = new Impl("", 6)
-
-  def next = impl.next
-
 }
+
+trait RandomString
 
 object ClientWrapper {
   private val clients = mutable.Map.empty[Credentials, Conjur]
@@ -46,8 +37,25 @@ class ClientWrapper(val credentials:Credentials) {
   def withPassword(pw:String) = ClientWrapper(login, pw)
 }
 
+object TestCredentials {
+  private lazy val pattern = "([^:]+):(.+)".r
+  lazy val credentials = {
+    System.getProperty(Credentials.CREDENTIALS_PROPERTY) match {
+      case null => throw new Exception("no credentials set in system property" + Credentials.CREDENTIALS_PROPERTY)
+      case pattern(login, password) => new Credentials(login, password)
+      case s => throw new Exception("credentials must be like 'username:password' (got '" + s + "'")
+    }
+  }
+}
 
-trait ConjurFixtures extends SuiteMixin { this: Suite =>
+trait TestCredentials {
+  def credentials = TestCredentials.credentials
+}
+
+
+trait ConjurFixtures extends SuiteMixin
+    with TestCredentials { this: Suite =>
+  import RandomString._
 
   private val users = mutable.Map.empty[String, ClientWrapper]
 
@@ -62,7 +70,7 @@ trait ConjurFixtures extends SuiteMixin { this: Suite =>
   def ns(s:String):String = if(s.startsWith(ns)) s else ns + "-" + s
   def ns(s:Symbol):String = ns(s.toString)
 
-  def admin : ClientWrapper = Credentials.fromSystemProperties
+  def admin : ClientWrapper = credentials
 
   def createUser(login:String):User = {
     val user = admin.users create ns(login)
@@ -80,6 +88,6 @@ trait ConjurFixtures extends SuiteMixin { this: Suite =>
   def loginAs(name:Symbol):ClientWrapper = loginAs(name.toString)
 
 
-  def randomUsername = RandomString("login-", 6) ++
-  def randomPassword = RandomString() ++
+  def randomUsername = randomString("user-$8$")
+  def randomPassword = randomString("$8")
 }

@@ -143,16 +143,6 @@
         <groupId>org.scalatest</groupId>
         <artifactId>scalatest-maven-plugin</artifactId>
         <version>1.0-M2</version>
-        <configuration>
-          <logForkedProcessCommand>true</logForkedProcessCommand>
-          <systemProperties>
-            <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
-            <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
-            <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
-            <net.conjur.api.authn.requestLogging>${env.CONJUR_LOG_AUTHN}</net.conjur.api.authn.requestLogging>
-            <net.conjur.api.resource.requestLogging>${env.CONJUR_LOG_RESOURCE}</net.conjur.api.resource.requestLogging>
-          </systemProperties>
-        </configuration>
         <executions>
           <execution>
             <id>test</id>

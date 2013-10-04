@@ -9,8 +9,8 @@ import org.mockito.Matchers._
 import net.conjur.api.specs.support.{AuthnClientBehaviors, AuthnProviderBehaviors, Tardis}
 import scala.collection.mutable
 
-trait HasAuthnClients {
-  def admin = new AuthnClient(Credentials.fromSystemProperties())
+trait HasAuthnClients extends TestCredentials {
+  def admin = new AuthnClient(credentials)
   def bogus = new AuthnClient("bogus", "shmufogus")
 }
 
