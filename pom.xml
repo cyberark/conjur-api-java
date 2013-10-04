@@ -145,9 +145,9 @@
         <version>1.0-M2</version>
         <configuration>
           <systemProperties>
-            <net.conjur.api.credentials>${net.conjur.api.credentials}</net.conjur.api.credentials>
-            <net.conjur.api.account>${net.conjur.api.account}</net.conjur.api.account>
-            <net.conjur.api.stack>${net.conjur.api.stack}</net.conjur.api.stack>
+            <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
+            <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
+            <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
           </systemProperties>
         </configuration>
         <executions>
