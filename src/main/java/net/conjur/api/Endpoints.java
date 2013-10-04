@@ -86,5 +86,12 @@ public class Endpoints implements Serializable {
     private static Endpoints defaultEndpoints = DEFAULT_ENDPOINTS;
 
 
-
+    @Override
+    public String toString() {
+        return "Endpoints{" +
+                "authnUri=" + authnUri +
+                ", authzUri=" + authzUri +
+                ", directoryUri=" + directoryUri +
+                '}';
+    }
 }
