@@ -20,6 +20,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.logging.Logger;
 
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+
 /**
  * Conjur authentication service client.
  * 
@@ -93,7 +95,7 @@ public class AuthnClient implements AuthnProvider {
         client = builder.build();
         root = client.target(endpoints.getAuthnUri()).path("users");
         login = root.path("login");
-        authenticate = root.path(username).path("authenticate");
+        authenticate = root.path(encodeUriComponent(username)).path("authenticate");
         passwords = root.path("password");
     }
 

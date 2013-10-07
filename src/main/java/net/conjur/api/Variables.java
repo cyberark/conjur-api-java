@@ -5,6 +5,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+
 /**
  *
  */
@@ -49,6 +51,6 @@ public class Variables  extends Resource {
     }
 
     private WebTarget variable(String id){
-        return variables.path(id);
+        return variables.path(encodeUriComponent(id));
     }
 }

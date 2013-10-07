@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+
 /**
  *
  */
@@ -40,11 +42,11 @@ public class Users extends Resource {
     public boolean exists(final String username){
         try{
             // we need to read it as a string to make jersey throw an exception, I believe.
-            roles.resolveTemplate("id", username).request().get(String.class);
+            roles.path(encodeUriComponent(username)).request().get(String.class);
             return true;
         }catch(ForbiddenException e){
             // this indicates that the user does, in fact, exist, we just can't
-            // access them
+            // access them.
             return true;
         }catch(NotFoundException e){
             return false;
@@ -56,8 +58,7 @@ public class Users extends Resource {
         users = target(getEndpoints().getDirectoryUri()).path("users");
         roles = target(getEndpoints().getAuthzUri())
                 .path("roles")
-                .path("user")
-                .path("{id}");
+                .path("user");
     }
 
     private WebTarget users(){

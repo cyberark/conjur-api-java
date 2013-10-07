@@ -15,6 +15,8 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+
 /**
  *
  */
@@ -135,7 +137,7 @@ public class Variable extends Resource {
     }
 
     private void buildTargets(){
-        target = target(getEndpoints().getDirectoryUri()).path("variables").path(id);
+        target = target(getEndpoints().getDirectoryUri()).path("variables").path(encodeUriComponent(id));
     }
 
     @Override

@@ -8,7 +8,6 @@ import scala.util.Random
 import org.apache.commons.logging.LogFactory
 
 object RandomString {
-  private lazy val pattern = "^(.*?)\\$(\\d+)\\$(.*)$".r
   def randomString(n:Int):String = List.fill(n)(Random.nextPrintableChar()).mkString
   def randomString:String = randomString(12)
   def randomString(prefix:String):String = prefix + randomString
