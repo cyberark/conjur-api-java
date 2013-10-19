@@ -15,6 +15,7 @@ import java.util.Properties;
  */
 public class Endpoints implements Serializable {
     public static final Endpoints DEFAULT_ENDPOINTS = fromSystemProperties();
+    private static final String DEFAULT_STACK = "v4";
 
     private final URI authnUri;
     private final URI authzUri;
@@ -53,7 +54,7 @@ public class Endpoints implements Serializable {
     }
 
     public static Endpoints getHostedEndpoints(String account){
-        return getHostedEndpoints("v3", account);
+        return getHostedEndpoints(DEFAULT_STACK, account);
     }
 
 
@@ -63,7 +64,7 @@ public class Endpoints implements Serializable {
 
     public static Endpoints fromProperties(Properties properties){
         return getHostedEndpoints(
-                properties.getProperty("net.conjur.api.stack", "v3"),
+                properties.getProperty("net.conjur.api.stack", DEFAULT_STACK),
                 properties.getProperty("net.conjur.api.account", "sandbox")
         );
     }
