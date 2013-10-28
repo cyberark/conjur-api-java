@@ -63,10 +63,17 @@ public class Endpoints implements Serializable {
     }
 
     public static Endpoints fromProperties(Properties properties){
-        return getHostedEndpoints(
-                properties.getProperty("net.conjur.api.stack", DEFAULT_STACK),
-                properties.getProperty("net.conjur.api.account", "sandbox")
-        );
+    	// when maven sets system properties from environment variables
+    	// it will set them to "null" (as a string) if they are not present.
+    	String stack = properties.getProperty("net.conjur.api.stack");
+    	if(stack == null || "null".equals(stack)){
+    		stack = DEFAULT_STACK;
+    	}
+    	String account = properties.getProperty("net.conjur.api.account");
+    	if(account == null || "null".equals(account)){
+    		account = "sandbox";
+    	}
+    	return getHostedEndpoints(stack, account);
     }
 
     public static Endpoints getDefault(){
