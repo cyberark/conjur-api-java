@@ -18,6 +18,13 @@ import java.net.URI;
 import java.sql.ClientInfoStatus;
 import java.util.logging.Logger;
 
+/**
+ * Base class for Conjur service clients.
+ * 
+ * <p>A {@code Resource} is configured with an authentication provider that 
+ * produces Conjur authentication tokens as needed, and endpoints for the Conjur
+ * services</p>
+ */
 public class Resource {
     private AuthnProvider authn;
     private Endpoints endpoints;
@@ -29,26 +36,51 @@ public class Resource {
         client = createClient();
     }
 
+    /**
+     * Create a resource using the same {@code AuthnProvider} and {@code Endpoints}
+     * as {@code relative}.
+     * @param relative the {@code Resource} from which to take the authentication provider 
+     * and endpoints for the new {@code Resource}
+     */
     public Resource(Resource relative){
         this(relative.getAuthn(), relative.getEndpoints());
     }
 
+    /**
+     * @return the authentication provider for this resource
+     */
     public AuthnProvider getAuthn() {
         return authn;
     }
 
+    /**
+     * @return the endpoints for this resource
+     */
     protected Endpoints getEndpoints() {
         return endpoints;
     }
 
+    /**
+     * Create a {@code WebTarget} for the given uri.
+     * @param uri
+     * @return
+     */
     protected WebTarget target(URI uri){
         return client.target(uri);
     }
 
+    /**
+     * @return The {@code Client} used by this {@code Resource}
+     */
     protected Client client(){
         return client;
     }
 
+    /**
+     * Subclasses may override this to provide custom configuration for their client.  The
+     * {@code Client} returned will be returned by {@link #client()}.
+     * @return
+     */
     protected Client createClient(){
         ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new TokenAuthFilter(authn))

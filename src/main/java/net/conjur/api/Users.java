@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 /**
- *
+ * Resource representing Conjur user services.
  */
 public class Users extends Resource {
     private WebTarget users;

@@ -45,6 +45,12 @@ public class Endpoints implements Serializable {
         return new Endpoints(authnUri, authzUri, directoryUri);
     }
 
+    /**
+     * Return endpoints for the specified hosted Conjur stack and account.
+     * @param stack the Conjur stack
+     * @param account the Conjur account
+     * @return
+     */
     public static Endpoints getHostedEndpoints(String stack, String account){
         return of(
            getHostedServiceUri("authn", account),
@@ -52,16 +58,31 @@ public class Endpoints implements Serializable {
            getHostedServiceUri("core", account)
         );
     }
-
+    
+    /**
+     * Return endpoints for the specified hosted Conjur account.  If you don't know
+     * what stack to use, you should use this method to get an instance.
+     * @param account the Conjur account
+     * @return
+     */
     public static Endpoints getHostedEndpoints(String account){
         return getHostedEndpoints(DEFAULT_STACK, account);
     }
 
 
+    /**
+     * @deprecated
+     * @return
+     */
     public static Endpoints fromSystemProperties(){
         return fromProperties(System.getProperties());
     }
 
+    /**
+     * @deprecated
+     * @param properties
+     * @return
+     */
     public static Endpoints fromProperties(Properties properties){
     	// when maven sets system properties from environment variables
     	// it will set them to "null" (as a string) if they are not present.
@@ -76,10 +97,18 @@ public class Endpoints implements Serializable {
     	return getHostedEndpoints(stack, account);
     }
 
+    /**
+     * Return default Conjur endpoints, either those set by {@link Endpoints#setDefault(Endpoints)} 
+     * or hosted endpoints for the sandbox account on the default stack.
+     */
     public static Endpoints getDefault(){
         return defaultEndpoints == null ? DEFAULT_ENDPOINTS : defaultEndpoints;
     }
 
+    /**
+     * Set the endpoints to return from {@link Endpoints#getDefault()}
+     * @param defaultEndpoints
+     */
     public static void setDefault(Endpoints defaultEndpoints){
         Endpoints.defaultEndpoints = defaultEndpoints;
     }
