@@ -6,7 +6,7 @@
   <artifactId>conjur-api</artifactId>
   <version>1.1</version>
 
-  <name>${project.artifactId}-${project.version}</name>
+  <name>Conjur</name>
   <description>Client for the Conjur API</description>
 
   <properties>
@@ -165,10 +165,16 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.9.1</version>
         <configuration>
-        	<header><![CDATA[
-        		<a href="http://developer.conjur.net">Conjur</a> Java API
-        	]]></header>
+			<stylesheetfile>src/main/javadoc/stylesheet.css</stylesheetfile>
         </configuration>
+        <executions>
+        	<execution>
+        		<goals>
+        			<goal>javadoc</goal>
+        		</goals>
+        		<phase>package</phase>
+        	</execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
