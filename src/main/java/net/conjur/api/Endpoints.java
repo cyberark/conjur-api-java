@@ -4,7 +4,10 @@ package net.conjur.api;
 import net.conjur.util.Args;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -35,7 +38,7 @@ public class Endpoints implements Serializable {
     }
     public URI getAuthnUri(){ return authnUri; }
     public URI getDirectoryUri(){ return directoryUri; }
-    public URI getAuthzUri(){ return authzUri; };
+    public URI getAuthzUri(){ return authzUri; }
 
     public static Endpoints of(String authnUri, String authzUri, String directoryUri){
         return new Endpoints(authnUri,authzUri,directoryUri);
@@ -43,6 +46,25 @@ public class Endpoints implements Serializable {
 
     public static Endpoints of(URI authnUri, URI authzUri, URI directoryUri){
         return new Endpoints(authnUri, authzUri, directoryUri);
+    }
+
+    public static Endpoints getApplianceEndpoints(URI applianceUri){
+        try{
+            // Well, this is gross!
+            return of(
+                    new URL(applianceUri.toURL(), "/authn").toURI(),
+                    new URL(applianceUri.toURL(), "/authz").toURI(),
+                    applianceUri
+            );
+        }catch(MalformedURLException e){
+            throw new RuntimeException("How did this happen?");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("How did this happen?");
+        }
+    }
+
+    public static Endpoints getApplianceEndpoints(String applianceUri){
+        return getApplianceEndpoints(URI.create(applianceUri));
     }
 
     /**

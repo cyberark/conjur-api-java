@@ -20,3 +20,6 @@ conjur-api.iml
 
 
 .cache
+
+# More IntelliJ trash
+src/main/main.iml
