@@ -12,7 +12,17 @@ git clone {repo}
 
 cd conjur-api
 
-mvn release
+mvn package
+
+```
+
+Note that this will *not* run the integration tests, since these require access to a Conjur instance.  To run the
+integration tests, you will need to define the following environment variables for the `mvn package` command:
+```bash
+CONJUR_INTEGRATION_TESTS_ENABLED=true
+CONJUR_CREDENTIALS="username:password"
+CONJUR_ACCOUNT="your-account"
+CONJUR_STACK="your-stack"
 ```
 
 ## Basic Usage
@@ -90,8 +100,21 @@ Conjur conjur = new Conjur(login, password, endpoints);
 ## User Operations
 
 You can perform operations on Conjur users with the `Users` class.  You do not create instances of this class directly,
-but get them from the `users()` method on a `Conjur` instance.  More, more...
+but get them from the `users()` method on a `Conjur` instance.  
+a
+You can currently create users (with the `create` method) and check for their existence (with the `exists` method) of the
+`Users` class.
+
+
 
 ## Variable Operations
 
-TODO
+Conjur variables can be created, fetched and deleted using the `Variables` service, which you get from `Conjur`'s `variables()`
+method.
+
+You can create variables with the various `create` methods, and fetch existing variables by id with the `get(String id)`
+method.
+
+Variable objects support all the methods available through the Conjur HTTP API for variables.  See the 
+[Conjur API docs](http://developer.conjur.net/reference/services/directory/variable) for details on the variable methods.
+
