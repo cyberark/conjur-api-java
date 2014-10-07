@@ -18,7 +18,10 @@ trait HasAuthnClients extends TestCredentials {
  *
  */
 class AuthnClientTest extends FlatSpec with ShouldMatchers
-    with AuthnProviderBehaviors with AuthnClientBehaviors with HasAuthnClients{
+    with IsIntegrationTest
+    with AuthnProviderBehaviors
+    with AuthnClientBehaviors
+    with HasAuthnClients {
 
   "An AuthnClient with admin credentials" should behave like canAuthenticate(admin)
   it should behave like canLogin(admin)
@@ -28,8 +31,12 @@ class AuthnClientTest extends FlatSpec with ShouldMatchers
 }
 
 
-class CachingAuthnProviderTest extends FlatSpec with ShouldMatchers
-  with AuthnProviderBehaviors with HasAuthnClients with Tardis {
+class CachingAuthnProviderTest extends FlatSpec
+  with ShouldMatchers
+  with AuthnProviderBehaviors
+  with HasAuthnClients
+  with Tardis
+  with IsIntegrationTest {
   lazy val caching = new CachingAuthnProvider(admin)
 
   "A CachingAuthnProvider" should behave like cachesTokens(caching)

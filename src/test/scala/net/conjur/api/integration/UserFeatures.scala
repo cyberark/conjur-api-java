@@ -21,7 +21,9 @@ object UserWithPassword{
 class UserFeatures extends FeatureSpec
     with ShouldMatchers
     with ConjurFixtures
-    with GivenWhenThen {
+    with GivenWhenThen
+    with IsIntegrationFeature
+    {
 
   info("As a Conjur based service")
   info("I want to create Conjur users")

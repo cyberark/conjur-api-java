@@ -7,8 +7,12 @@ import javax.ws.rs.ForbiddenException
 /**
  *
  */
-class VariableFeatures extends FeatureSpec with ShouldMatchers with GivenWhenThen
-  with ConjurFixtures {
+class VariableFeatures extends FeatureSpec
+  with ShouldMatchers
+  with GivenWhenThen
+  with ConjurFixtures
+  with IsIntegrationFeature {
+
   info("As a Conjur based service")
   info("I want to create variables and modify their values")
   info("So that only an authorized user can retrieve their values")

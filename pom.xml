@@ -9,6 +9,10 @@
   <name>Conjur</name>
   <description>Client for the Conjur API</description>
 
+  <scm>
+      <url>https://github.com/conjurinc/api-java</url>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scala.version>2.10.0</scala.version>
@@ -153,6 +157,7 @@
         <version>1.0-M2</version>
         <configuration>
           <systemProperties>
+            <net.conjur.integrationTestsEnabled>${env.CONJUR_INTEGRATION_TESTS_ENABLED}</net.conjur.integrationTestsEnabled>
             <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
             <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
             <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
