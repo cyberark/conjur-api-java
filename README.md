@@ -29,21 +29,9 @@ CONJUR_STACK="your-stack"
 
 ### Specifying Service Endpoints
 
-The `Endpoints` class contains the URLs for the Conjur services.  If you happen to know exactly what these URLs are,
-for example if you were running the services locally for development purposes, you can use the 
-`Endpoints.of(String authnUrl, String authzUrl, String directoryUrl)` factory method.  
+You will need the DNS name of the machine on which your Conjur appliance is installed.  
+For the sake of this example we'll say that it's `"conjur.yourcompany.com"`.
 
-In most cases however, you will be using either hosted Conjur or appliance Conjur.  For hosted Conjur, we will 
-provide you with an *account* and a *stack*.  These values can be used to get an `Endpoints` instance like this:
-
-```java
-String account = "my-account-name";
-String stack = "v4"; // typically the stack corresponds to a version of the Conjur API.
-Endpoints hostedEndpoints = Endpoints.getHostedEndpoints(account, stack);
-```
-
-For appliance Conjur, you will need the hostname of the machine on which your Conjur appliance is installed.  This will
-often be the public DNS of an EC2 instance, but for the sake of this example we'll say that it's `"conjur.yourcompany.com"`.
 Your `applianceUrl` is then `"https://conjur.yourcompany.com/api`".  Notice that this is an *https* address and that the
 `/api` path is required.  You can get an `Endpoints` instance for the appliance like this:
 
@@ -53,12 +41,15 @@ String applianceUrl = "https://conjur.yourcompany.com/api";
 Endpoints applianceEndpoints = Endpoints.getApplianceEndpoints(applianceUrl);
 ```
 
+If you want to use specific, custom URLs for some reason, you can use the 
+`Endpoints.of(String authnUrl, String authzUrl, String directoryUrl)` factory method.  
+
+
 ### SSL Certificates
 
-For hosted Conjur, the Conjur services use CA issued SSL certs, so you don't need to t anything special in order for 
-the Java API to be able to connect to them.  However, for appliance Conjur, you will typically be using a self signed 
-certificate generated when the appliance is configured.  Java needs this certificate in it's keystore in order to 
-connect to the appliance.
+By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
+Java to trust them. You can accomplish this by loading the Conjur certificate into 
+the Java keystore.
 First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](linklink).  Once you've 
 installed the command line tools, you can run
 
@@ -67,7 +58,7 @@ conjur init
 ```
 
 and enter the required information at the prompts.  This will save the certificate to a file like `"conjur-mycompany.pem"`
-in the current directory.  Java doesn't deal with the *pem* format, so next you'll need to convert it to the *der* format:
+in your HOME directory.  Java doesn't deal with the *pem* format, so next you'll need to convert it to the *der* format:
 
 ```bash
 openssl x509 -outform der -in conjur-yourcompany.pem -out conjur-yourcompany.der
