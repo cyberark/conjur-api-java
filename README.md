@@ -16,6 +16,20 @@ mvn package
 
 ```
 
+If you are using Maven to manage your project's dependencies, you can run `mvn install` to install the package locally, and then include following dependency in your `pom.xml`:
+
+```xml
+<dependency>
+  <groupId>net.conjur.api</groupId>
+  <artifactId>conjur-api</artifactId>
+  <version>1.1</version>
+</dependency>
+```
+
+If you aren't using Maven (lucky you!), you can just add the `jar` in the normal way.  This `jar` can be found in
+the `target` directory created when you ran `mvn package`.
+
+
 Note that this will *not* run the integration tests, since these require access to a Conjur instance.  To run the
 integration tests, you will need to define the following environment variables for the `mvn package` command:
 ```bash
