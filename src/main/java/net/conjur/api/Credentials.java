@@ -2,7 +2,7 @@ package net.conjur.api;
 
 import net.conjur.util.Args;
 
-import static net.conjur.util.Args.*;
+import static net.conjur.util.Args.notNull;
 
 /**
  * Stores credentials for a Conjur identity.

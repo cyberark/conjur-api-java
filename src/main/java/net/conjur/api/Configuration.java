@@ -1,16 +1,9 @@
 package net.conjur.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import net.conjur.util.TextUtils;
-import sun.security.krb5.Config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a Conjur configuration, typically loaded from one or more .conjurrc files.

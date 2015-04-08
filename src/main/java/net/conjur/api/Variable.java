@@ -1,19 +1,15 @@
 package net.conjur.api;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.StringType;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JacksonInject;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 

@@ -1,20 +1,10 @@
 package net.conjur.api.authn;
 
 import net.conjur.util.JsonSupport;
-import net.conjur.util.TextUtils;
-import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.codec.binary.Base64;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.nio.charset.Charset;
 
 /**
  * Represents a Conjur API authentication token.

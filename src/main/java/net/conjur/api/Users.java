@@ -1,7 +1,6 @@
 package net.conjur.api;
 
 import net.conjur.api.authn.AuthnProvider;
-import net.conjur.util.Args;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
@@ -9,8 +8,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 

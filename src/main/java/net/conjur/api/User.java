@@ -3,10 +3,6 @@ package net.conjur.api;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.annotation.XmlElement;
-
 public class User {
 
     /*

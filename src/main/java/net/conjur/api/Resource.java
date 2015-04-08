@@ -5,18 +5,13 @@ import net.conjur.api.authn.TokenAuthFilter;
 import net.conjur.util.logging.LogFilter;
 import org.codehaus.jackson.map.InjectableValues;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.ext.ContextResolver;
 import java.net.URI;
-import java.sql.ClientInfoStatus;
-import java.util.logging.Logger;
 
 /**
  * Base class for Conjur service clients.

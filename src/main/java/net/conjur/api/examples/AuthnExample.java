@@ -1,6 +1,5 @@
 package net.conjur.api.examples;
 
-import net.conjur.api.Credentials;
 import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.Token;
 

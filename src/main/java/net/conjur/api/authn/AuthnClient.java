@@ -4,11 +4,8 @@ import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.util.Args;
 import net.conjur.util.logging.LogFilter;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
@@ -16,9 +13,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.logging.Logger;
 
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
