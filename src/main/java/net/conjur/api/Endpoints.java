@@ -3,11 +3,9 @@ package net.conjur.api;
 
 import net.conjur.util.Args;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -24,7 +22,7 @@ public class Endpoints implements Serializable {
     private final URI authzUri;
     private final URI directoryUri;
 
-    private Endpoints(final URI authnUri,
+    public Endpoints(final URI authnUri,
                      final URI authzUri,
                      final URI directoryUri){
         this.authnUri = Args.notNull(authnUri, "authnUri");
@@ -32,35 +30,53 @@ public class Endpoints implements Serializable {
         this.directoryUri = Args.notNull(directoryUri, "directoryUri");
     }
 
-    private Endpoints(String authnUri, String authzUri, String directoryUri){
+    public Endpoints(String authnUri, String authzUri, String directoryUri){
         // My kingdom for varargs and map!
         this(URI.create(authnUri), URI.create(authzUri), URI.create(directoryUri));
     }
+
     public URI getAuthnUri(){ return authnUri; }
     public URI getDirectoryUri(){ return directoryUri; }
     public URI getAuthzUri(){ return authzUri; }
 
+    /**
+     * @deprecated use the constructor instead
+     */
     public static Endpoints of(String authnUri, String authzUri, String directoryUri){
         return new Endpoints(authnUri,authzUri,directoryUri);
     }
 
+    /**
+     * @deprecated use the constructor instead
+     */
     public static Endpoints of(URI authnUri, URI authzUri, URI directoryUri){
         return new Endpoints(authnUri, authzUri, directoryUri);
     }
 
+    /**
+     * Create an Endpoints instance from an appliance URL.  An appliance url
+     * must be of the form <code>"https://hostname/api"</code>, for example,
+     * <code>"https://conjur.companyname.com/api"</code>.  This method will verify that
+     * this is the case and throw an <code>IllegalArgumentException</code> if it's not.
+     * @param applianceUri the appliance URI
+     * @return Endpoints for the appliance.
+     */
     public static Endpoints getApplianceEndpoints(URI applianceUri){
-        try{
-            // Well, this is gross!
-            return of(
-                    new URL(applianceUri.toURL(), "/authn").toURI(),
-                    new URL(applianceUri.toURL(), "/authz").toURI(),
-                    applianceUri
-            );
-        }catch(MalformedURLException e){
-            throw new RuntimeException("How did this happen?");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("How did this happen?");
+        final String scheme = applianceUri.getScheme();
+
+        if(scheme == null || !scheme.startsWith("https")){
+            throw new IllegalArgumentException("Invalid applianceUri: " + applianceUri + ": expected https scheme");
         }
+
+        final  String path = applianceUri.getPath();
+        if(path == null || !path.equals("/api")){
+            throw new IllegalArgumentException("Invalid applianceUri: " + applianceUri + ": expected path to be /api");
+        }
+
+        final URI authnUri = UriBuilder.fromUri(applianceUri).segment("authn").build();
+        final URI authzUri = UriBuilder.fromUri(applianceUri).segment("authz").build();
+
+        return new Endpoints(authnUri, authzUri, applianceUri);
     }
 
     public static Endpoints getApplianceEndpoints(String applianceUri){
