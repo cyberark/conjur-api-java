@@ -1,3 +1,5 @@
 Started on April 15th 2015
 
-v1.2.0 - Fix appliance endpoints bug and deprecate Endpoints.of
+5/15/15 v1.2.0 - Fix appliance endpoints bug, deprecate Endpoints.of, and
+expose Endpoints constructors.
+
