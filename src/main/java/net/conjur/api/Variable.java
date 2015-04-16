@@ -19,7 +19,7 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 public class Variable extends Resource {
     public static class NeedShowPermission extends RuntimeException {
         private static final String MESSAGE_FORMAT =
-                "The attributes for variable '%s' are not available without 'show' permission on the variable.  " +
+                "The attributes for variable '%s' are not available without 'read' permission on the variable.  " +
                         "You may still be able to read or write the variable's value.";
 
         NeedShowPermission(String variableId){
@@ -161,7 +161,7 @@ public class Variable extends Resource {
     }
 
     public <T> T getValue(Class<T> type){
-        return target.path("value").request().get(type);
+        return target.path("value").request("text/plain").get(type);
     }
 
     public <T> T getValue(int version, Class<T> type){

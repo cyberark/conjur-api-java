@@ -3,6 +3,7 @@ package net.conjur.api.authn;
 import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.util.Args;
+import net.conjur.util.HostNameVerification;
 import net.conjur.util.logging.LogFilter;
 import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -56,6 +57,7 @@ public class AuthnClient implements AuthnProvider {
         // POST users/<username>/authenticate with apiKey in body
         try{
             return Token.fromJson(
+
                     authenticate.request("application/json").post(Entity.text(password), String.class)
             );
         }catch(NotFoundException e){
@@ -86,12 +88,18 @@ public class AuthnClient implements AuthnProvider {
         if(requestLoggingEnabled()){
             builder.register(new LogFilter());
         }
+
+        HostNameVerification.getInstance().updateClientBuilder(builder);
+
+
         client = builder.build();
         root = client.target(endpoints.getAuthnUri()).path("users");
         login = root.path("login");
         authenticate = root.path(encodeUriComponent(username)).path("authenticate");
         passwords = root.path("password");
     }
+
+
 
     // TODO this is a stupid hack
     private static final boolean requestLoggingEnabled(){

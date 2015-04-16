@@ -2,6 +2,7 @@ package net.conjur.api;
 
 import net.conjur.api.authn.AuthnProvider;
 import net.conjur.api.authn.TokenAuthFilter;
+import net.conjur.util.HostNameVerification;
 import net.conjur.util.logging.LogFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,13 +85,14 @@ public class Resource {
                 .register(new TokenAuthFilter(authn))
                 .register(JacksonFeature.class)
                 .register(contextResolver);
+        HostNameVerification.getInstance().updateClientBuilder(builder);
+
         if(requestLoggingEnabled()){
-            System.out.println("Registering logger");
-            LOG.error("Logger is ON!");
             builder.register(new LogFilter(LOG, false, true));
         }
         return builder.build();
     }
+
 
     // TODO this is a stupid hack
     private static final boolean requestLoggingEnabled(){
