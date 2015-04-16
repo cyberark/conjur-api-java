@@ -2,11 +2,8 @@ package net.conjur.api.integration
 
 import org.scalatest._
 
-trait IntegrationTestsEnabled {
-  lazy val integrationTestsEnabled = {
-    val propertyValue = System.getProperty("net.conjur.integrationTestsEnabled")
-    propertyValue != null && !"null".equals(propertyValue)
-  }
+trait IntegrationTestsEnabled extends Env {
+  lazy val integrationTestsEnabled = getEnv("CONJUR_INTEGRATION_TESTS").isDefined
 }
 
 trait IsIntegrationTest extends FlatSpec with IntegrationTestsEnabled {

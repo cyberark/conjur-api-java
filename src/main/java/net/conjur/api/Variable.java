@@ -17,33 +17,103 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
  *
  */
 public class Variable extends Resource {
-    // redundant annotations are included to clarify which properties
-    // are from json
-    @JsonProperty("id")
-    private String id;
+    public static class NeedShowPermission extends RuntimeException {
+        private static final String MESSAGE_FORMAT =
+                "The attributes for variable '%s' are not available without 'show' permission on the variable.  " +
+                        "You may still be able to read or write the variable's value.";
 
-    @JsonProperty("mime_type")
-    private String mimeType;
+        NeedShowPermission(String variableId){
+            super(messageFor(variableId));
+        }
 
-    @JsonProperty("kind")
-    private String kind;
+        NeedShowPermission(String variableId, Throwable cause){
+            super(messageFor(variableId), cause);
+        }
 
-    @JsonProperty("version_count")
-    private int versionCount;
+        private static String messageFor(String variableId){
+            return String.format(MESSAGE_FORMAT, variableId);
+        }
+    }
 
-    @JsonProperty("ownerid")
-    private String ownerId;
 
-    @JsonProperty("userid")
-    private String userId;
+    public static class Attributes {
+        // redundant annotations are included to clarify which properties
+        // are from json
+        @JsonProperty("id")
+        private String id;
 
-    @JsonProperty("resource_identifier")
-    private String resourceIdentifier;
+        @JsonProperty("mime_type")
+        private String mimeType;
+
+        @JsonProperty("kind")
+        private String kind;
+
+        @JsonProperty("version_count")
+        private Integer versionCount;
+
+        @JsonProperty("ownerid")
+        private String ownerId;
+
+        @JsonProperty("userid")
+        private String userId;
+
+        @JsonProperty("resource_identifier")
+        private String resourceIdentifier;
+
+        public String getId() {
+            return id;
+        }
+
+        public String getMimeType() {
+            return mimeType;
+        }
+
+        public String getKind() {
+            return kind;
+        }
+
+        public Integer getVersionCount() {
+            return versionCount;
+        }
+
+        public String getOwnerId() {
+            return ownerId;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public String getResourceIdentifier() {
+            return resourceIdentifier;
+        }
+
+        @Override
+        public String toString() {
+            return "Attributes{" +
+                    "id='" + id + '\'' +
+                    ", mimeType='" + mimeType + '\'' +
+                    ", kind='" + kind + '\'' +
+                    ", versionCount=" + versionCount +
+                    ", ownerId='" + ownerId + '\'' +
+                    ", userId='" + userId + '\'' +
+                    ", resourceIdentifier='" + resourceIdentifier + '\'' +
+                    '}';
+        }
+
+        Attributes(){
+        }
+    }
+
+
 
     private WebTarget target;
 
     private boolean invalidated = false;
 
+    private String id;
+
+    private Attributes attributes;
 
     // constructor injects a Resource from which we can initialize our client, auth providers, etc.
     @JsonCreator
@@ -55,43 +125,48 @@ public class Variable extends Resource {
         buildTargets();
     }
 
+    public Attributes getAttributes(){
+        if(attributes == null){
+            fetchAttributes();
+        }
+        return attributes;
+    }
+
     public String getId(){
         return id;
     }
 
     public int getVersionCount(){
-        if(invalidated)
-            update();
-        return versionCount;
+        return getAttributes().getVersionCount();
     }
 
     public String getMimeType() {
-        return mimeType;
+        return getAttributes().getMimeType();
     }
 
     public String getKind() {
-        return kind;
+        return getAttributes().getKind();
     }
 
     public String getOwnerId() {
-        return ownerId;
+        return getAttributes().getOwnerId();
     }
 
     public String getUserId() {
-        return userId;
+        return getAttributes().getUserId();
     }
 
     public String getResourceIdentifier() {
-        return resourceIdentifier;
+        return getAttributes().getResourceIdentifier();
     }
 
     public <T> T getValue(Class<T> type){
-        return target.path("value").request(mimeType).get(type);
+        return target.path("value").request().get(type);
     }
 
     public <T> T getValue(int version, Class<T> type){
         return target.path("value").queryParam("version", String.valueOf(version))
-                .request(mimeType).get(type);
+                .request().get(type);
     }
 
     public String getValue(){
@@ -103,14 +178,14 @@ public class Variable extends Resource {
     }
 
     public String addValue(String value){
-        invalidated = true;
+        attributes = null;
         Form form = new Form("value", value);
         return target.path("values").request().post(Entity.form(form), String.class);
     }
 
     public boolean exists(){
         try{
-            update();
+            fetchAttributes();
             return true;
         }catch(NotFoundException e){
             return false;
@@ -119,17 +194,12 @@ public class Variable extends Resource {
         }
     }
 
-    Variable update(){
-        final Variable v = target.request(MediaType.APPLICATION_JSON_TYPE).get(Variable.class);
-        id = v.id;
-        versionCount = v.versionCount;
-        mimeType = v.mimeType;
-        kind = v.kind;
-        ownerId = v.ownerId;
-        userId = v.userId;
-        resourceIdentifier = v.resourceIdentifier;
-        invalidated = false;
-        return this;
+    private void fetchAttributes(){
+        try{
+            attributes = target.request(MediaType.APPLICATION_JSON_TYPE).get(Attributes.class);
+        }catch(ForbiddenException e){
+            throw new NeedShowPermission(getId(), e);
+        }
     }
 
     private void buildTargets(){
@@ -138,14 +208,8 @@ public class Variable extends Resource {
 
     @Override
     public String toString() {
-        return "Variable{" +
-                "resourceIdentifier='" + resourceIdentifier + '\'' +
-                ", userId='" + userId + '\'' +
-                ", ownerId='" + ownerId + '\'' +
-                ", versionCount=" + versionCount +
-                ", kind='" + kind + '\'' +
-                ", mimeType='" + mimeType + '\'' +
-                ", id='" + id + '\'' +
-                '}';
+        final String attributesString = attributes == null ?
+                "<not fetched>" : attributes.toString();
+        return "Variable{attrs=" + attributesString + ", id='" + id + '\'' + '}';
     }
 }

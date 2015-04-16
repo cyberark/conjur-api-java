@@ -14,47 +14,49 @@ object RandomString {
   def randomString(prefix:String, count:Int):String = prefix + randomString(count)
 }
 
-trait RandomString
+trait RandomStri
 
-object ClientWrapper {
-  private val clients = mutable.Map.empty[Credentials, Conjur]
-  def client(auth:Credentials) = clients.getOrElseUpdate(auth, new Conjur(new CachingAuthnProvider(auth)))
-
-  implicit def ClientWrapperToClient(cv:ClientWrapper) = cv.client
-  implicit def ClientWrapperToCredentials(cv:ClientWrapper) = cv.credentials
-  implicit def UserToClientWrapper(user:User) = ClientWrapper(user.getLogin, user.getApiKey)
-  implicit def CredentialsToClientWrapper(creds:Credentials) = ClientWrapper(creds)
-
-  def apply(creds:Credentials):ClientWrapper = new ClientWrapper(creds)
-  def apply(login:String, pswd:String):ClientWrapper = apply(new Credentials(login,pswd))
-
-}
-class ClientWrapper(val credentials:Credentials) {
-  def client = ClientWrapper.client(credentials)
-  def login  = credentials.getUsername
-  def withPassword(pw:String) = ClientWrapper(login, pw)
+trait Env {
+  def getEnv(name:String) = Option(System.getenv(name))
 }
 
-object TestCredentials {
-  private lazy val pattern = "([^:]+):(.+)".r
-  lazy val credentials = {
-    System.getProperty(Credentials.CREDENTIALS_PROPERTY) match {
-      case null => throw new Exception("no credentials set in system property" + Credentials.CREDENTIALS_PROPERTY)
-      case pattern(login, password) => new Credentials(login, password)
-      case s => throw new Exception("credentials must be like 'username:password' (got '" + s + "'")
-    }
+trait TestCredentials  extends Env {
+  lazy val credentials = (getEnv("CONJUR_USERNAME"), getEnv("CONJUR_API_KEY")) match {
+    case (Some(username), Some(password)) => new Credentials(username, password)
+    case _ => throw new RuntimeException("You must set environment variables CONJUR_USERNAME and CONJUR_API_KEY")
   }
 }
 
-trait TestCredentials {
-  def credentials = TestCredentials.credentials
+trait TestEndpoints extends Env {
+  lazy val endpoints = getEnv("CONJUR_APPLIANCE_URL") match {
+    case Some(url) => Endpoints getApplianceEndpoints url
+    case _ => throw new RuntimeException("You must set the CONJUR_APPLIANCE_URL environemnt variable")
+  }
+}
+
+object ClientWrapper extends TestEndpoints with TestCredentials {
+  def apply(credentials: Credentials, endpoints: Endpoints) = new ClientWrapper(credentials,endpoints)
+  def apply(credentials:Credentials) = new ClientWrapper(credentials, endpoints)
+  def apply(endpoints:Endpoints) = new ClientWrapper(credentials, endpoints)
+  def apply = new ClientWrapper(credentials, endpoints)
+  def apply(username:String, password:String) = new ClientWrapper(new Credentials(username, password), endpoints)
+  implicit def clientWrapperToConjur(clientWrapper: ClientWrapper):Conjur = clientWrapper.conjur
+  implicit def clientWrapperToCredentials(clientWrapper:ClientWrapper):Credentials = clientWrapper.credentials
+  implicit def userToClientWrapper(user:User):ClientWrapper = ClientWrapper(new Credentials(user.getLogin, user.getApiKey))
 }
 
 
+class ClientWrapper(val credentials: Credentials, val endpoints: Endpoints){
+  lazy val conjur = new Conjur(credentials, endpoints)
+}
+
 trait ConjurFixtures extends SuiteMixin
     with TestCredentials
+    with TestEndpoints
     with BeforeAndAfterAll { this: Suite =>
   import RandomString._
+  import ClientWrapper._
+
 
   lazy val log = LogFactory getLog "net.api.conjur"
   override def beforeAll = {
@@ -74,7 +76,7 @@ trait ConjurFixtures extends SuiteMixin
   def ns(s:String):String = if(s.startsWith(ns)) s else ns + "-" + s
   def ns(s:Symbol):String = ns(s.toString)
 
-  def admin : ClientWrapper = credentials
+  def admin : ClientWrapper = ClientWrapper(credentials, endpoints)
 
   def createUser(login:String):User = {
     val user = admin.users create ns(login)

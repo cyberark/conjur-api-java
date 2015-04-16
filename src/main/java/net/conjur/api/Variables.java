@@ -19,7 +19,10 @@ public class Variables  extends Resource {
     }
 
     public Variable get(String id){
-        return new Variable(this, id).update();
+        // NB: you need show permission to call update, but not to fetch the variable value.
+        // Since a common use case is for a minimally provisioned identity to be able to
+        // only fetch the value, we can't call update here.
+        return new Variable(this, id);
     }
 
     public boolean exists(String id){

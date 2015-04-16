@@ -76,6 +76,8 @@ public class Endpoints implements Serializable {
         final URI authnUri = UriBuilder.fromUri(applianceUri).segment("authn").build();
         final URI authzUri = UriBuilder.fromUri(applianceUri).segment("authz").build();
 
+        final Endpoints ep = new Endpoints(authnUri, authzUri, applianceUri);
+        System.out.println("giving endpoints " + ep);
         return new Endpoints(authnUri, authzUri, applianceUri);
     }
 

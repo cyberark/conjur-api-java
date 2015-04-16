@@ -3,6 +3,8 @@ package net.conjur.api;
 import net.conjur.api.authn.AuthnProvider;
 import net.conjur.api.authn.TokenAuthFilter;
 import net.conjur.util.logging.LogFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.InjectableValues;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -21,6 +23,7 @@ import java.net.URI;
  * services</p>
  */
 public class Resource {
+    private static final Log LOG = LogFactory.getLog("Request logger");
     private AuthnProvider authn;
     private Endpoints endpoints;
     private Client client;
@@ -82,7 +85,9 @@ public class Resource {
                 .register(JacksonFeature.class)
                 .register(contextResolver);
         if(requestLoggingEnabled()){
-            builder.register(new LogFilter());
+            System.out.println("Registering logger");
+            LOG.error("Logger is ON!");
+            builder.register(new LogFilter(LOG, false, true));
         }
         return builder.build();
     }

@@ -1,5 +1,10 @@
 #!/bin/bash
-ARGS="-classpath %classpath"
+
+
+# Adds the Maven computed classpath args
+args="-classpath %classpath"
+
+
 if [[ -z $CONJUR_CREDENTIALS ]] ; then
 	echo "You must set CONJUR_CREDENTIALS to username:password" >&2
 	exit 1

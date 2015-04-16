@@ -20,6 +20,8 @@
   </properties>
 
   <dependencies>
+
+    <!-- REST Client -->
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
@@ -71,6 +73,14 @@
        <version>1.06</version>
       </dependency>
 
+
+      <!-- To run examples -->
+      <dependency>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.4.0</version>
+          <type>maven-plugin</type>
+      </dependency>
 
     <!-- test dependencies -->
     <dependency>
@@ -124,6 +134,7 @@
 
   <packaging>jar</packaging>
 
+
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <plugins>
@@ -157,10 +168,13 @@
         <version>1.0</version>
         <configuration>
           <systemProperties>
+            <c
             <net.conjur.integrationTestsEnabled>${env.CONJUR_INTEGRATION_TESTS_ENABLED}</net.conjur.integrationTestsEnabled>
             <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
             <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>
             <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
+            <net.conjur.api.resource.requestLogging>true</net.conjur.api.resource.requestLogging>
+            <net.conjur.api.authn.requestLogging>true</net.conjur.api.authn.requestLogging>
           </systemProperties>
         </configuration>
         <executions>

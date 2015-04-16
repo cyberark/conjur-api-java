@@ -11,8 +11,8 @@ case class UserWithPassword(user:User, password:String){
 }
 object UserWithPassword{
   def apply(user:User):UserWithPassword = new UserWithPassword(user)
-  implicit def userToUserWithPassword(user:User) = UserWithPassword(user)
-  implicit def userWithPasswordToCredentials(uwp:UserWithPassword) = new Credentials(uwp.user.getLogin, uwp.password)
+  implicit def userToUserWithPassword(user:User):UserWithPassword = UserWithPassword(user)
+  implicit def userWithPasswordToCredentials(uwp:UserWithPassword):Credentials = new Credentials(uwp.user.getLogin, uwp.password)
 }
 
 /**
@@ -76,7 +76,7 @@ class UserFeatures extends FeatureSpec
 
     scenario("The admin user exists"){
       Then("the user admin exists")
-      admin.users.exists(admin.login) should be(true)
+      admin.users.exists(admin.getUsername) should be(true)
     }
 
     scenario("A random username should not exist"){
