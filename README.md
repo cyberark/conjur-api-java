@@ -123,3 +123,6 @@ method.
 Variable objects support all the methods available through the Conjur HTTP API for variables.  See the 
 [Conjur API docs](http://developer.conjur.net/reference/services/directory/variable) for details on the variable methods.
 
+## JAXRS Implementations
+
+The Conjur API client uses the JAXRS standard to make requests to the Conjur web services.  In the future we plan to remove this dependency, but for the time being you may need to change the JAXRS implementation to conform to your environment and application dependencies.  For example, in a JBoss server environment, you should use the RESTlet implementation.  The Conjur API uses Apache CFX by default.  You can replace that dependency in `pom.xml` to use an alternative implementation.
