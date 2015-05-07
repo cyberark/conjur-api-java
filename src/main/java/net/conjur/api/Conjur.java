@@ -23,6 +23,7 @@ public class Conjur extends Resource {
     }
 
     /**
+     * @deprecated  tthis constr
      * Create a Conjur instance that uses the given AuthnProvider and 
      * {@link Endpoints#getDefault()}.
      * @param authn used to authenticate requests to Conjur services

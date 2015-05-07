@@ -1,25 +1,21 @@
 package net.conjur.api;
 
 import net.conjur.api.authn.AuthnProvider;
-import net.conjur.api.authn.TokenAuthFilter;
 import net.conjur.util.HostNameVerification;
-import net.conjur.util.logging.LogFilter;
+import net.conjur.util.rs.JsonBodyReader;
+import net.conjur.util.rs.TokenAuthFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.InjectableValues;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.ext.ContextResolver;
 import java.net.URI;
 
 /**
  * Base class for Conjur service clients.
  * 
- * <p>A {@code Resource} is configured with an authentication provider that 
+ * <p>A {@code Resource} is configured with an authentication provider thatm
  * produces Conjur authentication tokens as needed, and endpoints for the Conjur
  * services</p>
  */
@@ -50,6 +46,17 @@ public class Resource {
      */
     public AuthnProvider getAuthn() {
         return authn;
+    }
+
+    Resource setRelative(Resource relative){
+        this.authn = relative.getAuthn();
+        this.endpoints = relative.getEndpoints();
+        client = createClient();
+        return this;
+    }
+
+    Resource(){
+        /* private ctor, you must call setRelative after using it. */
     }
 
     /**
@@ -83,31 +90,10 @@ public class Resource {
     protected Client createClient(){
         ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new TokenAuthFilter(authn))
-                .register(JacksonFeature.class)
-                .register(contextResolver);
+                .register(new JsonBodyReader());
         HostNameVerification.getInstance().updateClientBuilder(builder);
 
-        if(requestLoggingEnabled()){
-            builder.register(new LogFilter(LOG, false, true));
-        }
         return builder.build();
     }
 
-
-    // TODO this is a stupid hack
-    private static final boolean requestLoggingEnabled(){
-        final String prop = System.getProperty("net.conjur.api.resource.requestLogging");
-        if(prop != null && prop.toLowerCase().equals("true")){
-            return true;
-        }
-        return false;
-    }
-
-    private final ContextResolver<ObjectMapper> contextResolver = new ContextResolver<ObjectMapper>() {
-        public ObjectMapper getContext(Class<?> type) {
-            final InjectableValues values = new InjectableValues.Std()
-                    .addValue(Resource.class, Resource.this);
-            return new ObjectMapper().setInjectableValues(values);
-        }
-    };
 }

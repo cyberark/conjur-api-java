@@ -1,8 +1,7 @@
 package net.conjur.api;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JacksonInject;
+import com.google.gson.annotations.SerializedName;
+import net.conjur.util.rs.JsonReadable;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
@@ -16,6 +15,7 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 /**
  *
  */
+@JsonReadable
 public class Variable extends Resource {
     public static class NeedShowPermission extends RuntimeException {
         private static final String MESSAGE_FORMAT =
@@ -36,28 +36,25 @@ public class Variable extends Resource {
     }
 
 
+    @JsonReadable
     public static class Attributes {
-        // redundant annotations are included to clarify which properties
-        // are from json
-        @JsonProperty("id")
         private String id;
 
-        @JsonProperty("mime_type")
+        @SerializedName("mime_type")
         private String mimeType;
 
-        @JsonProperty("kind")
         private String kind;
 
-        @JsonProperty("version_count")
+        @SerializedName("version_count")
         private Integer versionCount;
 
-        @JsonProperty("ownerid")
+        @SerializedName("ownerid")
         private String ownerId;
 
-        @JsonProperty("userid")
+        @SerializedName("userid")
         private String userId;
 
-        @JsonProperty("resource_identifier")
+        @SerializedName("resource_identifier")
         private String resourceIdentifier;
 
         public String getId() {
@@ -111,18 +108,19 @@ public class Variable extends Resource {
 
     private boolean invalidated = false;
 
+    @SerializedName("id")
     private String id;
 
     private Attributes attributes;
 
-    // constructor injects a Resource from which we can initialize our client, auth providers, etc.
-    @JsonCreator
-    Variable(
-            @JacksonInject final Resource resource,
-            @JsonProperty("id") final String id){
+    Variable(final Resource resource, final String id){
         super(resource);
         this.id = id;
         buildTargets();
+    }
+
+    Variable(){
+        /** deserializing ctor */
     }
 
     public Attributes getAttributes(){
@@ -180,7 +178,7 @@ public class Variable extends Resource {
     public String addValue(String value){
         attributes = null;
         Form form = new Form("value", value);
-        return target.path("values").request().post(Entity.form(form), String.class);
+        return getTarget().path("values").request().post(Entity.form(form), String.class);
     }
 
     public boolean exists(){
@@ -196,10 +194,17 @@ public class Variable extends Resource {
 
     private void fetchAttributes(){
         try{
-            attributes = target.request(MediaType.APPLICATION_JSON_TYPE).get(Attributes.class);
+            attributes = getTarget().request(MediaType.APPLICATION_JSON_TYPE).get(Attributes.class);
         }catch(ForbiddenException e){
             throw new NeedShowPermission(getId(), e);
         }
+    }
+
+    private WebTarget getTarget(){
+        if(target == null){
+            buildTargets();
+        }
+        return target;
     }
 
     private void buildTargets(){

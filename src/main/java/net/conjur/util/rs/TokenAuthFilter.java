@@ -1,5 +1,6 @@
-package net.conjur.api.authn;
+package net.conjur.util.rs;
 
+import net.conjur.api.authn.AuthnProvider;
 import net.conjur.util.Args;
 
 import javax.ws.rs.client.ClientRequestContext;

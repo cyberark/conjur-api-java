@@ -50,7 +50,7 @@ public class Variables  extends Resource {
     }
 
     private Variable create(Form params){
-        return variables.request("application/json").post(Entity.form(params), Variable.class);
+        return (Variable) variables.request("application/json").post(Entity.form(params), Variable.class).setRelative(this);
     }
 
     private WebTarget variable(String id){

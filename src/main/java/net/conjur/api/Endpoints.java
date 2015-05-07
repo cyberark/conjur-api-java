@@ -77,7 +77,6 @@ public class Endpoints implements Serializable {
         final URI authzUri = UriBuilder.fromUri(applianceUri).segment("authz").build();
 
         final Endpoints ep = new Endpoints(authnUri, authzUri, applianceUri);
-        System.out.println("giving endpoints " + ep);
         return new Endpoints(authnUri, authzUri, applianceUri);
     }
 
@@ -86,6 +85,7 @@ public class Endpoints implements Serializable {
     }
 
     /**
+     * @deprecated Conjur no longer supports hosted mode
      * Return endpoints for the specified hosted Conjur stack and account.
      * @param stack the Conjur stack
      * @param account the Conjur account
@@ -100,6 +100,7 @@ public class Endpoints implements Serializable {
     }
     
     /**
+     * @deprecated Conjur no longer supports hosted mode
      * Return endpoints for the specified hosted Conjur account.  If you don't know
      * what stack to use, you should use this method to get an instance.
      * @param account the Conjur account
@@ -138,6 +139,7 @@ public class Endpoints implements Serializable {
     }
 
     /**
+     * @deprecated
      * Return default Conjur endpoints, either those set by {@link Endpoints#setDefault(Endpoints)} 
      * or hosted endpoints for the sandbox account on the default stack.
      */
@@ -146,6 +148,7 @@ public class Endpoints implements Serializable {
     }
 
     /**
+     * @deprecated
      * Set the endpoints to return from {@link Endpoints#getDefault()}
      * @param defaultEndpoints
      */

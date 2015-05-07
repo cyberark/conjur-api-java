@@ -51,6 +51,7 @@ public class Users extends Resource {
     }
 
 
+
     private void init(){
         users = target(getEndpoints().getDirectoryUri()).path("users");
         roles = target(getEndpoints().getAuthzUri())

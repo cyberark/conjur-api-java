@@ -1,8 +1,10 @@
 package net.conjur.api;
 
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+import net.conjur.util.rs.JsonReadable;
 
+@JsonReadable
 public class User {
 
     /*
@@ -18,17 +20,15 @@ public class User {
      }
      */
     private String login;
-    @JsonProperty("userid")
+    @SerializedName("userid")
     private String userId;
-    @JsonProperty("ownerid")
+    @SerializedName("ownerid")
     private String ownerId;
-    @JsonProperty("uidnumber")
     private int uidNumber;
-    @JsonProperty("roleid")
+    @SerializedName("roleid")
     private String roleId;
-    @JsonProperty("resource_identifier")
+    @SerializedName("resource_identifier")
     private String resourceIdentifier;
-    @JsonProperty("api_key")
     private String apiKey;
 
 

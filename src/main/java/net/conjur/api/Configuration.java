@@ -1,28 +1,23 @@
 package net.conjur.api;
 
-import com.google.common.collect.ImmutableMap;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents a Conjur configuration, typically loaded from one or more .conjurrc files.
+ * @deprecated this is unused and will be replaced in future versions of the api.
  */
 public class Configuration {
-    private static final Object lock = new Object();
-    private static Configuration defaultConfiguration;
 
     private final Map<String, String> map = new HashMap<String, String>();
 
+    /**
+     * @deprecated
+     * @return
+     */
     public static Configuration getDefaultConfiguration(){
-        if(defaultConfiguration == null){
-            synchronized (lock){
-                if(defaultConfiguration == null){
-                    defaultConfiguration = new ConjurRCLoader().load();
-                }
-            }
-        }
-        return defaultConfiguration;
+       return new Configuration();
     }
 
     public Configuration(){}
@@ -74,7 +69,7 @@ public class Configuration {
     }
 
     public Map<String, String> toMap(){
-        return ImmutableMap.copyOf(map);
+        return Collections.unmodifiableMap(map);
     }
 
 

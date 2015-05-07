@@ -4,9 +4,7 @@ import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.util.Args;
 import net.conjur.util.HostNameVerification;
-import net.conjur.util.logging.LogFilter;
-import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
-import org.glassfish.jersey.jackson.JacksonFeature;
+import net.conjur.util.rs.HttpBasicAuthFilter;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
@@ -57,7 +55,6 @@ public class AuthnClient implements AuthnProvider {
         // POST users/<username>/authenticate with apiKey in body
         try{
             return Token.fromJson(
-
                     authenticate.request("application/json").post(Entity.text(password), String.class)
             );
         }catch(NotFoundException e){
@@ -82,12 +79,7 @@ public class AuthnClient implements AuthnProvider {
 
     private void init(){
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                    .register(new HttpBasicAuthFilter(username, password))
-                    .register(JacksonFeature.class);
-
-        if(requestLoggingEnabled()){
-            builder.register(new LogFilter());
-        }
+                .register(new HttpBasicAuthFilter(username, password));
 
         HostNameVerification.getInstance().updateClientBuilder(builder);
 
@@ -98,17 +90,5 @@ public class AuthnClient implements AuthnProvider {
         authenticate = root.path(encodeUriComponent(username)).path("authenticate");
         passwords = root.path("password");
     }
-
-
-
-    // TODO this is a stupid hack
-    private static final boolean requestLoggingEnabled(){
-        final String prop = System.getProperty("net.conjur.api.authn.requestLogging");
-        if(prop != null && prop.toLowerCase().equals("true")){
-            return true;
-        }
-        return false;
-    }
-
 
 }

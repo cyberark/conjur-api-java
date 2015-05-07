@@ -1,8 +1,6 @@
 package net.conjur.api.examples;
 
-import net.conjur.api.Conjur;
-import net.conjur.api.Credentials;
-import net.conjur.api.Endpoints;
+import net.conjur.api.*;
 
 /**
  * This example shows how to configure the Conjur API to talk to an
@@ -12,20 +10,37 @@ import net.conjur.api.Endpoints;
  */
 public class ApplianceExample {
     public static void main(String[] args){
-        // The appliance URL
-        final String applianceUrl = "https://ec2-107-21-87-192.compute-1.amazonaws.com/api";
+
+        /*
+         * Configure these appropriately
+         */
+        final String applianceUrl = "https://10.0.3.97/api";
+        final String login = "admin";
+        final String password = "password";
+
+
+
         final Endpoints endpoints = Endpoints.getApplianceEndpoints(applianceUrl);
 
-        System.out.println("authnUrl=" + endpoints.getAuthnUri());
-        System.out.println("authzUrl=" + endpoints.getAuthzUri());
-        System.out.println("directoryUri=" + endpoints.getDirectoryUri());
+        puts("authnUrl=" + endpoints.getAuthnUri());
+        puts("authzUrl=" + endpoints.getAuthzUri());
+        puts("directoryUri=" + endpoints.getDirectoryUri());
 
 
-        final String login = "admin";
-        final String password = "2xbwrtd9rfdb43e274jfqhtry6";
-        Credentials credentials = new Credentials(login, password);
-        Conjur conjur = new Conjur(credentials, endpoints);
 
-        conjur.variables().create("test");
+        final Credentials credentials = new Credentials(login, password);
+        final Conjur conjur = new Conjur(credentials, endpoints);
+
+        final Variable v = conjur.variables().create("test");
+        puts(v.getId() + ", " + v.getKind() + ", " + v.getMimeType() + ", " + v.getVersionCount());
+        v.addValue("hello");
+        puts("value=" + v.getValue() + " (" + v.getVersionCount() + ")");
+
+        final User user = conjur.users().create("foasdf", "pass");
+        puts("created " + user);
+    }
+
+    static void puts(String s){
+        System.out.println(s);
     }
 }
