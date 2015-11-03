@@ -1,0 +1,21 @@
+FROM java:7
+
+MAINTAINER Conjur Inc
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y vim wget curl git maven
+
+RUN mkdir -p /build
+
+WORKDIR /build
+
+
+ADD pom.xml pom.xml
+
+# Fetch all of the dependencies.
+RUN mvn dependency:go-offline
+
+ADD src src/
+
+CMD ["mvn", "install"]
