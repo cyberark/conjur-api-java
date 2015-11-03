@@ -9,4 +9,4 @@ docker run -t \
     -v $PWD/target:/build/target \
     conjur-api:latest
 
-
+mvn deploy
