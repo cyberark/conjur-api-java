@@ -141,6 +141,20 @@
     <packaging>jar</packaging>
 
 
+    <distributionManagement>
+        <repository>
+            <id>conjurinc</id>
+            <name>conjurinc-releases</name>
+            <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>conjurinc</id>
+            <name>conjurinc-snapshots</name>
+            <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
