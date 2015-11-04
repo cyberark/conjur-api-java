@@ -5,7 +5,7 @@
     <server>
       <username>${env.ARTIFACTORY_USERNAME}</username>
       <password>${env.ARTIFACTORY_PASSWORD}</password>
-      <id>conjurinc-release</id>
+      <id>conjurinc-releases</id>
     </server>
     <server>
       <username>${env.ARTIFACTORY_USERNAME}</username>
@@ -13,44 +13,4 @@
       <id>conjurinc-snapshots</id>
     </server>
   </servers>
-  <profiles>
-    <profile>
-      <repositories>
-        <repository>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>conjurinc-release</id>
-          <name>libs-release</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release</url>
-        </repository>
-        <repository>
-          <snapshots />
-          <id>conjurinc-snapshot</id>
-          <name>libs-snapshot</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>conjurinc-plugin-release</id>
-          <name>plugins-release</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/plugins-release</url>
-        </pluginRepository>
-        <pluginRepository>
-          <snapshots />
-          <id>conjurinc-plugin-snapshot</id>
-          <name>plugins-snapshot</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/plugins-snapshot</url>
-        </pluginRepository>
-      </pluginRepositories>
-      <id>artifactory</id>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <activeProfile>artifactory</activeProfile>
-  </activeProfiles>
 </settings>
