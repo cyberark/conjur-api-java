@@ -10,12 +10,12 @@ RUN mkdir -p /build
 
 WORKDIR /build
 
-
 ADD pom.xml pom.xml
+ADD settings.xml /root/.m2/settings.xml
 
 # Fetch all of the dependencies.
 RUN mvn dependency:go-offline
 
 ADD src src/
 
-CMD ["mvn", "package"]
+CMD ["mvn", "deploy"]

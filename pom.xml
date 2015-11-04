@@ -188,8 +188,8 @@
                 <version>1.0</version>
                 <configuration>
                     <systemProperties>
-
-                        <net.conjur.integrationTestsEnabled>${env.CONJUR_INTEGRATION_TESTS_ENABLED}
+                        <net.conjur.integrationTestsEnabled>
+                            ${env.CONJUR_INTEGRATION_TESTS_ENABLED}
                         </net.conjur.integrationTestsEnabled>
                         <net.conjur.api.credentials>${env.CONJUR_CREDENTIALS}</net.conjur.api.credentials>
                         <net.conjur.api.account>${env.CONJUR_ACCOUNT}</net.conjur.api.account>

@@ -5,8 +5,8 @@ docker build -t conjur-api -f Dockerfile.jenkins .
 
 mkdir -p $PWD/target
 
-docker run -t \
+summon docker run -t \
     -v $PWD/target:/build/target \
+    -e ARTIFACTORY_USERNAME \
+    -e ARTIFACTORY_PASSWORD \
     conjur-api:latest
-
-mvn deploy
