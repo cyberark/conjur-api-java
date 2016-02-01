@@ -22,4 +22,12 @@ public interface AuthnProvider {
      * @return a Conjur authentication token
      */
     Token authenticate(boolean useCachedToken);
+
+    /**
+     * Returns the username as which this client will authenticate.
+     *
+     * If we are authenticating as a host, the username is {@code "host/[hostid]"}.
+     * @return the username as which this client can authenticate.
+     */
+    String getUsername();
 }

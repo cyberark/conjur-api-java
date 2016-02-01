@@ -29,6 +29,10 @@ public class CachingAuthnProvider implements AuthnProvider {
         return token = base.authenticate(false);
     }
 
+    public String getUsername(){
+        return base.getUsername();
+    }
+
     private boolean isValid(Token token){
         return token != null && !token.willExpireWithin(60);
     }

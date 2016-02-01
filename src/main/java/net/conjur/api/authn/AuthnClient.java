@@ -51,6 +51,10 @@ public class AuthnClient implements AuthnProvider {
         this(credentials.getUsername(), credentials.getPassword());
     }
 
+    public String getUsername(){
+        return username;
+    }
+
     public Token authenticate() {
         // POST users/<username>/authenticate with apiKey in body
         try{

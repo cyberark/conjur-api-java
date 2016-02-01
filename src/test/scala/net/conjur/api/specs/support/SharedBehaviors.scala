@@ -50,11 +50,11 @@ trait AuthnClientBehaviors extends ShouldMatchers {this: FlatSpec =>
 }
 
 trait ResourceAuthnBehaviors extends ShouldMatchers with AuthnProviderBehaviors {this:FlatSpec =>
-  def resourceWithValidAuthn(resource: => Resource) {
-    "its authn provider" should behave like canAuthenticate(resource.getAuthn)
+  def resourceWithValidAuthn(restResource: => Resource) {
+    "its authn provider" should behave like canAuthenticate(restResource.getAuthn)
   }
 
-  def resourceWithInvalidAuthn(resource: => Resource) {
-    "its authn provider" should behave like canNotAuthenticate(resource.getAuthn)
+  def resourceWithInvalidAuthn(restResource: => Resource) {
+    "its authn provider" should behave like canNotAuthenticate(restResource.getAuthn)
   }
 }

@@ -1,10 +1,15 @@
 package net.conjur.api.authn;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+import net.conjur.util.Args;
 import net.conjur.util.JsonSupport;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a Conjur API authentication token.
@@ -14,6 +19,8 @@ public class Token {
     public static final DateTimeFormatter DATE_TIME_FORMATTER =
             // tokens use dates like 2013-10-01 18:48:32 UTC
             DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
+    private static final Pattern HEADER_PATTERN =
+            Pattern.compile("^Token token=\"(.*?)\"$");
 
     // Hold our fields in here to facilitate json serialization/deserialization
     private static class Fields {
@@ -89,6 +96,20 @@ public class Token {
 
     public static Token fromJson(String json){
         return new Token(json);
+    }
+
+    public static Token fromHeaderValue(String headerValue){
+        String trimmedHeaderValue = Args.notNull(headerValue, "headerValue").trim();
+        final Matcher matcher = HEADER_PATTERN.matcher(trimmedHeaderValue);
+        if(matcher.matches()){
+            final String token64 = matcher.group(1);
+            final byte[] tokenData = Base64.decodeBase64(token64);
+            return fromJson(new String(tokenData));
+        }else{
+            // NB: We could include the value of the header in the exception, however this
+            // would risk leaking a valid token into log files.
+            throw new IllegalArgumentException("Header format is not 'Token token=\"tokendata\"'.");
+        }
     }
 
 	public String toBase64(){

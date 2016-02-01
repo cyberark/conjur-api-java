@@ -10,10 +10,10 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 /**
  *
  */
-public class Variables  extends Resource {
+public class Variables  extends RestResource {
     private WebTarget variables;
 
-    Variables(Resource relative) {
+    Variables(RestResource relative) {
         super(relative);
         init();
     }

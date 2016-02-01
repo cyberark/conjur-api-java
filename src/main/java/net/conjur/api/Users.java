@@ -12,9 +12,9 @@ import javax.ws.rs.core.MediaType;
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 /**
- * Resource representing Conjur user services.
+ * RestResource representing Conjur user services.
  */
-public class Users extends Resource {
+public class Users extends RestResource {
     private WebTarget users;
     private WebTarget roles;
 
@@ -23,7 +23,7 @@ public class Users extends Resource {
         init();
     }
 
-    Users(Resource relative){
+    Users(RestResource relative){
         super(relative);
         init();
     }

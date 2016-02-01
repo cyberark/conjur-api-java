@@ -15,17 +15,17 @@ import java.net.URI;
 /**
  * Base class for Conjur service clients.
  * 
- * <p>A {@code Resource} is configured with an authentication provider thatm
+ * <p>A {@code RestResource} is configured with an authentication provider thatm
  * produces Conjur authentication tokens as needed, and endpoints for the Conjur
  * services</p>
  */
-public class Resource {
+public class RestResource {
     private static final Log LOG = LogFactory.getLog("Request logger");
     private AuthnProvider authn;
     private Endpoints endpoints;
     private Client client;
 
-    public Resource(AuthnProvider authn, Endpoints endpoints){
+    public RestResource(AuthnProvider authn, Endpoints endpoints){
         this.authn = authn;
         this.endpoints = endpoints;
         client = createClient();
@@ -34,10 +34,10 @@ public class Resource {
     /**
      * Create a resource using the same {@code AuthnProvider} and {@code Endpoints}
      * as {@code relative}.
-     * @param relative the {@code Resource} from which to take the authentication provider 
-     * and endpoints for the new {@code Resource}
+     * @param relative the {@code RestResource} from which to take the authentication provider
+     * and endpoints for the new {@code RestResource}
      */
-    public Resource(Resource relative){
+    public RestResource(RestResource relative){
         this(relative.getAuthn(), relative.getEndpoints());
     }
 
@@ -48,14 +48,14 @@ public class Resource {
         return authn;
     }
 
-    Resource setRelative(Resource relative){
+    RestResource setRelative(RestResource relative){
         this.authn = relative.getAuthn();
         this.endpoints = relative.getEndpoints();
         client = createClient();
         return this;
     }
 
-    Resource(){
+    RestResource(){
         /* private ctor, you must call setRelative after using it. */
     }
 
@@ -76,7 +76,7 @@ public class Resource {
     }
 
     /**
-     * @return The {@code Client} used by this {@code Resource}
+     * @return The {@code Client} used by this {@code RestResource}
      */
     protected Client client(){
         return client;

@@ -16,7 +16,7 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
  *
  */
 @JsonReadable
-public class Variable extends Resource {
+public class Variable extends RestResource {
     public static class NeedShowPermission extends RuntimeException {
         private static final String MESSAGE_FORMAT =
                 "The attributes for variable '%s' are not available without 'read' permission on the variable.  " +
@@ -113,8 +113,8 @@ public class Variable extends Resource {
 
     private Attributes attributes;
 
-    Variable(final Resource resource, final String id){
-        super(resource);
+    Variable(final RestResource restResource, final String id){
+        super(restResource);
         this.id = id;
         buildTargets();
     }
