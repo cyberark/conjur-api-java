@@ -1,11 +1,10 @@
 package net.conjur.api.examples;
 
-import net.conjur.api.Conjur;
-import net.conjur.api.Credentials;
-import net.conjur.api.User;
-import net.conjur.api.Variable;
+import net.conjur.api.*;
 
 import javax.ws.rs.ForbiddenException;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import java.util.Collection;
 
 /**
  *
@@ -24,63 +23,36 @@ public class BasicUsage {
     }
 
     public static void realMain(String[] argv) throws Throwable {
-        // First we need some credentials.  For tests, you can just read these
-        // from system properties, although in production this is bad science.
-        final Credentials credentials = Credentials.fromSystemProperties();
+        final String applianceUrl = System.getenv("CONJUR_APPLIANCE_URL");
+        final String login = System.getenv("CONJUR_AUTHN_LOGIN");
+        final String passwd = System.getenv("CONJUR_AUTHN_API_KEY");
 
+        final Endpoints endpoints = Endpoints.getApplianceEndpoints(applianceUrl);
+        final Credentials credentials = new Credentials(login, passwd);
         // Next we can create a Conjur instance from the credentials.  This instance
         // will use Endpoints.getDefault(), but you could also pass an Endpoints
         // object to the constructor.
-        final Conjur conjur = new Conjur(credentials);
+        final Conjur conjur = new Conjur(credentials, endpoints);
 
-        // Do everything in a namespace.  There's nothing particularly special about
-        // using createId to get it, you could also generate a big random string.
-        begin("Creating a unique id");
-        final String ns = conjur.variables().createId();
-        ok();
+        pp("conjur has account: %s", conjur.getAccount());
 
-        // Create a user named alice.  We ue the client's "users" resource to do so.
-        begin("Creating a user alice");
-        final User alice = conjur.users().create(ns + "alice");
-        ok();
-        pp("alice=%s", alice);
+        final Role role = conjur.authorization().getRole("user:emilia.calvo");
+        pp("made a role %s", role.getRoleId());
+        pp("exists? %s", role.exists());
 
-        // Create a client that authenticates as alice.
-        final Conjur aliceClient = new Conjur(alice.getLogin(), alice.getApiKey());
-
-        // Alice will store her secret question in a variable called "alice-secret".  Variables
-        // are created with a kind, mimeType, and optional identifier.
-        begin("Creating a variable for her secret question");
-        final Variable aliceSecret = aliceClient.variables().create("secret-question", "application/json", ns + "alice-secret");
-        ok();
-        pp("aliceSecret=%s", aliceSecret);
-
-        // Put a json object in the variable.  Variables are versioned, so we don't set values, we add them.
-       begin("Adding a value to her secret");
-       aliceSecret.addValue("{\"question\":\"What is your favorite color?\", \"answer\":\"blue\"}");
-       ok();
-
-        // Alice should be able to read her secret question.
-        begin("Fetching the value of the secret");
-        final String fetchedValue = aliceClient.variables().get(ns + "alice-secret").getValue();
-        ok();
-        pp("fetchedValue=%s", fetchedValue);
-
-        // Now we'll create a user named bob, and ensure that he can't access alice's secrets
-        begin("Creating an evil user named bob");
-        final User bob = conjur.users().create(ns + "bob");
-        ok();
-        pp("bob=%s", bob);
-        final Conjur bobClient = new Conjur(bob.getLogin(), bob.getApiKey());
-
-        // Bob is up to no good!
-        pp("Bob wants to know alice's secret O.o");
-        try{
-            final String stolenSecret = bobClient.variables().get(ns + "alice-secret").getValue();
-            qq("Yikes! He got it!");
-        }catch(ForbiddenException e){
-            pp("Denied! Evil is prevented!");
+        final Collection<Role> memberships = role.getMemberships();
+        pp("memberships of %s", role);
+        for(Role r : memberships){
+            pp("    %s", r);
         }
+
+        pp("can she fry bacon? %s", role.isPermitted("food:bacon", "fry"));
+        pp("can she eat bacon? %s", role.isPermitted("food:bacon", "eat"));
+
+        Role me = conjur.authorization().getCurrentRole();
+        pp("Who am I? %s", me);
+        pp("I bet I can eat that bacon!");
+        pp(me.isPermitted("food:bacon", "eat") ? "I CAN!" : "I CANNOT :-(");
     }
 
     // sugary stuff

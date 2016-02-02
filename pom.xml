@@ -43,6 +43,13 @@
             <version>3.0.0-milestone1</version>
         </dependency>
 
+        <!-- @NotNull, @Nullable and company -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
         <!-- JSON support -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

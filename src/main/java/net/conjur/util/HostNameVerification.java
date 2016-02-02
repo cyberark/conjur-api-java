@@ -42,6 +42,7 @@ public class HostNameVerification {
             showWarning();
             clientBuilder.hostnameVerifier(new HostnameVerifier() {
                 public boolean verify(String s, SSLSession sslSession) {
+                    System.out.println("verifying hostname " + s);
                     return true;
                 }
             });

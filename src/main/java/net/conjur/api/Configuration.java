@@ -1,97 +1,55 @@
 package net.conjur.api;
 
+import net.conjur.util.Args;
+
+import javax.annotation.Nonnull;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a Conjur configuration, typically loaded from one or more .conjurrc files.
- * @deprecated this is unused and will be replaced in future versions of the api.
+ * Represents a Conjur configuration, typically loaded from .conjurrc files and/or environment
+ * variables and system properties.
  */
 public class Configuration {
+    // ~ static accessors
+    private static Configuration defaultConfiguration =
+            new Configuration();
 
-    private final Map<String, String> map = new HashMap<String, String>();
-
-    /**
-     * @deprecated
-     * @return
-     */
-    public static Configuration getDefaultConfiguration(){
-       return new Configuration();
+    public static Configuration getDefault() {
+        return defaultConfiguration;
     }
 
-    public Configuration(){}
-
-    public Configuration(Map<String, String> values){
-        merge(values);
+    public static void setDefault(@Nonnull Configuration configuration){
+        defaultConfiguration = Args.notNull(configuration, "configuration");
     }
 
-    public String getApplianceUrl(){
-        return get("applianceUrl");
+    // ~ instance fields
+    private URI applianceUrl;
+    private String certificatePath;
+
+    // ~ properties
+    public URI getApplianceUrl(){
+        return applianceUrl;
     }
 
-    public void setApplianceUrl(String applianceUrl){
-        set("applianceUrl", applianceUrl);
-    }
-    public String getCertPath(){
-        return get("certPath");
+    public Configuration setApplianceUrl(String applianceUrl){
+        return setApplianceUrl(URI.create(applianceUrl));
     }
 
-    public void setCertPath(String certPath){
-        set("certPath", certPath);
-    }
-    public String getAccount(){
-        return get("account");
+    public Configuration setApplianceUrl(URI applianceUrl){
+        this.applianceUrl = Args.notNull(applianceUrl, "applianceUrl");
+        return this;
     }
 
-    public void setAccount(String account){
-        set("account", account);
-    }
-    public String getStack(){
-        return get("stack");
+    public String getCertificatePath(){
+        return certificatePath;
     }
 
-    public void setStack(String stack){
-        set("stack", stack);
+    public Configuration setCertificatePath(String certificatePath){
+        this.certificatePath = certificatePath;
+        return this;
     }
 
-
-    public String get(String key){
-        return map.get(key);
-    }
-
-    public void set(String key, String value){
-        map.put(key, value);
-    }
-
-    public void clear(){
-        map.clear();
-    }
-
-    public Map<String, String> toMap(){
-        return Collections.unmodifiableMap(map);
-    }
-
-
-    public void merge(Map<String, ?> values){
-        for(Map.Entry<String, ?> e : values.entrySet()){
-            if(e.getValue() instanceof String){
-                set(e.getKey(), (String) e.getValue());
-            }
-        }
-    }
-
-    public void merge(Configuration source){
-        merge(source.toMap());
-    }
-
-    public Configuration merged(Configuration source){
-        Configuration copy = copy();
-        copy.merge(source);
-        return copy;
-    }
-
-    public Configuration copy(){
-        return new Configuration(toMap());
-    }
 }

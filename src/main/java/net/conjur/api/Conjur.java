@@ -22,8 +22,7 @@ import javax.ws.rs.core.Response;
 public class Conjur extends RestResource {
     private Users users;
     private Variables variables;
-    // sigh
-    private String account;
+    private Authorization authorization;
 
     /**
      * @param authn used to authenticate requests to Conjur services
@@ -99,6 +98,8 @@ public class Conjur extends RestResource {
         return variables;
     }
 
+    public Authorization authorization(){ return authorization; }
+
     /**
      * Get the authentication provider for this instance.
      * @return the authentication provider
@@ -107,65 +108,8 @@ public class Conjur extends RestResource {
         return super.getAuthn();
     }
 
-    /**
-     * Check whether the authenticated role for this API instance has
-     * permission {@code privilege} on {@code resource}.  Resource should
-     * be a string like "account:kind:identifier" or "kind:identifier".
-     *
-     * @param resource identifier for the resource
-     * @param privilege name of the permission (e.g. "read", "update")
-     * @return whether the authenticated role for this instance has the privilege
-     *  on the given resource.
-     */
-    public boolean isPermitted(String resource, String privilege){
-        return isPermitted(usernameToRoleId(getAuthn().getUsername()),
-                resource, privilege);
-    }
 
-    /**
-     * Check whether the given role has permission {@code privilege} on {@code resource}.
-     * Resource and role should be a string like "account:kind:identifier" or "kind:identifier".
-     *
-     * @param role identifier of the role
-     * @param resource identifier for the resource
-     * @param privilege name of the permission (e.g. "read", "update")
-     * @return whether the authenticated role for this instance has the privilege
-     *  on the given resource.
-     */
-    public boolean isPermitted(String role, String resource, String privilege){
-        Args.notNull(privilege, "privilege");
 
-        ConjurIdentifier roleId = ConjurIdentifier.parse(role, getAccount());
-        ConjurIdentifier resourceId = ConjurIdentifier.parse(resource, getAccount());
-
-        WebTarget check = getRoleTarget(roleId)
-                .queryParam("check", "true")
-                .queryParam("resource_id", resourceId.toString())
-                .queryParam("privilege", privilege);
-
-        try{
-            check.request().get();
-        }catch(ForbiddenException e){
-            return false;
-        }catch(NotFoundException e){
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Get the account for this instance.  This method queries the Conjur appliances /api/info route,
-     * then caches the result.
-     *
-     * @return the Conjur account
-     */
-    public String getAccount(){
-        if(account == null){
-            account = fetchAccount();
-        }
-        return account;
-    }
 
     private WebTarget getRoleTarget(ConjurIdentifier roleId){
         return target(getEndpoints().getAuthzUri())
@@ -175,32 +119,15 @@ public class Conjur extends RestResource {
                 .path(roleId.getId());
     }
 
-    private String fetchAccount(){
-        final WebTarget target = target(getEndpoints().getDirectoryUri()).path("info");
-        return target.request(MediaType.APPLICATION_JSON_TYPE).get(Info.class).account;
-    }
 
-    private String usernameToRoleId(String username){
-        String kind = "user";
 
-        if(username.startsWith("host/")){
-            kind = "host";
-            username = username.substring(5);
-        }
-
-        return kind + ":" + username;
-    }
 
     private void init(){
         users = new Users(this);
         variables = new Variables(this);
+        authorization = new Authorization(this);
     }
 
-    @JsonReadable
-    private static class Info {
-        @SerializedName("account")
-        public String account;
-    }
 
 
 }

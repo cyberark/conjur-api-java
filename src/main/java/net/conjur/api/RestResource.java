@@ -1,8 +1,10 @@
 package net.conjur.api;
 
+import com.google.gson.annotations.SerializedName;
 import net.conjur.api.authn.AuthnProvider;
 import net.conjur.util.HostNameVerification;
 import net.conjur.util.rs.JsonBodyReader;
+import net.conjur.util.rs.JsonReadable;
 import net.conjur.util.rs.TokenAuthFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import java.net.URI;
 
 /**
@@ -24,6 +27,7 @@ public class RestResource {
     private AuthnProvider authn;
     private Endpoints endpoints;
     private Client client;
+    private String account =  null;
 
     public RestResource(AuthnProvider authn, Endpoints endpoints){
         this.authn = authn;
@@ -57,6 +61,40 @@ public class RestResource {
 
     RestResource(){
         /* private ctor, you must call setRelative after using it. */
+    }
+
+    /**
+     * Get the account for this instance.  This method queries the Conjur appliances /api/info route,
+     * then caches the result.
+     *
+     * @return the Conjur account
+     */
+    public String getAccount(){
+        if(account == null){
+            account = fetchAccount();
+        }
+        return account;
+    }
+
+    public ConjurIdentifier resolveId(String id){
+        return ConjurIdentifier.parse(id, getAccount());
+    }
+
+    protected String usernameToRoleId(String username){
+        String kind = "user";
+
+        if(username.startsWith("host/")){
+            kind = "host";
+            username = username.substring(5);
+        }
+
+        return kind + ":" + username;
+    }
+
+
+    private String fetchAccount(){
+        final WebTarget target = target(getEndpoints().getDirectoryUri()).path("info");
+        return target.request(MediaType.APPLICATION_JSON_TYPE).get(Info.class).account;
     }
 
     /**
@@ -96,4 +134,10 @@ public class RestResource {
         return builder.build();
     }
 
+
+    @JsonReadable
+    private static class Info {
+        @SerializedName("account")
+        public String account;
+    }
 }
