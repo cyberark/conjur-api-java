@@ -1,6 +1,5 @@
 package net.conjur.api.authn;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import net.conjur.util.Args;
 import net.conjur.util.JsonSupport;
 import org.apache.commons.codec.binary.Base64;

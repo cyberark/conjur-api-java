@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 /**
- *
+ *  Helpers for reading and writing JSON using google's Gson library.
  */
 public class JsonSupport {
     public static String toJson(Object object){

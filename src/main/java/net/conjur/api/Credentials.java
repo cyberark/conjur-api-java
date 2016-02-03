@@ -2,7 +2,6 @@ package net.conjur.api;
 
 import net.conjur.util.Args;
 
-import static net.conjur.util.Args.notNull;
 
 /**
  * Stores credentials for a Conjur identity.
@@ -65,7 +64,7 @@ public class Credentials {
      * @throws IllegalArgumentException if the string is not in the above format.
      */
     public static Credentials fromString(String string){
-        String[] parts = notNull(string, "Credentials").split(":", 2);
+        String[] parts = Args.notNull(string, "Credentials").split(":", 2);
         if(parts.length != 2)
             throw new IllegalArgumentException("Invalid credential string \"" + string + "\"");
         return new Credentials(parts[0], parts[1]);

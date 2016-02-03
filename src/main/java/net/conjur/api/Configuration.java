@@ -4,9 +4,6 @@ import net.conjur.util.Args;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents a Conjur configuration, typically loaded from .conjurrc files and/or environment

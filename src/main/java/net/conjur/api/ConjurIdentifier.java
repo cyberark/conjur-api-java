@@ -2,9 +2,6 @@ package net.conjur.api;
 
 import net.conjur.util.Args;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Parses and represents a fully qualified Conjur identifier.
  */

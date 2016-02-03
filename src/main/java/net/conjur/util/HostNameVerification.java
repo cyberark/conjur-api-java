@@ -5,7 +5,7 @@ import javax.net.ssl.SSLSession;
 import javax.ws.rs.client.ClientBuilder;
 
 /**
- * Don't use this!
+ * Don't use this in production!!
  */
 public class HostNameVerification {
 
@@ -42,7 +42,6 @@ public class HostNameVerification {
             showWarning();
             clientBuilder.hostnameVerifier(new HostnameVerifier() {
                 public boolean verify(String s, SSLSession sslSession) {
-                    System.out.println("verifying hostname " + s);
                     return true;
                 }
             });

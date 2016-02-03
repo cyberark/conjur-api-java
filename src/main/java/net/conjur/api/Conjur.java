@@ -1,17 +1,9 @@
 package net.conjur.api;
 
-import com.google.gson.annotations.SerializedName;
 import net.conjur.api.authn.AuthnClient;
 import net.conjur.api.authn.AuthnProvider;
-import net.conjur.util.Args;
-import net.conjur.util.JsonSupport;
-import net.conjur.util.rs.JsonReadable;
 
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  * Entry point for the Conjur API client.

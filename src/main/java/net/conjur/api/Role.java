@@ -1,13 +1,11 @@
 package net.conjur.api;
 
 import net.conjur.util.Args;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -63,11 +61,6 @@ public class Role extends RestResource implements HasRole {
         }
 
         return true;
-    }
-
-    public void create(HasRole owner){
-        // TODO
-        throw new NotImplementedException();
     }
 
     public boolean exists(){

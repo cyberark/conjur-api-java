@@ -2,8 +2,6 @@ package net.conjur.api.examples;
 
 import net.conjur.api.*;
 
-import javax.ws.rs.ForbiddenException;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import java.util.Collection;
 
 /**

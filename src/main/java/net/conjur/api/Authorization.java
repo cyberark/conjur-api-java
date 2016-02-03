@@ -1,12 +1,5 @@
 package net.conjur.api;
 
-import net.conjur.api.RestResource;
-import net.conjur.util.Args;
-
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.WebTarget;
-
 public class Authorization extends RestResource {
     Authorization(RestResource relative){
         super(relative);

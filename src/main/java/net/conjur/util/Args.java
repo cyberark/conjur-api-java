@@ -3,7 +3,6 @@ package net.conjur.util;
  * Copied from org.apache.http.utils.Args to avoid dependencies.
  */
 
-import java.net.URI;
 import java.util.Collection;
 
 /**
