@@ -14,3 +14,7 @@ Started on April 15th 2015
     - Remove non-JAXRS usage to allow users to provide their own implementation of the standard.
     - Handle JSON with Gson
 
+2/3/16 v1.5.0
+
+    - Add permission checking and role membership.
+    - Some cleanup and improvement.
