@@ -38,9 +38,9 @@
         (codehaus has one, I think).
         -->
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>3.0.0-milestone1</version>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.22.1</version>
         </dependency>
 
         <!-- @NotNull, @Nullable and company -->
