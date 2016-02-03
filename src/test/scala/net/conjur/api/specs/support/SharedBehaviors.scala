@@ -2,7 +2,7 @@ package net.conjur.api.specs.support
 
 import org.scalatest.{ShouldMatchers, FlatSpec, FunSpec, GivenWhenThen}
 import net.conjur.api.authn.{AuthnClient, AuthnProvider}
-import net.conjur.api.{Resource, Credentials}
+import net.conjur.api.{RestResource, Credentials}
 import javax.ws.rs.NotAuthorizedException
 
 /**
@@ -50,11 +50,11 @@ trait AuthnClientBehaviors extends ShouldMatchers {this: FlatSpec =>
 }
 
 trait ResourceAuthnBehaviors extends ShouldMatchers with AuthnProviderBehaviors {this:FlatSpec =>
-  def resourceWithValidAuthn(restResource: => Resource) {
+  def resourceWithValidAuthn(restResource: => RestResource) {
     "its authn provider" should behave like canAuthenticate(restResource.getAuthn)
   }
 
-  def resourceWithInvalidAuthn(restResource: => Resource) {
+  def resourceWithInvalidAuthn(restResource: => RestResource) {
     "its authn provider" should behave like canNotAuthenticate(restResource.getAuthn)
   }
 }

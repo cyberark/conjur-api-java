@@ -53,6 +53,7 @@ class CachingAuthnProviderTest extends FlatSpec
         calls += 1
         admin.authenticate
       }
+      def getUsername:String = admin.getUsername
     }
 
     val authn = new CachingAuthnProvider(mockAuthn)
