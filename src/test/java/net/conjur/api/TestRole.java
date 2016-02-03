@@ -1,5 +1,6 @@
 package net.conjur.api;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import net.conjur.api.support.Appliance;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,6 +27,7 @@ public class TestRole {
         outside = conjur.authorization().getResource("place:" + namespace + "/outside");
         outside.createIfNotFound();
         cats = conjur.authorization().getRole("animal:" + namespace + "/cats");
+        cats.createIfNotExists();
     }
 
     @Test
@@ -52,7 +54,28 @@ public class TestRole {
     }
 
     @Test
-    public void testGrant(){
+    public void testGetMemberships(){
+        cat.createIfNotExists();
+        assertEquals("new role should belong only to itself",
+                cat.getMemberships(), Collections.singletonList(cat));
+    }
 
+    @Test
+    public void testGrant(){
+        cat.createIfNotExists();
+        cats.createIfNotExists();
+        assertEquals(cat.getMemberships(), Collections.singletonList(cat));
+        cats.grantTo(cat);
+        assertTrue("cat should be a member of cats", cat.getMemberships().contains(cats));
+    }
+
+    @Test
+    public void testRevoke(){
+        cats.createIfNotExists();
+        cat.createIfNotExists();
+        cats.grantTo(cat);
+        assertTrue("cat should be a member of cats", cat.getMemberships().contains(cats));
+        cats.revokeFrom(cat);
+        assertFalse("cat should not be a member of cats", cat.getMemberships().contains(cats));
     }
 }

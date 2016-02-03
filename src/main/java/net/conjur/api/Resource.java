@@ -70,15 +70,23 @@ public class Resource extends RestResource implements HasResource {
                 .queryParam("privilege", encodeUriComponent(privilege))
                 .queryParam("role", encodeUriComponent(roleId.toString())).build();
 
-        target(uri).request().post(Entity.entity("", "text/plain"));
+        target(uri).request().post(Entity.entity("", "text/plain"), String.class);
     }
 
     public void deny(HasRole role, String privilege){
-        throw new RuntimeException("not yet!");
+        String roleId = role.getRole().getRoleId().toString();
+        final URI uri = getResourceUriBuilder()
+                .queryParam("deny", "true")
+                .queryParam("privilege", encodeUriComponent(privilege))
+                .queryParam("role", encodeUriComponent(roleId))
+                .build();
+        System.out.println("Revoking with " + uri.toString());
+        String result = target(uri).request().post(Entity.entity("", "text/plain"), String.class);
+        System.err.println("revoke result: " + result);
     }
 
     private UriBuilder getResourceUriBuilder(){
-        return resourceUriBuilder.resolveTemplate("account", getAccount())
+        return resourceUriBuilder.clone().resolveTemplate("account", getAccount())
                 .resolveTemplate("kind", getResourceId().getKind())
                 .resolveTemplate("id", getResourceId().getId());
     }

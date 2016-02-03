@@ -94,7 +94,7 @@ public class Role extends RestResource implements HasRole {
             target = target.queryParam("acting_as", encodeUriComponent(actingAs.getRole().getRoleId().toString()));
         }
 
-        target.request().put(Entity.entity("","text/plain"));
+        target.request().put(Entity.entity("","text/plain"), String.class);
     }
 
     public boolean exists(){
@@ -102,11 +102,23 @@ public class Role extends RestResource implements HasRole {
     }
 
     public void grantTo(HasRole otherRole){
-        throw new RuntimeException("not yet!");
+        resolveMembersTarget(otherRole, null)
+                .request()
+                .put(Entity.entity("", "text/plain"), String.class);
+    }
+
+    public void grantTo(HasRole otherRole, boolean adminOption){
+        resolveMembersTarget(otherRole, adminOption)
+                .request()
+                .put(Entity.entity("", "text/plain"), String.class);
+    }
+
+    public void revokeFrom(HasRole otherRole, boolean adminOption){
+        resolveMembersTarget(otherRole, adminOption).request().delete(String.class);
     }
 
     public void revokeFrom(HasRole otherRole){
-        throw new RuntimeException("not yet!");
+        resolveMembersTarget(otherRole, null).request().delete(String.class);
     }
 
     /**
@@ -127,6 +139,19 @@ public class Role extends RestResource implements HasRole {
 
     private WebTarget resolveRoleTarget(){
         return roleTarget.resolveTemplate("account", getAccount());
+    }
+
+    // gives us the target for revoking and granting
+    private WebTarget resolveMembersTarget(HasRole member, Boolean adminOption){
+        String memberId = member.getRole().getRoleId().toString();
+        WebTarget result = resolveRoleTarget()
+                .queryParam("members","true")
+                .queryParam("member", encodeUriComponent(memberId));
+        if(adminOption != null) {
+            return result.queryParam("admin_option", adminOption ? "true" : "false");
+        }else{
+            return result;
+        }
     }
 
     private void initializeTargets(){

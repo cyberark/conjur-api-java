@@ -59,7 +59,10 @@ public class JsonBodyReader implements MessageBodyReader<Object> {
 
         // handle reading a JSON array
         if(klass.isArray()){
-            return isReadable(klass.getComponentType());
+            Class<?> componentClass =  klass.getComponentType();
+            return componentClass.isPrimitive() ||
+                    componentClass.equals(String.class) ||
+                    isReadable(componentClass);
         }
 
         if(readableClasses.contains(klass)) return true;

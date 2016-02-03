@@ -42,4 +42,18 @@ public class TestResource {
         subject.permit(role, "eat");
         assertTrue("subject can eat bacon after permitted", role.isPermitted(subject, "eat"));
     }
+
+    @Test
+    public void testDeny(){
+        subject.createIfNotFound();
+        assertTrue("subject should exist", subject.exists());
+        Role role = conjur.authorization().getRole("user:" + namespace + "/françois");
+        role.createIfNotExists();
+        assertTrue("role should exist", role.exists());
+        assertFalse("role can't eat bacon", role.isPermitted(subject, "eat"));
+        subject.permit(role, "eat");
+        assertTrue("role can eat bacon after permitted", role.isPermitted(subject, "eat"));
+        subject.deny(role, "eat");
+        assertFalse("after deny role cannot eat bacon", role.isPermitted(subject, "eat"));
+    }
 }
