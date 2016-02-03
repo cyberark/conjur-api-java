@@ -18,4 +18,6 @@ RUN mvn dependency:go-offline
 
 ADD src src/
 
-CMD ["mvn", "clean", "deploy"]
+RUN rm -rf /build/target
+
+CMD ["mvn", "deploy"]
