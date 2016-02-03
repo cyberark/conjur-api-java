@@ -56,10 +56,6 @@ public class JsonBodyReader implements MessageBodyReader<Object> {
         if(klass == null)
             return false;
 
-        // primitive types and strngs are always readable; via json
-        if(klass.isPrimitive() || klass.equals(String.class)){
-            return true;
-        }
 
         // handle reading a JSON array
         if(klass.isArray()){

@@ -13,14 +13,5 @@ public class Authorization extends RestResource {
         return new Resource(this, resolveId(id));
     }
 
-    public Role getCurrentRole() {
-        String username = getAuthn().getUsername();
-        String kind = "user";
-        if(username.startsWith("host/")){
-            username = username.substring(5);
-            kind = "host";
-        }
 
-        return getRole(kind + ":" + username);
-    }
 }

@@ -4,10 +4,14 @@ import net.conjur.util.Args;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 /**
  * This class represents a Conjur role.  A {@code Role} instance can be obtained from an id through the {@code getRole}
@@ -41,6 +45,10 @@ public class Role extends RestResource implements HasRole {
         return this;
     }
 
+    public boolean isPermitted(HasResource resource, String privilege){
+        return isPermitted(resource.getResource().getResourceId(), privilege);
+    }
+
     public boolean isPermitted(String resourceId, String privilege){
         return isPermitted(ConjurIdentifier.parse(resourceId, getAccount()),
                 privilege);
@@ -63,16 +71,42 @@ public class Role extends RestResource implements HasRole {
         return true;
     }
 
-    public boolean exists(){
-        try{
-            resolveRoleTarget().request().get();
-        }catch(NotFoundException e){
-            return false;
-        }catch(ForbiddenException e){
-            // role exists, but we can't see its details.
-            return true;
+    public void createIfNotExists(HasRole actingAs){
+        if(!exists()){
+            create(actingAs);
         }
-        return true; // everything's cool
+    }
+
+    public void createIfNotExists(){
+        createIfNotExists(null);
+    }
+
+    public void create(){
+        create(null);
+    }
+
+    public void create(HasRole actingAs){
+
+
+        WebTarget target = resolveRoleTarget();
+
+        if(actingAs != null){
+            target = target.queryParam("acting_as", encodeUriComponent(actingAs.getRole().getRoleId().toString()));
+        }
+
+        target.request().put(Entity.entity("","text/plain"));
+    }
+
+    public boolean exists(){
+        return checkExists(resolveRoleTarget());
+    }
+
+    public void grantTo(HasRole otherRole){
+        throw new RuntimeException("not yet!");
+    }
+
+    public void revokeFrom(HasRole otherRole){
+        throw new RuntimeException("not yet!");
     }
 
     /**

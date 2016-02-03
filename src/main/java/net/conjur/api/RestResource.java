@@ -9,10 +9,13 @@ import net.conjur.util.rs.TokenAuthFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.net.URI;
 
 /**
@@ -74,6 +77,45 @@ public class RestResource {
             account = fetchAccount();
         }
         return account;
+    }
+
+    protected boolean checkExists(URI uri){
+        return checkExists(target(uri));
+    }
+
+    protected boolean checkExists(WebTarget resource){
+        final Response response = resource.request().get();
+
+        if(response.getStatus() < 300){
+            return true;
+        }
+
+        if(response.getStatus() == 403){
+            return true;
+        }
+
+        if(response.getStatus() == 404){
+            return false;
+        }
+
+
+        try{
+            resource.request().get(String.class);
+        }catch(NotFoundException e){
+            return false;
+        }catch(ForbiddenException e){
+            return true;
+        }
+        return true;
+    }
+
+
+    public Role getCurrentRole(){
+        ConjurIdentifier id = ConjurIdentifier.parse(
+                usernameToRoleId(getAuthn().getUsername()),
+                getAccount()
+        );
+        return new Role(this, id);
     }
 
     public ConjurIdentifier resolveId(String id){
