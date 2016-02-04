@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -x
-registry='localhost:8080'
+registry='registry.tld'
 appliance_image="$registry/conjur-appliance-cuke-master:4.6-stable"
 appliance_name='cuke-master'
 cidfile=tmp/cidfile
