@@ -18,7 +18,7 @@ public class HostNameVerification {
             "net.conjur.api.disableHostnameVerification";
     // or with an environment variable
     public static final String DISABLE_HOSTNAME_VERIFICATION_KEY =
-            "CONJUR_JAVA_DISABLE_HOSTNAME_VERIFICATION";
+            "CONJUR_JAVA_API_DISABLE_HOSTNAME_VERIFICATION";
 
 
     private static final HostNameVerification instance = new HostNameVerification();
