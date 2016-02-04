@@ -1,11 +1,10 @@
 package net.conjur.api;
 
-import static net.conjur.util.EncodeUriComponent.*;
-
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 /**
  * Represents a Conjur resource.

@@ -13,6 +13,8 @@ import scala.collection.script.End;
 import static net.conjur.util.TextUtils.isEmpty;
 
 public class Appliance implements TestRule {
+    private static boolean availabilityExplained = false;
+
 
     private String applianceUrl = System.getenv("CONJUR_APPLIANCE_URL");
     private String login = System.getenv("CONJUR_AUTHN_LOGIN");
@@ -30,10 +32,16 @@ public class Appliance implements TestRule {
     }
 
     public boolean isAvailable(){
-        return enabled &&
+        boolean result = enabled &&
                 isPresent(applianceUrl) &&
                 isPresent(login) &&
                 isPresent(apiKey);
+
+        if(!result){
+            explainAvailability(this);
+        }
+
+        return result;
     }
 
     public Statement apply(final Statement base, final Description description) {
@@ -52,5 +60,17 @@ public class Appliance implements TestRule {
 
     private static boolean isPresent(CharSequence s){
         return !isEmpty(s);
+    }
+
+    private static void explainAvailability(Appliance subject){
+        if(!availabilityExplained){
+            availabilityExplained = true;
+            System.err.println("Conjur appliance is unavailable:");
+            System.err.printf("\tapplianceUrl=%s\n", subject.applianceUrl);
+            System.err.printf("\tlogin=%s\n", subject.login);
+            System.err.printf("\tapiKey=%s\n", subject.apiKey);
+            System.err.printf("\tenabled=%s\n", subject.enabled);
+            System.err.printf("\t$CONJUR_JUNIT_APPLIANCE_AVAILABLE=%s", System.getenv("CONJUR_JUNIT_APPLIANCE_AVAILABLE"));
+        }
     }
 }

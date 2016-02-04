@@ -1,8 +1,12 @@
 package net.conjur.util;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
+import javax.net.ssl.*;
 import javax.ws.rs.client.ClientBuilder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * Don't use this in production!!
@@ -11,6 +15,7 @@ public class HostNameVerification {
 
     public static final String DISABLE_HOSTNAME_VERIFICATION_PROPERTY =
             "net.conjur.api.disableHostnameVerification";
+
 
     private static final HostNameVerification instance = new HostNameVerification();
 
@@ -40,11 +45,7 @@ public class HostNameVerification {
     public ClientBuilder updateClientBuilder(ClientBuilder clientBuilder){
         if(isHostNameVerificationDisabled()){
             showWarning();
-            clientBuilder.hostnameVerifier(new HostnameVerifier() {
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
-                }
-            });
+            return clientBuilder.sslContext(createGullibleSSLContext());
         }
         return clientBuilder;
     }
@@ -60,6 +61,34 @@ public class HostNameVerification {
                     "   YOU SHOULD NOT DO THIS!!!\n" +
                     "*********************************************************************\n");
 
+        }
+    }
+
+    private SSLContext createGullibleSSLContext(){
+        try {
+            final SSLContext context = SSLContext.getInstance("SSL");
+            context.init(null, new TrustManager[]{ new GullibleTrustManager() }, new SecureRandom());
+            return context;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("failed to disable hostname verification", e);
+        } catch (KeyManagementException e) {
+            throw new RuntimeException("failed to disable hostname verification", e);
+        }
+
+    }
+
+    class GullibleTrustManager implements X509TrustManager {
+
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+            // Do nothing to trust it
+        }
+
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+            // Do nothing to trust it
+        }
+
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
         }
     }
 }
