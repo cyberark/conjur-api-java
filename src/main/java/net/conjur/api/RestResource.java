@@ -171,7 +171,7 @@ public class RestResource {
         ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new TokenAuthFilter(authn))
                 .register(new JsonBodyReader());
-        HostNameVerification.getInstance().updateClientBuilder(builder);
+        builder = HostNameVerification.getInstance().updateClientBuilder(builder);
 
         return builder.build();
     }

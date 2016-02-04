@@ -13,8 +13,12 @@ import java.security.cert.X509Certificate;
  */
 public class HostNameVerification {
 
+    // hostname verification can be disabled with a system property
     public static final String DISABLE_HOSTNAME_VERIFICATION_PROPERTY =
             "net.conjur.api.disableHostnameVerification";
+    // or with an environment variable
+    public static final String DISABLE_HOSTNAME_VERIFICATION_KEY =
+            "CONJUR_JAVA_DISABLE_HOSTNAME_VERIFICATION";
 
 
     private static final HostNameVerification instance = new HostNameVerification();
@@ -23,23 +27,26 @@ public class HostNameVerification {
         return instance;
     }
 
+    private boolean hostNameVerificationDisabled = false;
+    private boolean warned = false;
 
-    private Boolean hostNameVerificationDisabled = null;
-
-    public boolean isHostNameVerificationDisabled(){
-        if(hostNameVerificationDisabled == null){
-            final String prop = System.getProperty(DISABLE_HOSTNAME_VERIFICATION_PROPERTY);
-            if(prop != null && prop.equals("true")){
-                hostNameVerificationDisabled = true;
-            }else{
-                hostNameVerificationDisabled = false;
-            }
-        }
-        return hostNameVerificationDisabled;
+    private HostNameVerification(){
+        initializeFromEnvironment();
     }
 
-    public void setHostNameVerificationDisabled(boolean disabled){
-        hostNameVerificationDisabled = disabled;
+    private void initializeFromEnvironment(){
+        final String property = System.getProperty(DISABLE_HOSTNAME_VERIFICATION_PROPERTY);
+        final String env = System.getenv(DISABLE_HOSTNAME_VERIFICATION_KEY);
+
+        if("true".equals(property) || "true".equals(env)){
+            hostNameVerificationDisabled = true;
+        }
+    }
+
+
+
+    public boolean isHostNameVerificationDisabled(){
+        return hostNameVerificationDisabled;
     }
 
     public ClientBuilder updateClientBuilder(ClientBuilder clientBuilder){
@@ -50,17 +57,16 @@ public class HostNameVerification {
         return clientBuilder;
     }
 
-
-    private static boolean warned = false;
-    private static void showWarning(){
+    private void showWarning(){
         if(!warned){
             warned = true;
             System.err.print("*********************************************************************\n" +
                     "   WARNING!!! \n" +
-                    "   You have disabled hostname verification by setting the " + DISABLE_HOSTNAME_VERIFICATION_PROPERTY + " system property!!!\n" +
-                    "   YOU SHOULD NOT DO THIS!!!\n" +
+                    "   You have disabled hostname verification by setting the " +
+                        DISABLE_HOSTNAME_VERIFICATION_PROPERTY + " system property\n" +
+                    "   or the " + DISABLE_HOSTNAME_VERIFICATION_KEY + " environment variable" +
+                    "   YOU SHOULD NOT DO THIS IN PRODUCTION!!!!\n" +
                     "*********************************************************************\n");
-
         }
     }
 
@@ -77,7 +83,7 @@ public class HostNameVerification {
 
     }
 
-    class GullibleTrustManager implements X509TrustManager {
+    private class GullibleTrustManager implements X509TrustManager {
 
         public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
             // Do nothing to trust it
@@ -88,6 +94,7 @@ public class HostNameVerification {
         }
 
         public X509Certificate[] getAcceptedIssuers() {
+            // return null to trust everything
             return null;
         }
     }
