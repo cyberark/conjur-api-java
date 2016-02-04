@@ -21,7 +21,6 @@ public class TestResource {
         conjur = appliance.getConjur();
         namespace = conjur.variables().createId();
         subject = conjur.authorization().getResource("food:" + namespace + "/bacon");
-        System.err.printf("Using namespace %s\n", namespace);
     }
 
     @Test

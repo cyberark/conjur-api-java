@@ -79,9 +79,7 @@ public class Resource extends RestResource implements HasResource {
                 .queryParam("privilege", encodeUriComponent(privilege))
                 .queryParam("role", encodeUriComponent(roleId))
                 .build();
-        System.out.println("Revoking with " + uri.toString());
-        String result = target(uri).request().post(Entity.entity("", "text/plain"), String.class);
-        System.err.println("revoke result: " + result);
+        target(uri).request().post(Entity.entity("", "text/plain"), String.class);
     }
 
     private UriBuilder getResourceUriBuilder(){
