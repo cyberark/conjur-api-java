@@ -203,6 +203,7 @@
                         <net.conjur.api.stack>${env.CONJUR_STACK}</net.conjur.api.stack>
                         <net.conjur.api.resource.requestLogging>true</net.conjur.api.resource.requestLogging>
                         <net.conjur.api.authn.requestLogging>true</net.conjur.api.authn.requestLogging>
+                        <net.conjur.api.disableHostnameVerification>${env.CONJUR_JAVA_API_DISABLE_HOSTNAME_VERIFICATION}</net.conjur.api.disableHostnameVerification>
                     </systemProperties>
                 </configuration>
                 <executions>
