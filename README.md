@@ -26,7 +26,7 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 </dependency>
 ```
 
-If you aren't using Maven (lucky you!), you can just add the `jar` in the normal way.  This `jar` can be found in
+If you aren't using Maven, you can add the `jar` in the normal way.  This `jar` can be found in
 the `target` directory created when you ran `mvn package`.
 
 
@@ -64,7 +64,7 @@ If you want to use specific, custom URLs for some reason, you can use the
 By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
 Java to trust them. You can accomplish this by loading the Conjur certificate into 
 the Java keystore.
-First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](linklink).  Once you've 
+First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://developer.conjur.net/cli).  Once you've 
 installed the command line tools, you can run
 
 ```bash
