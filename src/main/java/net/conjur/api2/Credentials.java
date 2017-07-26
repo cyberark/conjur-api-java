@@ -13,11 +13,12 @@ public class Credentials {
         this.hostname = hostname;
         this.apiKey = apiKey;
         this.url = url;
+        this.accountName = accountName;
     }
 
     public static Credentials fromSystemProperties(){
         String credentials = System.getProperty(CREDENTIALS_PROPERTY);
-        String[] parts = credentials.split(":"); // Assuming credentials are written in the systemParams in this way: "hostname:apiKey:url"
+        String[] parts = credentials.split(":"); // Assuming credentials are written in the systemParams in this way: "hostname:apiKey:url:accountName"
         return new Credentials(parts[0], parts[1], parts[2], parts[3]);
     }
 
