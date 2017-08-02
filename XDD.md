@@ -1,7 +1,7 @@
 # XDD Overview
 
 ## Problem
-As a developer, how do I retrieve secrets from Conjur CE using Java.
+As a developer, how do I retrieve secrets from Conjur CE using Java?
 
 ## User Experience:
 
