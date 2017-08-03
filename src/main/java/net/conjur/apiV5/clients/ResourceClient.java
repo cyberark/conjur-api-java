@@ -2,6 +2,8 @@ package net.conjur.apiV5.clients;
 
 import net.conjur.apiV5.Endpoints;
 import net.conjur.apiV5.Token;
+
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -22,16 +24,24 @@ public class ResourceClient extends ConjurClient implements ResourceProvider {
         init();
 	}
 
-    public String getVariable(String variableKey) {
-        return variableRequest(variableKey).get(String.class);
+    public String retrieveSecret(String variableId) {
+	    try {
+            return variableRequest(variableId).get(String.class);
+        } catch (NotFoundException e) {
+	        throw new ConjurException(String.format("Variable '%s' not found in this account", variableId));
+        }
     }
 
-    public void setVariable(String variableKey, String variableValue) {
-        variableRequest(variableKey).post(Entity.text(variableValue), String.class);
+    public void addSecret(String variableId, String secret) {
+	    try {
+            variableRequest(variableId).post(Entity.text(secret), String.class);
+        } catch (NotFoundException e) {
+            throw new ConjurException(String.format("Variable '%s' not found in this account", variableId));
+        }
     }
 
-    private Invocation.Builder variableRequest(String variableKey) {
-        return secrets.path(variableKey)
+    private Invocation.Builder variableRequest(String variableId) {
+        return secrets.path(variableId)
                 .request()
                 .header(AUTHORIZATION_HEADER, String.format(AUTHORIZATION_HEADER_VALUE, token.toBase64()));
     }

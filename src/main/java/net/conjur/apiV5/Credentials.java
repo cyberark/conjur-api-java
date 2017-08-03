@@ -1,5 +1,7 @@
 package net.conjur.apiV5;
 
+import net.conjur.apiV5.clients.ConjurException;
+
 public class Credentials {
     private static final String CREDENTIALS_PROPERTY = "net.conjur.api.credentials";
 
@@ -12,12 +14,17 @@ public class Credentials {
     }
 
     public static Credentials fromSystemProperties(){
-        String credentials = System.getProperty(CREDENTIALS_PROPERTY);
+        try {
+            String credentials = System.getProperty(CREDENTIALS_PROPERTY);
 
-        // Assuming credentials are written in the systemParams in this way: "username:password"
-        String[] parts = credentials.split(":");
+            // Assuming credentials are written in the systemParams in this way: "username:password"
+            String[] parts = credentials.split(":");
 
-        return new Credentials(parts[0], parts[1]);
+            return new Credentials(parts[0], parts[1]);
+        } catch (NullPointerException e) {
+            throw new ConjurException(String.format("System property %s is not set in the pattern username:password", CREDENTIALS_PROPERTY));
+        }
+
     }
 
     public String getUsername() {

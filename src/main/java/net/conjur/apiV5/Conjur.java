@@ -32,6 +32,7 @@ public class Conjur {
     }
 
     private static void getAccessToken() {
+        // TODO orenbm: Add exceptions
         String apiKey = authnClient.login();
 
         Token token = authnClient.authenticate(apiKey);
@@ -44,21 +45,11 @@ public class Conjur {
         return token != null && !token.isExpired();
     }
 
-    /***
-     * Fetch the value of a secret in the specified variable
-     * @param variableKey - id of the variable
-     * @return The value of the variable
-     */
-    public String getVariable(String variableKey) {
-        return resourceClient.getVariable(variableKey);
+    public String retrieveSecret(String variableId) {
+        return resourceClient.retrieveSecret(variableId);
     }
 
-    /**
-     * Creates a secret value within the specified variable
-     * @param variableKey - id of the variable
-     * @param variableValue - new value of the variable
-     */
-    public void setVariable(String variableKey, String variableValue){
-        resourceClient.setVariable(variableKey, variableValue);
+    public void addSecret(String variableId, String secret){
+        resourceClient.addSecret(variableId, secret);
     }
 }

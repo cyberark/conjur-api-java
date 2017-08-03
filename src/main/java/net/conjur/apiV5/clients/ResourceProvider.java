@@ -7,16 +7,16 @@ public interface ResourceProvider {
 
     /***
      * Fetch the value of a secret in the specified variable
-     * @param variableKey - id of the variable
-     * @return The value of the variable
+     * @param variableId - id of the variable
+     * @return The value of a secret from the specified variable
      */
-    String getVariable(String variableKey);
+    String retrieveSecret(String variableId);
 
     /**
      * Creates a secret value within the specified variable
-     * @param variableKey - id of the variable
-     * @param variableValue - new value of the variable
+     * @param variableId - id of the variable
+     * @param secret - Secret value within the specified variable
      */
-    void setVariable(String variableKey, String variableValue);
+    void addSecret(String variableId, String secret);
 
 }
