@@ -34,7 +34,6 @@ public class AuthnClient extends ConjurClient implements AuthnProvider {
         return authenticate(apiKey);
     }
 
-    // TODO orenbm: Maybe move to AuthnProvider?
     public String login(){
         return login.request("text/plain").get(String.class);
      }

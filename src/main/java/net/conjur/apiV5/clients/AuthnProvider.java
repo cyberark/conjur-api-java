@@ -27,4 +27,12 @@ public interface AuthnProvider {
      */
     // TODO orenbm: Do we need this?
     Token authenticate(String apiKey, boolean useCachedToken);
+
+    /**
+     * Login to a Conjur account with the credentials specified in the configuration
+     * @return The API key of the user
+     */
+    String login();
+
+
 }
