@@ -1,7 +1,5 @@
 package net.conjur.apiV5;
 
-import net.conjur.apiV5.clients.ConjurException;
-
 public class Credentials {
     private static final String CREDENTIALS_PROPERTY = "net.conjur.api.credentials";
 

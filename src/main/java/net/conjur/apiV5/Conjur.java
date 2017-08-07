@@ -18,6 +18,8 @@ public class Conjur {
 
         authnClient = new AuthnClient(credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
         resourceClient = new ResourceClient(credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+
+        // TODO orenbm: validate URL? Do we have a simple request for this? not sure that login is the right one for this
     }
 
     /**
@@ -32,7 +34,6 @@ public class Conjur {
     }
 
     private static void getAccessToken() {
-        // TODO orenbm: Add exceptions
         String apiKey = authnClient.login();
 
         Token token = authnClient.authenticate(apiKey);

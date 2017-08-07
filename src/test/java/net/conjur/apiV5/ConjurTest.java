@@ -1,11 +1,11 @@
 package net.conjur.apiV5;
 
-import net.conjur.apiV5.clients.ConjurException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.ws.rs.WebApplicationException;
 import java.util.UUID;
 
 /**
@@ -50,8 +50,8 @@ public class ConjurTest {
 
     @Test
     public void testSetVariableWithoutVariableInPolicy() {
-        expectedException.expect(ConjurException.class);
-        expectedException.expectMessage("not found in this account");
+        expectedException.expect(WebApplicationException.class);
+        expectedException.expectMessage("404");
 
         Conjur.getInstance().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
     }

@@ -1,7 +1,5 @@
-package net.conjur.apiV5.clients;
+package net.conjur.apiV5;
 
-
-import net.conjur.apiV5.Token;
 
 /**
  * Provides Conjur authentication tokens.

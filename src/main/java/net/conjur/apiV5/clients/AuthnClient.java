@@ -1,9 +1,11 @@
 package net.conjur.apiV5.clients;
 
+import net.conjur.apiV5.AuthnProvider;
 import net.conjur.apiV5.Endpoints;
 import net.conjur.apiV5.Token;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
@@ -26,7 +28,10 @@ public class AuthnClient extends ConjurClient implements AuthnProvider {
 	}
 
     public Token authenticate(String apiKey) {
-        return Token.fromJson(authenticate.request("application/json").post(Entity.text(apiKey), String.class));
+	    Response res = authenticate.request("application/json").post(Entity.text(apiKey), Response.class);
+	    validateResponse(res);
+
+        return Token.fromJson(res.readEntity(String.class));
      }
 
     // implementation of AuthnProvider method
@@ -35,7 +40,10 @@ public class AuthnClient extends ConjurClient implements AuthnProvider {
     }
 
     public String login(){
-        return login.request("text/plain").get(String.class);
+	    Response res = login.request("text/plain").get(Response.class);
+	    validateResponse(res);
+
+        return res.readEntity(String.class);
      }
 
     private void init(final String username){

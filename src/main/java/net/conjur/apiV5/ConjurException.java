@@ -1,4 +1,4 @@
-package net.conjur.apiV5.clients;
+package net.conjur.apiV5;
 
 public class ConjurException extends RuntimeException{
 
