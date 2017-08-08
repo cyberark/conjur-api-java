@@ -16,7 +16,7 @@ pipeline {
     }
     stage('Run tests and archive test results') {
       steps {
-        echo 'TODO'
+        sh './test.sh'
       }
     }
 

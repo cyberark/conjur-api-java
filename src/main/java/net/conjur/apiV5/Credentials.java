@@ -1,7 +1,7 @@
 package net.conjur.apiV5;
 
 public class Credentials {
-    private static final String CREDENTIALS_PROPERTY = "net.conjur.api.credentials";
+    private static final String CREDENTIALS_PROPERTY = "CONJUR_CREDENTIALS";
 
     private String username;
     private String password;

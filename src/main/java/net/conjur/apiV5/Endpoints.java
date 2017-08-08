@@ -8,8 +8,8 @@ import java.net.URI;
  * An Endpoints instance provides endpoint URIs for the various conjur services.
  */
 public class Endpoints implements Serializable {
-    private static final String URL_PROPERTY_NAME = "net.conjur.api.url";
-    private static final String ACCOUNT_PROPERTY_NAME = "net.conjur.api.account";
+    private static final String URL_PROPERTY_NAME = "CONJUR_APPLIANCE_URL";
+    private static final String ACCOUNT_PROPERTY_NAME = "CONJUR_ACCOUNT";
 
     private final URI authnUri;
     private final URI secretsUri;
