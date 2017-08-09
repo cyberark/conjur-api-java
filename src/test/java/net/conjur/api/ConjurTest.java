@@ -1,4 +1,4 @@
-package net.conjur.apiV5;
+package net.conjur.api;
 
 import org.junit.Assert;
 import org.junit.Rule;

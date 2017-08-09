@@ -1,4 +1,4 @@
-package net.conjur.apiV5;
+package net.conjur.api;
 
 import net.conjur.util.JsonSupport;
 import org.apache.commons.codec.binary.Base64;

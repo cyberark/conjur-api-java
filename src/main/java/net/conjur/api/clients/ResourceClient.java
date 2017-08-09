@@ -1,8 +1,8 @@
-package net.conjur.apiV5.clients;
+package net.conjur.api.clients;
 
-import net.conjur.apiV5.Endpoints;
-import net.conjur.apiV5.ResourceProvider;
-import net.conjur.apiV5.Token;
+import net.conjur.api.Endpoints;
+import net.conjur.api.ResourceProvider;
+import net.conjur.api.Token;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;

@@ -1,6 +1,6 @@
-package net.conjur.apiV5.clients;
+package net.conjur.api.clients;
 
-import net.conjur.apiV5.Endpoints;
+import net.conjur.api.Endpoints;
 import net.conjur.util.HostNameVerification;
 import net.conjur.util.rs.HttpBasicAuthFilter;
 

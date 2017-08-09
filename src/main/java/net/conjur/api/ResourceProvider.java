@@ -1,4 +1,4 @@
-package net.conjur.apiV5;
+package net.conjur.api;
 
 /**
  * Provides methods for retrieving and setting Conjur resources

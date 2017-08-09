@@ -1,103 +1,56 @@
 package net.conjur.api;
 
-import net.conjur.api.authn.AuthnClient;
-import net.conjur.api.authn.AuthnProvider;
+import net.conjur.api.clients.AuthnClient;
+import net.conjur.api.clients.ResourceClient;
 
 /**
  * Entry point for the Conjur API client.
- * 
- * <p>This class provides access to various Conjur resources, using
- * a particular set of endpoints and authorization or credentials</p>
  */
-public class Conjur extends Resource {
-    private Users users;
-    private Variables variables;
+public class Conjur {
 
-    /**
-     * @param authn used to authenticate requests to Conjur services
-     * @param endpoints locates Conjur services
-     */
-    public Conjur(AuthnProvider authn, Endpoints endpoints) {
-        super(authn, endpoints);
-        init();
+    private static Conjur instance = new Conjur();
+
+    private static ResourceClient resourceClient;
+    private static AuthnClient authnClient;
+
+    private Conjur(){
+        Credentials credentials = Credentials.fromSystemProperties();
+
+        authnClient = new AuthnClient(credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+        resourceClient = new ResourceClient(credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+
+        // TODO orenbm: validate URL? Do we have a simple request for this? not sure that login is the right one for this
     }
 
     /**
-     * @deprecated  tthis constr
-     * Create a Conjur instance that uses the given AuthnProvider and 
-     * {@link Endpoints#getDefault()}.
-     * @param authn used to authenticate requests to Conjur services
+     * @return an instance of the singleton object
      */
-    public Conjur(AuthnProvider authn){
-        this(authn, Endpoints.getDefault());
+    public static Conjur getInstance() {
+        if (!isTokenValid()) {
+            getAccessToken();
+        }
+
+        return instance;
     }
 
-    /**
-     * Create a Conjur instance that uses an AuthnClient constructed with
-     * the given credentials and the given endpoints
-     * @param username username for the Conjur identity to authenticate as
-     * @param password password or api key for the Conjur identity to authenticate as
-     * @param endpoints locates Conjur services
-     */
-    public Conjur(String username, String password, Endpoints endpoints){
-        this(new AuthnClient(username, password, endpoints), endpoints);
+    private static void getAccessToken() {
+        String apiKey = authnClient.login();
+
+        Token token = authnClient.authenticate(apiKey);
+
+        resourceClient.setToken(token);
     }
 
-    /**
-     * Create a Conjur instance that uses an AuthnClient constructed with
-     * the given credentials and the default endpoints. 
-     * @param username username for the Conjur identity to authenticate as
-     * @param password password or api key for the Conjur identity to authenticate as
-     */
-    public Conjur(String username, String password){
-        this(new AuthnClient(username, password));
+    private static boolean isTokenValid() {
+        Token token = resourceClient.getToken();
+        return token != null && !token.isExpired();
     }
 
-    /**
-     * Create a Conjur instance that uses an AuthnClient constructed with
-     * the given credentials and the default endpoints.
-     * @param credentials the conjur identity to authenticate as
-     */
-    public Conjur(Credentials credentials){
-        this(credentials.getUsername(), credentials.getPassword());
+    public String retrieveSecret(String variableId) {
+        return resourceClient.retrieveSecret(variableId);
     }
 
-    /**
-     * Create a Conjur instance that uses an AuthnClient constructed with
-     * the given credentials and the default endpoints.
-     * @param credentials the conjur identity to authenticate as
-     */
-    public Conjur(Credentials credentials, Endpoints endpoints){
-        this(credentials.getUsername(), credentials.getPassword(), endpoints);
+    public void addSecret(String variableId, String secret){
+        resourceClient.addSecret(variableId, secret);
     }
-
-    /**
-     * Get a Users instance configured with the same parameters as this instance.
-     * @return the users instance
-     */
-    public Users users(){
-        return users;
-    }
-
-    /**
-     * Get a Variables instance configured with the same parameters as this instance.
-     * @return the variables instance
-     */
-    public Variables variables(){
-        return variables;
-    }
-
-    /**
-     * Get the authentication provider for this instance.
-     * @return the authentication provider
-     */
-    public AuthnProvider getAuthn(){
-        return super.getAuthn();
-    }
-
-    private void init(){
-        users = new Users(this);
-        variables = new Variables(this);
-    }
-
 }
