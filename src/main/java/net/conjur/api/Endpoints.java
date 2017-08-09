@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.net.URI;
 
 /**
- * An Endpoints instance provides endpoint URIs for the various conjur services.
+ * An <code>Endpoints</code> instance provides endpoint URIs for the various conjur services.
  */
 public class Endpoints implements Serializable {
     private static final String URL_PROPERTY_NAME = "CONJUR_APPLIANCE_URL";
