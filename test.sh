@@ -32,4 +32,4 @@ docker exec -i $possum_cid  /bin/bash -c "conjurctl policy load root /tmp/test-p
 api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 
 # Execute tests
-docker-compose run --rm -e CONJUR_CREDENTIALS="admin:$api_key" test bash
+docker-compose run --rm -e CONJUR_CREDENTIALS="admin:$api_key" test bash -c "mvn test"

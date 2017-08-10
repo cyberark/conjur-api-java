@@ -17,6 +17,8 @@ pipeline {
     stage('Run tests and archive test results') {
       steps {
         sh './test.sh'
+
+        junit '**/target/surefire-reports/**/*.xml'
       }
     }
 
