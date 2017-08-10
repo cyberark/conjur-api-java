@@ -7,11 +7,11 @@ package net.conjur.api;
 public interface AuthnProvider {
 
     /**
-     * Authenticate the api key with
-     * @param apiKey - the key we need to obtain an access token
-     * @return an access token for future requests
+     * Return an authentication token.  This method should be equivalent to {@code authenticate(true)}
+     * if the implementation supports token caching.
+     * @return a Conjur authentication token
      */
-    Token authenticate(String apiKey);
+    Token authenticate();
 
     /**
      * Return an authentication token.  If the implementation supports token caching
@@ -19,18 +19,10 @@ public interface AuthnProvider {
      * one is available.  If useCachedToken is false, it should always fetch a fresh token from
      * the Conjur authn service.
      *
-     * @param apiKey - the key we need to obtain an access token
      * @param useCachedToken whether to use a cached token.
      * @return a Conjur authentication token
      */
     // TODO orenbm: Do we need this?
-    Token authenticate(String apiKey, boolean useCachedToken);
-
-    /**
-     * Login to a Conjur account with the credentials specified in the configuration
-     * @return The API key of the user
-     */
-    String login();
-
+    Token authenticate(boolean useCachedToken);
 
 }

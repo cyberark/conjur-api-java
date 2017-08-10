@@ -3,6 +3,12 @@ package net.conjur.api.clients;
 import net.conjur.api.AuthnProvider;
 import net.conjur.api.Endpoints;
 import net.conjur.api.Token;
+import net.conjur.util.HostNameVerification;
+import net.conjur.util.rs.HttpBasicAuthFilter;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -16,18 +22,25 @@ import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
  * which can then be used to make authenticated calls to other conjur services.
  *
  */
-public class AuthnClient extends ConjurClient implements AuthnProvider {
+public class AuthnClient implements AuthnProvider {
 
     private WebTarget login;
     private WebTarget authenticate;
 
+    private final Endpoints endpoints;
+
+    private String apiKey;
+
 	public AuthnClient(final String username, final String password, final Endpoints endpoints) {
-	    super(username, password, endpoints);
+        this.endpoints = endpoints;
 
-        init(username);
-	}
+        init(username, password);
 
-    public Token authenticate(String apiKey) {
+        // replacing the password with an API key
+        this.apiKey = login();
+    }
+
+    public Token authenticate() {
 	    Response res = authenticate.request("application/json").post(Entity.text(apiKey), Response.class);
 	    validateResponse(res);
 
@@ -35,10 +48,14 @@ public class AuthnClient extends ConjurClient implements AuthnProvider {
      }
 
     // implementation of AuthnProvider method
-    public Token authenticate(String apiKey, boolean useCachedToken) {
-        return authenticate(apiKey);
+    public Token authenticate(boolean useCachedToken) {
+        return authenticate();
     }
 
+    /**
+     * Login to a Conjur account with the credentials specified in the configuration
+     * @return The API key of the user
+     */
     public String login(){
 	    Response res = login.request("text/plain").get(Response.class);
 	    validateResponse(res);
@@ -46,10 +63,26 @@ public class AuthnClient extends ConjurClient implements AuthnProvider {
         return res.readEntity(String.class);
      }
 
-    private void init(final String username){
-        WebTarget root = getClient().target(getEndpoints().getAuthnUri());
+    private void init(final String username, final String password){
+        final ClientBuilder builder = ClientBuilder.newBuilder()
+                .register(new HttpBasicAuthFilter(username, password));
+
+        HostNameVerification.getInstance().updateClientBuilder(builder);
+
+        Client client = builder.build();
+        WebTarget root = client.target(endpoints.getAuthnUri());
+
         login = root.path("login");
         authenticate = root.path(encodeUriComponent(username)).path("authenticate");
+    }
+
+    // TODO orenbm: Remove when we have a response filter to handle this
+    private void validateResponse(Response response) {
+        int status = response.getStatus();
+        if (status < 200 || status >= 400) {
+            String errorMessage = String.format("Error code: %d, Error message: %s", status, response.readEntity(String.class));
+            throw new WebApplicationException(errorMessage, status);
+        }
     }
 
 }

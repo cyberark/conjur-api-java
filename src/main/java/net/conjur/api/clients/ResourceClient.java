@@ -2,57 +2,63 @@ package net.conjur.api.clients;
 
 import net.conjur.api.Endpoints;
 import net.conjur.api.ResourceProvider;
-import net.conjur.api.Token;
+import net.conjur.util.HostNameVerification;
+import net.conjur.util.rs.TokenAuthFilter;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 /**
  * Conjur service client.
  */
-public class ResourceClient extends ConjurClient implements ResourceProvider {
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String AUTHORIZATION_HEADER_VALUE = "Token token=\"%s\"";
+public class ResourceClient implements ResourceProvider {
 
     private WebTarget secrets;
-    private Token token;
+    private final Endpoints endpoints;
 
 	public ResourceClient(final String username, final String password, final Endpoints endpoints) {
-	    super(username, password, endpoints);
+        this.endpoints = endpoints;
 
-        init();
+        init(username, password);
 	}
 
     public String retrieveSecret(String variableId) {
-        Response res =  buildVariableRequest(variableId).get(Response.class);
-        validateResponse(res);
+        Response response = secrets.path(variableId).request().get(Response.class);
+        validateResponse(response);
 
-        return res.readEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     public void addSecret(String variableId, String secret) {
-        Response res = buildVariableRequest(variableId).post(Entity.text(secret), Response.class);
-        validateResponse(res);
+        Response response = secrets.path(variableId).request().post(Entity.text(secret), Response.class);
+        validateResponse(response);
     }
 
-    private Invocation.Builder buildVariableRequest(String variableId) {
-        return secrets.path(variableId)
-                .request()
-                .header(AUTHORIZATION_HEADER, String.format(AUTHORIZATION_HEADER_VALUE, token.toBase64()));
+    private Endpoints getEndpoints() {
+        return endpoints;
     }
 
-    private void init(){
-        secrets = getClient().target(getEndpoints().getSecretsUri());
+    private void init(String username, String password){
+        final ClientBuilder builder = ClientBuilder.newBuilder()
+                .register(new TokenAuthFilter(new AuthnClient(username, password, endpoints)));
+
+        HostNameVerification.getInstance().updateClientBuilder(builder);
+
+        Client client = builder.build();
+
+        secrets = client.target(getEndpoints().getSecretsUri());
     }
 
-    public Token getToken() {
-        return token;
+    // TODO orenbm: Remove when we have a response filter to handle this
+    private void validateResponse(Response response) {
+        int status = response.getStatus();
+        if (status < 200 || status >= 400) {
+            String errorMessage = String.format("Error code: %d, Error message: %s", status, response.readEntity(String.class));
+            throw new WebApplicationException(errorMessage, status);
+        }
     }
-
-    public void setToken(Token token) {
-        this.token = token;
-    }
-
 }

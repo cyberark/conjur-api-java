@@ -18,7 +18,7 @@ import java.util.UUID;
  *  - The following system properties are loaded:
  *      * CONJUR_ACCOUNT=accountName
  *      * CONJUR_CREDENTIALS=username:apiKey
- *      * nCONJUR_APPLIANCE_URL=http://conjur:3000
+ *      * CONJUR_APPLIANCE_URL=http://conjur
  */
 public class ConjurTest {
 
