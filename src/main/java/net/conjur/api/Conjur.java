@@ -7,22 +7,22 @@ import net.conjur.api.clients.ResourceClient;
  */
 public class Conjur {
 
-    private static Conjur instance = new Conjur();
-
     private static ResourceClient resourceClient;
 
-    private Conjur(){
-        Credentials credentials = Credentials.fromSystemProperties();
-
-        resourceClient = new ResourceClient(
-                credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+    public Conjur(String username, String password) {
+        init(new Credentials(username, password));
     }
 
     /**
-     * @return an instance of the singleton object
+     * Default ctor creates a Conjur object with credentials from the system properties
      */
-    public static Conjur getInstance() {
-        return instance;
+    public Conjur(){
+        init(Credentials.fromSystemProperties());
+    }
+
+    private void init(Credentials credentials) {
+        resourceClient = new ResourceClient(
+                credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
     }
 
     public String retrieveSecret(String variableId) {

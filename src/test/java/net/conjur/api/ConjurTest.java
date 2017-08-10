@@ -31,17 +31,20 @@ public class ConjurTest {
     }
 
     @Test
-    public void testLoginAndAuthenticate() {
-        // if getInstance returns a Conjur object then the login and authentication passed
-        Conjur conjur = Conjur.getInstance();
+    public void testLogin() {
+        Conjur conjur = new Conjur();
+
+        // The Conjur object is returned with an Authn client logged in
         Assert.assertNotNull(conjur);
     }
 
     @Test
     public void testAddSecretAndRetrieveSecret() {
-        Conjur.getInstance().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
+        Conjur conjur = new Conjur();
 
-        String retrievedSecret = Conjur.getInstance().retrieveSecret(VARIABLE_KEY);
+        conjur.addSecret(VARIABLE_KEY, VARIABLE_VALUE);
+
+        String retrievedSecret = conjur.retrieveSecret(VARIABLE_KEY);
 
         Assert.assertEquals(retrievedSecret, VARIABLE_VALUE);
     }
@@ -51,7 +54,9 @@ public class ConjurTest {
         expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage(NOT_FOUND_STATUS_CODE);
 
-        Conjur.getInstance().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
+        Conjur conjur = new Conjur();
+
+        conjur.addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Rule
