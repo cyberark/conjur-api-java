@@ -1,10 +1,12 @@
-version: '3.1'
+version: '2'
 services:
   postgres:
     image: postgres:9.3
+    container_name: api-java-postgres
 
   possum:
     image: registry.tld/possum:0.1.0-stable
+    container_name: api-java-possum
     command: server -a cucumber
     environment:
       DATABASE_URL: postgres://postgres@postgres/postgres
@@ -13,7 +15,10 @@ services:
       - postgres
 
   test:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: api-java-test
     ports:
       - "8080:8080"
     depends_on:
