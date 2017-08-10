@@ -12,7 +12,10 @@ import java.io.IOException;
  * Filter to add Conjur authentication tokens to requests.
  */
 public class TokenAuthFilter implements ClientRequestFilter {
+
+    private static final int EXPIRATION_TIME_BUFFER = 2 * 60;
     private static final String HEADER = "Authorization";
+
     private final AuthnProvider authn;
     private Token currentToken;
 
@@ -29,6 +32,6 @@ public class TokenAuthFilter implements ClientRequestFilter {
     }
 
     private boolean isTokenValid() {
-        return currentToken != null && !currentToken.isExpired();
+        return currentToken != null && !currentToken.willExpireWithin(EXPIRATION_TIME_BUFFER);
     }
 }

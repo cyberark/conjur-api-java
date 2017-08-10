@@ -1,35 +1,42 @@
 package net.conjur.api;
 
-import net.conjur.api.clients.ResourceClient;
-
 /**
  * Entry point for the Conjur API client.
  */
 public class Conjur {
 
-    private static ResourceClient resourceClient;
+    private Variables variables;
 
-    public Conjur(String username, String password) {
-        init(new Credentials(username, password));
+    /**
+     * Create a Conjur instance that uses credentials from the system properties
+     */
+    public Conjur(){
+        this(Credentials.fromSystemProperties());
     }
 
     /**
-     * Default ctor creates a Conjur object with credentials from the system properties
+     * Create a Conjur instance that uses an ResourceClient & AuthnClient constructed with the given credentials
+     * @param username username for the Conjur identity to authenticate as
+     * @param password password or api key for the Conjur identity to authenticate as
      */
-    public Conjur(){
-        init(Credentials.fromSystemProperties());
+    public Conjur(String username, String password) {
+        this(new Credentials(username, password));
     }
 
-    private void init(Credentials credentials) {
-        resourceClient = new ResourceClient(
-                credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+    /**
+     * Create a Conjur instance that uses an ResourceClient & AuthnClient constructed with the given credentials
+     * @param credentials the conjur identity to authenticate as
+     */
+    public Conjur(Credentials credentials) {
+        variables = new Variables(credentials);
     }
 
-    public String retrieveSecret(String variableId) {
-        return resourceClient.retrieveSecret(variableId);
+    /**
+     * Get a Variables instance configured with the same parameters as this instance.
+     * @return the variables instance
+     */
+    public Variables variables() {
+        return variables;
     }
 
-    public void addSecret(String variableId, String secret){
-        resourceClient.addSecret(variableId, secret);
-    }
 }

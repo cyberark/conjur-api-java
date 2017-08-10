@@ -42,9 +42,9 @@ public class ConjurTest {
     public void testAddSecretAndRetrieveSecret() {
         Conjur conjur = new Conjur();
 
-        conjur.addSecret(VARIABLE_KEY, VARIABLE_VALUE);
+        conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
 
-        String retrievedSecret = conjur.retrieveSecret(VARIABLE_KEY);
+        String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 
         Assert.assertEquals(retrievedSecret, VARIABLE_VALUE);
     }
@@ -56,7 +56,7 @@ public class ConjurTest {
 
         Conjur conjur = new Conjur();
 
-        conjur.addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
+        conjur.variables().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
     }
 
     @Rule
