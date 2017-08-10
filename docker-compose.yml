@@ -19,10 +19,10 @@ services:
       context: .
       dockerfile: Dockerfile.test
     container_name: api-java-test
+    volumes:
+      - ./target:/conjurinc/api-java/target
     ports:
       - "8080:8080"
-    depends_on:
-      - possum
     environment:
       CONJUR_APPLIANCE_URL: http://possum
       CONJUR_ACCOUNT: cucumber
