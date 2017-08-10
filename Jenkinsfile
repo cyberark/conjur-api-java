@@ -17,6 +17,7 @@ pipeline {
     stage('Run tests and archive test results') {
       steps {
         sh './test.sh'
+        sh 'sudo chown -R jenkins:jenkins target/'  // bad docker mount creates unreadable files TODO fix this
 
         junit 'target/surefire-reports/*.xml'
       }
@@ -34,7 +35,6 @@ pipeline {
 
   post {
     always {
-      sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
       deleteDir()
     }
     failure {
