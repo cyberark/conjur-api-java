@@ -6,7 +6,6 @@ pipeline {
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
-    skipDefaultCheckout()
   }
 
   stages {
@@ -17,10 +16,10 @@ pipeline {
     }
     stage('Run tests and archive test results') {
       steps {
-        // sh './test.sh'
+        sh './test.sh'
         sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
 
-        // junit 'target/surefire-reports/*.xml'
+        junit 'target/surefire-reports/*.xml'
       }
     }
 
