@@ -1,14 +1,15 @@
-package net.conjur.api.authn;
+package net.conjur.api;
+
 
 /**
  * Provides Conjur authentication tokens.
  */
 public interface AuthnProvider {
+
     /**
      * Return an authentication token.  This method should be equivalent to {@code authenticate(true)}
      * if the implementation supports token caching.
-     *
-     * @return a Conjur authentication token.
+     * @return a Conjur authentication token
      */
     Token authenticate();
 
@@ -21,5 +22,7 @@ public interface AuthnProvider {
      * @param useCachedToken whether to use a cached token.
      * @return a Conjur authentication token
      */
+    // TODO orenbm: Do we need this?
     Token authenticate(boolean useCachedToken);
+
 }

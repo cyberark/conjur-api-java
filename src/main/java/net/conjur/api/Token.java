@@ -1,4 +1,4 @@
-package net.conjur.api.authn;
+package net.conjur.api;
 
 import net.conjur.util.JsonSupport;
 import org.apache.commons.codec.binary.Base64;
@@ -10,8 +10,8 @@ import org.joda.time.format.DateTimeFormatter;
  * Represents a Conjur API authentication token.
  */
 public class Token {
-    public static final int DEFAULT_LIFESPAN_SECONDS = 8 * 60;
-    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+    private static final int DEFAULT_LIFESPAN_SECONDS = 8 * 60;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
             // tokens use dates like 2013-10-01 18:48:32 UTC
             DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
 
@@ -29,7 +29,7 @@ public class Token {
     private DateTime timestamp;
     private DateTime expiration;
 
-    Token(String json){
+    private Token(String json){
         this.json = json;
     }
 

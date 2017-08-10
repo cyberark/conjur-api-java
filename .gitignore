@@ -16,11 +16,10 @@
 
 # IntelliJ trash
 .idea
-conjur-api.iml
-
+*.iml
 
 .cache
 
 # More IntelliJ trash
 src/main/main.iml
-*.iml
+
