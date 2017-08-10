@@ -6,6 +6,7 @@ pipeline {
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
+    skipDefaultCheckout()
   }
 
   stages {
