@@ -102,3 +102,19 @@ remove this dependency, but for the time being you may need to change the JAXRS 
 environment and application dependencies.  For example, in a JBoss server environment, you should use the RESTlet
 implementation.  The Conjur API uses Apache CFX by default.  You can replace that dependency in `pom.xml` to use an
 alternative implementation.
+
+## License
+
+Copyright 2016-2017 CyberArk
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this software except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
