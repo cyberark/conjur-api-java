@@ -14,7 +14,7 @@ server_cid=$(docker run -d \
 	--link $pg_cid:pg \
 	-e DATABASE_URL=postgres://postgres@pg/postgres \
 	-e RAILS_ENV=development \
-  -p 8080:8080 \
+  -p 3000:80 \
 	possum server -a cucumber)
 
 sleep 10

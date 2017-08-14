@@ -2,6 +2,7 @@ package net.conjur.api.clients;
 
 import net.conjur.api.Endpoints;
 import net.conjur.api.ResourceProvider;
+import net.conjur.util.EncodeUriComponent;
 import net.conjur.util.HostNameVerification;
 import net.conjur.util.rs.TokenAuthFilter;
 
@@ -34,7 +35,7 @@ public class ResourceClient implements ResourceProvider {
     }
 
     public void addSecret(String variableId, String secret) {
-        Response response = secrets.path(variableId).request().post(Entity.text(secret), Response.class);
+        Response response = secrets.path(EncodeUriComponent.encodeUriComponent(variableId)).request().post(Entity.text(secret), Response.class);
         validateResponse(response);
     }
 

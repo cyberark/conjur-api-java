@@ -22,8 +22,8 @@ import java.util.UUID;
  */
 public class ConjurTest {
 
-    private static final String VARIABLE_KEY = "testSecret";
-    private static final String VARIABLE_VALUE = "testSecretValue";
+    private static final String VARIABLE_KEY = "test/testVariable";
+    private static final String VARIABLE_VALUE = "testSecret";
     private static final String NON_EXISTING_VARIABLE_KEY = UUID.randomUUID().toString();
     private static final String NOT_FOUND_STATUS_CODE = "404";
 

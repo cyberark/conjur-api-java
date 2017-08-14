@@ -27,7 +27,7 @@ function createTestEnvironment() {
   # Build test container & start the cluster
   # docker-compose pull postgres possum
   docker-compose build --pull test
-  docker-compose up -d possum postgres
+  docker-compose up -d client possum postgres
 
   # Delay to allow time for Possum to come up
   # TODO: remove this once we have HEALTHCHECK in place
@@ -40,14 +40,16 @@ function loadTestPolicy() {
   echo '-----'
 
   # get possum container id
-  possum_cid=$(docker-compose ps -q possum)
+  possum_client_cid=$(docker-compose ps -q client)
+
+  api_key=$(docker-compose exec -T possum rails r "print Credentials['cucumber:user:admin'].api_key")
 
   # copy test-policy into a /tmp/test-policy within the possum container
-  docker cp test-policy $possum_cid:/tmp
+  docker cp test-policy $possum_client_cid:/tmp
 
-  # run your policies from within the possum container
-  docker exec -i $possum_cid  /bin/bash -c "conjurctl policy load root /tmp/test-policy/root.yml &&
-      conjurctl policy load cucumber /tmp/test-policy/cucumber.yml"
+  docker exec -e CONJUR_AUTHN_API_KEY=${api_key} \
+    $possum_client_cid \
+    /bin/bash -c "conjur policy load root /tmp/test-policy/root.yml"
 }
 
 function runTests() {
@@ -60,7 +62,7 @@ function runTests() {
   docker-compose run --rm \
     -e CONJUR_CREDENTIALS="admin:$api_key" \
     test \
-      bash -c "mvn test"
+    bash -c "mvn test"
 }
 
 main

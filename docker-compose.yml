@@ -14,6 +14,17 @@ services:
     depends_on:
       - postgres
 
+  client:
+    image: conjurinc/cli5
+    container_name: api-java-possum-client
+    entrypoint: sleep
+    command: infinity
+    environment:
+      CONJUR_APPLIANCE_URL: http://possum
+      DATABASE_URL: postgres://postgres@postgres/postgres
+      CONJUR_ACCOUNT: cucumber
+      CONJUR_AUTHN_LOGIN: admin
+
   test:
     build:
       context: .
