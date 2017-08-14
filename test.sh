@@ -25,7 +25,7 @@ function createTestEnvironment() {
   echo '-----'
 
   # Build test container & start the cluster
-  # docker-compose pull postgres possum
+  docker-compose pull postgres possum
   docker-compose build --pull test
   docker-compose up -d possum postgres
 
