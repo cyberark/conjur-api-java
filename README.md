@@ -41,7 +41,7 @@ CONJUR_APPLIANCE_URL=http://conjur
 
 In addition, you will need to load a Conjur policy. Save this file as `root.yml`:
 
-```java
+```yaml
 - !policy
   id: test
   body:
@@ -68,8 +68,8 @@ where the Conjur object is logged in to the account & ready for use.
 
 ### Variable Operations
 
-A Variable is an access-controlled list of encrypted data values. The values in a Variable are colloquially known as
-secrets.
+Conjur variables store encrypted, access-controlled data. The most common thing a variable stores is a secret.
+A variable can have one or more (up to 20) secrets associated with it, and ordered in reverse chronological order.
 
 You will typically add secrets to variables & retrieve secrets from variables in the following way:
 
