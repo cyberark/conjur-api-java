@@ -10,9 +10,9 @@ To build the library from source you'll need Maven.  You can build it like this:
 ```bash
 git clone {repo}
 
-cd conjur-api
+cd conjur-api-java
 
-mvn package
+mvn package -DskipTests
 
 ```
 
@@ -22,7 +22,7 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 <dependency>
   <groupId>net.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
-  <version>1.5</version>
+  <version>1.2</version>
 </dependency>
 ```
 
@@ -30,12 +30,26 @@ If you aren't using Maven, you can add the `jar` in the normal way.  This `jar` 
 the `target` directory created when you ran `mvn package`.
 
 Note that this will *not* run the integration tests, since these require access to a Conjur instance.  To run the
-integration tests, you will need to define the following environment variables for the `mvn package` command:
+integration tests, you will need to define the following environment variables for the `mvn package` command 
+(and remove the `skipTests` property):
+
 ```bash
 CONJUR_ACCOUNT=accountName
 CONJUR_CREDENTIALS=username:apiKey
 CONJUR_APPLIANCE_URL=http://conjur
 ```
+
+In addition, you will need to load a Conjur policy. Save this file as `root.yml`:
+
+```yaml
+- !policy
+  id: test
+  body:
+    - !variable
+      id: testVariable
+```
+
+To load the policy, use the CLI command `conjur policy load root root.yml`
 
 ## Basic Usage
 
@@ -54,7 +68,8 @@ where the Conjur object is logged in to the account & ready for use.
 
 ### Variable Operations
 
-A Variable is an access-controlled list of encrypted data values. The values in a Variable are colloquially known as ?secrets?.
+Conjur variables store encrypted, access-controlled data. The most common thing a variable stores is a secret.
+A variable can have one or more (up to 20) secrets associated with it, and ordered in reverse chronological order.
 
 You will typically add secrets to variables & retrieve secrets from variables in the following way:
 
@@ -71,7 +86,7 @@ String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 
 By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
 Java to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore.
-First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://try.conjur.org/installation/client.html).
+First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://developer.conjur.net/cli).
 Once you've installed the command line tools, you can run
 
 ```bash

@@ -4,7 +4,7 @@
 
     <groupId>net.conjur.api</groupId>
     <artifactId>conjur-api</artifactId>
-    <version>1.5.0</version>
+    <version>1.2</version>
 
     <name>Conjur</name>
     <description>Client for the Conjur API</description>

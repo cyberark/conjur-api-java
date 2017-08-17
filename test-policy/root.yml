@@ -1,2 +1,5 @@
 - !policy
-  id: cucumber
+  id: test
+  body:
+    - !variable
+      id: testVariable
