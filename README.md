@@ -1,7 +1,7 @@
 Conjur API for Java
 ===================
 
-## Installing
+## Installation
 
 ### From Source
 
@@ -29,9 +29,12 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 If you aren't using Maven, you can add the `jar` in the normal way.  This `jar` can be found in
 the `target` directory created when you ran `mvn package`.
 
-Note that this will *not* run the integration tests, since these require access to a Conjur instance.  To run the
-integration tests, you will need to define the following environment variables for the `mvn package` command 
-(and remove the `skipTests` property):
+Note that this *did not* run the integration tests, since these require access to a Conjur instance. You can run the 
+integration tests with `mvn package` once you finished with the configuration.
+
+### Configuration
+
+The simplest way to configure the Conjur API is to define the following environment variables:
 
 ```bash
 CONJUR_ACCOUNT=accountName
@@ -39,7 +42,7 @@ CONJUR_CREDENTIALS=username:apiKey
 CONJUR_APPLIANCE_URL=http://conjur
 ```
 
-In addition, you will need to load a Conjur policy. Save this file as `root.yml`:
+In addition, to run the integration tests you will need to load a Conjur policy. Save this file as `root.yml`:
 
 ```yaml
 - !policy
@@ -109,7 +112,6 @@ to your keystore like this:
 keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cacerts"  -file ./conjur-youraccount.der
 ```
 
-
 ## JAXRS Implementations
 
 The Conjur API client uses the JAXRS standard to make requests to the Conjur web services.  In the future we plan to
@@ -117,6 +119,14 @@ remove this dependency, but for the time being you may need to change the JAXRS 
 environment and application dependencies.  For example, in a JBoss server environment, you should use the RESTlet
 implementation.  The Conjur API uses Apache CFX by default.  You can replace that dependency in `pom.xml` to use an
 alternative implementation.
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
 
 ## License
 
