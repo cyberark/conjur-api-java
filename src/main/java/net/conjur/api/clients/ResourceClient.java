@@ -3,7 +3,6 @@ package net.conjur.api.clients;
 import net.conjur.api.Endpoints;
 import net.conjur.api.ResourceProvider;
 import net.conjur.util.EncodeUriComponent;
-import net.conjur.util.HostNameVerification;
 import net.conjur.util.rs.TokenAuthFilter;
 
 import javax.ws.rs.WebApplicationException;
@@ -46,8 +45,6 @@ public class ResourceClient implements ResourceProvider {
     private void init(String username, String password){
         final ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new TokenAuthFilter(new AuthnClient(username, password, endpoints)));
-
-        HostNameVerification.getInstance().updateClientBuilder(builder);
 
         Client client = builder.build();
 

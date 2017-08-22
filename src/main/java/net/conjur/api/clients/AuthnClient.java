@@ -3,7 +3,6 @@ package net.conjur.api.clients;
 import net.conjur.api.AuthnProvider;
 import net.conjur.api.Endpoints;
 import net.conjur.api.Token;
-import net.conjur.util.HostNameVerification;
 import net.conjur.util.rs.HttpBasicAuthFilter;
 
 import javax.ws.rs.WebApplicationException;
@@ -66,8 +65,6 @@ public class AuthnClient implements AuthnProvider {
     private void init(final String username, final String password){
         final ClientBuilder builder = ClientBuilder.newBuilder()
                 .register(new HttpBasicAuthFilter(username, password));
-
-        HostNameVerification.getInstance().updateClientBuilder(builder);
 
         Client client = builder.build();
         WebTarget root = client.target(endpoints.getAuthnUri());
