@@ -118,13 +118,15 @@ function runTests() {
   echo "Running tests"
   echo '------------------------------------------------------------'
 
-  api_key=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
+  api_key_admin=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
 
   # Execute tests
   docker-compose run --rm \
-    -e CONJUR_CREDENTIALS="admin:$api_key" \
+    -e CONJUR_CREDENTIALS="admin:$api_key_admin" \
     test \
       bash -c "mvn test"
+
+
 
 }
 
@@ -133,11 +135,25 @@ function runHTTPSTests() {
   echo "Running https tests"
   echo '------------------------------------------------------------'
 
-  api_key=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
+  api_key_admin=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
+  api_key_alice=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:alice@test'].api_key")
+  api_key_myapp=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:host:test/myapp'].api_key")
+
+  echo 'api keys:'
+  echo 'user admin api key = ' ${api_key_admin}
+  echo 'user alice api key = ' ${api_key_alice}
+  echo 'host myapp api key = ' ${api_key_myapp}
   conjur_test_cid=$(docker-compose ps -q test-https)
   tests_command="mvn test"
 
-  docker exec -e CONJUR_CREDENTIALS="admin:$api_key" ${conjur_test_cid} ${tests_command}
+  echo "Running https tests with admin credentials"
+  docker exec -e CONJUR_CREDENTIALS="admin:$api_key_admin" ${conjur_test_cid} ${tests_command}
+
+  echo "Running https tests with user credentials"
+  docker exec -e CONJUR_CREDENTIALS="alice@test:$api_key_alice" ${conjur_test_cid} ${tests_command}
+
+  echo "Running https tests with host credentials"
+  docker exec -e CONJUR_CREDENTIALS="host/test/myapp:$api_key_myapp" ${conjur_test_cid} ${tests_command}
 }
 
 main
