@@ -18,7 +18,6 @@ pipeline {
       steps {
         lock("api-java-${env.NODE_NAME}") {
           sh './test.sh'
-          sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
         }
 
         junit 'target/surefire-reports/*.xml'
