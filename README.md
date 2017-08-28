@@ -26,21 +26,34 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 </dependency>
 ```
 
-If you aren't using Maven, you can add the `jar` in the normal way.  This `jar` can be found in
+If you aren't using Maven, you can add the `jar` in the normal way. This `jar` can be found in
 the `target` directory created when you ran `mvn package`.
 
-Note that this *did not* run the integration tests, since these require access to a Conjur instance. You can run the 
+Note that we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the 
 integration tests with `mvn package` once you finished with the configuration.
 
 ### Configuration
 
-The simplest way to configure the Conjur API is to define the following environment variables:
+The simplest way to configure the Conjur API is by using environment variables, which is often a bit more convenient. 
+Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
+configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.  
+
+The following environment variables are mandatory for running the API: CONJUR_ACCOUNT, CONJUR_CREDENTIALS & CONJUR_APPLIANCE_URL.
+
+CONJUR_ACCOUNT - account specified during Conjur setup
+CONJUR_APPLIANCE_URL - Conjur HTTPS endpoint
+CONJUR_CREDENTIALS - user/host identity & user/host API key (written in the pattern `user:apikey`)
+
+For example, specify the environment variables like this:
 
 ```bash
-CONJUR_ACCOUNT=accountName
-CONJUR_CREDENTIALS=username:apiKey
-CONJUR_APPLIANCE_URL=http://conjur
+CONJUR_ACCOUNT=myorg
+CONJUR_CREDENTIALS=host/myhost.example.com:sb0ncv1yj9c4w2e9pb1a2s
+CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api
 ```
+
+Note that if you are connecting as a host, the login should be prefixed with `host/`. For example: `host/myhost.example.com`,
+not just `myhost.example.com`.
 
 In addition, to run the integration tests you will need to load a Conjur policy. Save this file as `root.yml`:
 
@@ -112,12 +125,12 @@ to your keystore like this:
 keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cacerts"  -file ./conjur-youraccount.der
 ```
 
-## JAXRS Implementations
+## JAX-RS Implementations
 
-The Conjur API client uses the JAXRS standard to make requests to the Conjur web services.  In the future we plan to
-remove this dependency, but for the time being you may need to change the JAXRS implementation to conform to your
+The Conjur API client uses the JAX-RS standard to make requests to the Conjur web services.  In the future we plan to
+remove this dependency, but for the time being you may need to change the JAX-RS implementation to conform to your
 environment and application dependencies.  For example, in a JBoss server environment, you should use the RESTlet
-implementation.  The Conjur API uses Apache CFX by default.  You can replace that dependency in `pom.xml` to use an
+implementation.  The Conjur API uses Apache CXF by default.  You can replace that dependency in `pom.xml` to use an
 alternative implementation.
 
 ## Contributing
