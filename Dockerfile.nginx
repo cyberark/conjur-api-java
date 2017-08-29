@@ -12,4 +12,5 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -subj "/C=IL/ST=Israel/L=TLV/O=Onyx/CN=conjur-proxy-nginx" \
     -keyout cert.key -out cert.crt
 
-ADD /test-proxy/default.conf /etc/nginx/conf.d/default.conf
+COPY /test-proxy/default.conf /etc/nginx/conf.d/default.conf
+

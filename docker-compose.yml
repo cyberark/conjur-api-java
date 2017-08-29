@@ -2,11 +2,9 @@ version: '2'
 services:
   postgres:
     image: postgres:9.3
-    container_name: api-java-postgres
 
   conjur:
     image: cyberark/conjur:0.1.0-stable
-    container_name: api-java-conjur
     command: server -a cucumber
     environment:
       PORT: 3000
@@ -14,8 +12,6 @@ services:
       CONJUR_DATA_KEY: "W0BuL8iTr/7QvtjIluJbrb5LDAnmXzmcpxkqihO3dXA="
     ports:
       - "3000:3000"
-    expose:
-      - "3000"
     depends_on:
       - postgres
 
@@ -24,15 +20,11 @@ services:
       context: .
       dockerfile: Dockerfile.nginx
     entrypoint: nginx-debug -g 'daemon off;'
-    container_name: api-java-proxy
     environment:
         TERM: xterm
     ports:
     - "8080:80"
     - "8443:443"
-    expose:
-      - "8080"
-      - "8443"
     depends_on:
       - conjur
       - client
@@ -40,14 +32,12 @@ services:
 
   client:
     image: conjurinc/cli5
-    container_name: api-java-conjur-client
     volumes:
       - ./test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:
       CONJUR_APPLIANCE_URL: http://conjur:3000
-      DATABASE_URL: postgres://postgres@postgres/postgres
       CONJUR_ACCOUNT: cucumber
       CONJUR_AUTHN_LOGIN: admin
     depends_on:
@@ -57,8 +47,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    container_name: api-java-test
-    image: api-java-tests
     volumes:
       - ./target:/conjurinc/api-java/target
     environment:
@@ -67,8 +55,9 @@ services:
 
 
   test-https:
-    image: api-java-tests
-    container_name: api-java-test-https
+    build:
+      context: .
+      dockerfile: Dockerfile.test
     volumes:
       - ./target:/conjurinc/api-java/target
       - ./test-cert:/test-cert

@@ -30,8 +30,7 @@ function createTestEnvironment() {
   echo '------------------------------------------------------------'
 
   # Build test container & start the cluster
-  docker-compose pull client conjur postgres
-  docker-compose build --pull test test-https conjur-proxy-nginx
+  docker-compose build --pull client conjur postgres test test-https conjur-proxy-nginx
   docker-compose up -d client conjur postgres test-https
 
   # Delay to allow time for conjur to come up
@@ -88,7 +87,7 @@ function initializeCert() {
   rm -rf /test-cert/*
 
   echo "fetch pem file from proxy https server"
-  exec_command='echo yes | conjur init -u https://conjur-proxy-nginx -a cucumber > tmp.out 2>&1'
+  exec_command='echo yes | conjur init -u '${CONJUR_PROXY}' -a '${CONJUR_ACCOUNT}' > tmp.out 2>&1'
   docker exec ${conjur_client_cid} /bin/bash -c "$exec_command"
 
   echo "print command output"
