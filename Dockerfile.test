@@ -11,3 +11,5 @@ RUN mkdir -p /conjurinc/api-java
 WORKDIR /conjurinc/api-java
 
 COPY . /conjurinc/api-java
+
+RUN mvn compile

@@ -18,7 +18,6 @@ pipeline {
       steps {
         lock("api-java-${env.NODE_NAME}") {
           sh './test.sh'
-          sh 'sudo chown -R jenkins:jenkins .'  // bad docker mount creates unreadable files TODO fix this
         }
 
         junit 'target/surefire-reports/*.xml'
@@ -38,6 +37,7 @@ pipeline {
   post {
     always {
       sh 'docker run -i --rm -v $PWD:/src -w /src alpine/git clean -fxd'
+      deleteDir()
     }
     failure {
       slackSend(color: 'danger', message: "${env.JOB_NAME} #${env.BUILD_NUMBER} FAILURE (<${env.BUILD_URL}|Open>)")

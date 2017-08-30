@@ -2,38 +2,69 @@ version: '2'
 services:
   postgres:
     image: postgres:9.3
-    container_name: api-java-postgres
 
-  possum:
-    image: registry.tld/possum:0.1.0-stable
-    container_name: api-java-possum
+  conjur:
+    image: cyberark/conjur:0.1.0-stable
     command: server -a cucumber
     environment:
+      PORT: 3000
       DATABASE_URL: postgres://postgres@postgres/postgres
       CONJUR_DATA_KEY: "W0BuL8iTr/7QvtjIluJbrb5LDAnmXzmcpxkqihO3dXA="
+    ports:
+      - "3000:3000"
     depends_on:
       - postgres
 
+  conjur-proxy-nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    entrypoint: nginx-debug -g 'daemon off;'
+    environment:
+        TERM: xterm
+    ports:
+    - "8080:80"
+    - "8443:443"
+    depends_on:
+      - conjur
+      - client
+
+
   client:
     image: conjurinc/cli5
-    container_name: api-java-possum-client
+    volumes:
+      - ./test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:
-      CONJUR_APPLIANCE_URL: http://possum
-      DATABASE_URL: postgres://postgres@postgres/postgres
+      CONJUR_APPLIANCE_URL: http://conjur:3000
       CONJUR_ACCOUNT: cucumber
       CONJUR_AUTHN_LOGIN: admin
+    depends_on:
+      - conjur
 
   test:
     build:
       context: .
       dockerfile: Dockerfile.test
-    container_name: api-java-test
     volumes:
       - ./target:/conjurinc/api-java/target
-    ports:
-      - "8080:8080"
     environment:
-      CONJUR_APPLIANCE_URL: http://possum
+      CONJUR_APPLIANCE_URL: http://conjur:3000
       CONJUR_ACCOUNT: cucumber
+
+
+  test-https:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./target:/conjurinc/api-java/target
+      - ./test-cert:/test-cert
+    entrypoint: sleep
+    command: infinity
+    environment:
+      CONJUR_APPLIANCE_URL: https://conjur-proxy-nginx
+      CONJUR_ACCOUNT: cucumber
+    depends_on:
+      - conjur-proxy-nginx

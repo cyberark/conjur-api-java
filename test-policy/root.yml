@@ -3,3 +3,25 @@
   body:
     - !variable
       id: testVariable
+
+    - !user
+      id: alice
+
+    - !host myapp
+
+    - !group secrets-users
+
+    - !grant
+      role: !group secrets-users
+      member: !user alice
+
+    - !grant
+      role: !group secrets-users
+      member: !host myapp
+
+    - !permit
+      resource: !variable testVariable
+      privileges: [ read, execute, update]
+      roles: !group secrets-users
+
+
