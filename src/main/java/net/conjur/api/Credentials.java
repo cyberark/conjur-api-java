@@ -11,7 +11,8 @@ package net.conjur.api;
  * example for caching.</p>
  */
 public class Credentials {
-    private static final String CREDENTIALS_PROPERTY = "CONJUR_CREDENTIALS";
+    private static final String CONJUR_AUTHN_LOGIN_PROPERTY = "CONJUR_AUTHN_LOGIN";
+    private static final String CONJUR_AUTHN_API_KEY_PROPERTY = "CONJUR_AUTHN_API_KEY";
 
     private String username;
     private String password;
@@ -26,23 +27,14 @@ public class Credentials {
     }
 
     /**
-     * Creates a Credentials instance by parsing a string stored in the system
-     * property {@link Credentials#CREDENTIALS_PROPERTY}.
+     * Creates a Credentials instance from the system properties {@link Credentials#CONJUR_AUTHN_LOGIN_PROPERTY} & {@link Credentials#CONJUR_AUTHN_API_KEY_PROPERTY}
      * @return the credentials stored in the system property.
-     * @throws IllegalArgumentException if the string is not in the format "username:password"
-     * @throws NullPointerException if the system property {@link Credentials#CREDENTIALS_PROPERTY} does not exist
      */
     public static Credentials fromSystemProperties(){
-        String credentials = System.getProperty(CREDENTIALS_PROPERTY);
+        String login = System.getProperty(CONJUR_AUTHN_LOGIN_PROPERTY);
+        String apiKey = System.getProperty(CONJUR_AUTHN_API_KEY_PROPERTY);
 
-        // Assuming credentials are written in the systemParams in this way: "username:password"
-        String[] parts = credentials.split(":");
-
-        if(parts.length != 2) {
-            throw new IllegalArgumentException("Invalid credential string \"" + credentials + "\"");
-        }
-
-        return new Credentials(parts[0], parts[1]);
+        return new Credentials(login, apiKey);
     }
 
     /**

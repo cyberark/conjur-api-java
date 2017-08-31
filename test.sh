@@ -121,7 +121,8 @@ function runTests() {
 
   # Execute tests
   docker-compose run --rm \
-    -e CONJUR_CREDENTIALS="admin:$api_key_admin" \
+    -e CONJUR_AUTHN_LOGIN="admin" \
+    -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
     test \
       bash -c "mvn test"
 
@@ -146,13 +147,22 @@ function runHTTPSTests() {
   tests_command="mvn test"
 
   echo "Running https tests with admin credentials"
-  docker exec -e CONJUR_CREDENTIALS="admin:$api_key_admin" ${conjur_test_cid} ${tests_command}
+  docker exec \
+  -e CONJUR_AUTHN_LOGIN="admin" \
+  -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
+  ${conjur_test_cid} ${tests_command}
 
   echo "Running https tests with user credentials"
-  docker exec -e CONJUR_CREDENTIALS="alice@test:$api_key_alice" ${conjur_test_cid} ${tests_command}
+  docker exec \
+  -e CONJUR_AUTHN_LOGIN="alice@test" \
+  -e CONJUR_AUTHN_API_KEY="$api_key_alice" \
+  ${conjur_test_cid} ${tests_command}
 
   echo "Running https tests with host credentials"
-  docker exec -e CONJUR_CREDENTIALS="host/test/myapp:$api_key_myapp" ${conjur_test_cid} ${tests_command}
+  docker exec \
+  -e CONJUR_AUTHN_LOGIN="host/test/myapp" \
+  -e CONJUR_AUTHN_API_KEY="$api_key_myapp" \
+  ${conjur_test_cid} ${tests_command}
 }
 
 main

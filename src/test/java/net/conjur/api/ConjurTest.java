@@ -16,9 +16,10 @@ import java.util.UUID;
  *  - A Policy that provides permission for this application to access a secret is loaded
  *  - This policy has an account and a variable named 'testSecret' related to that account
  *  - The following system properties are loaded:
- *      * CONJUR_ACCOUNT=accountName
- *      * CONJUR_CREDENTIALS=username:apiKey
- *      * CONJUR_APPLIANCE_URL=http://conjur
+ *      * CONJUR_ACCOUNT=myorg
+ *      * CONJUR_AUTHN_LOGIN=host/myhost.example.com
+ *      * CONJUR_AUTHN_API_KEY=sb0ncv1yj9c4w2e9pb1a2s
+ *      * CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api
  */
 public class ConjurTest {
 

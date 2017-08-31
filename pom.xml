@@ -121,7 +121,8 @@
                     <systemPropertyVariables>
                         <CONJUR_ACCOUNT>${env.CONJUR_ACCOUNT}</CONJUR_ACCOUNT>
                         <CONJUR_APPLIANCE_URL>${env.CONJUR_APPLIANCE_URL}</CONJUR_APPLIANCE_URL>
-                        <CONJUR_CREDENTIALS>${env.CONJUR_CREDENTIALS}</CONJUR_CREDENTIALS>
+                        <CONJUR_AUTHN_LOGIN>${env.CONJUR_AUTHN_LOGIN}</CONJUR_AUTHN_LOGIN>
+                        <CONJUR_AUTHN_API_KEY>${env.CONJUR_AUTHN_API_KEY}</CONJUR_AUTHN_API_KEY>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
