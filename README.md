@@ -38,17 +38,19 @@ The simplest way to configure the Conjur API is by using environment variables, 
 Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
 configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.  
 
-The following environment variables are mandatory for running the API: CONJUR_ACCOUNT, CONJUR_CREDENTIALS & CONJUR_APPLIANCE_URL.
+The following environment variables are mandatory for running the API: CONJUR_ACCOUNT, CONJUR_AUTHN_LOGIN, CONJUR_AUTHN_API_KEY & CONJUR_APPLIANCE_URL.
 
 CONJUR_ACCOUNT - account specified during Conjur setup
 CONJUR_APPLIANCE_URL - Conjur HTTPS endpoint
-CONJUR_CREDENTIALS - user/host identity & user/host API key (written in the pattern `user:apikey`)
+CONJUR_AUTHN_LOGIN - user/host identity
+CONJUR_AUTHN_API_KEY - user/host API key
 
 For example, specify the environment variables like this:
 
 ```bash
 CONJUR_ACCOUNT=myorg
-CONJUR_CREDENTIALS=host/myhost.example.com:sb0ncv1yj9c4w2e9pb1a2s
+CONJUR_AUTHN_LOGIN=host/myhost.example.com
+CONJUR_AUTHN_API_KEY=sb0ncv1yj9c4w2e9pb1a2s
 CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api
 ```
 
@@ -66,6 +68,33 @@ In addition, to run the integration tests you will need to load a Conjur policy.
 ```
 
 To load the policy, use the CLI command `conjur policy load root root.yml`
+
+### SSL Certificates
+
+By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
+Java to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore.
+First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://developer.conjur.net/cli).
+Once you've installed the command line tools, you can run
+
+```bash
+conjur init
+```
+
+and enter the required information at the prompts.  This will save the certificate to a file like `"conjur-mycompany.pem"`
+in your HOME directory.  Java doesn't deal with the *pem* format, so next you'll need to convert it to the *der* format:
+
+```bash
+openssl x509 -outform der -in conjur-yourcompany.pem -out conjur-yourcompany.der
+```
+
+Next, you'll need to locate your JRE home.   On my machine it's `/usr/lib/jvm/java-7-openjdk-amd64/jre/`.  We'll export
+this path to $JRE_HOME for convenience. If the file `$JRE_HOME/lib/security/cacerts` doesn't exist (you might need to be
+root to see it), you've got the wrong path for your JRE_HOME.  Once you've found it, you can add the appliance's cert
+to your keystore like this:
+
+```bash
+keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cacerts"  -file ./conjur-youraccount.der
+```
 
 ## Basic Usage
 
@@ -97,33 +126,6 @@ conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
 String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 ```
 
-
-### SSL Certificates
-
-By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
-Java to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore.
-First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://developer.conjur.net/cli).
-Once you've installed the command line tools, you can run
-
-```bash
-conjur init
-```
-
-and enter the required information at the prompts.  This will save the certificate to a file like `"conjur-mycompany.pem"`
-in your HOME directory.  Java doesn't deal with the *pem* format, so next you'll need to convert it to the *der* format:
-
-```bash
-openssl x509 -outform der -in conjur-yourcompany.pem -out conjur-yourcompany.der
-```
-
-Next, you'll need to locate your JRE home.   On my machine it's `/usr/lib/jvm/java-7-openjdk-amd64/jre/`.  We'll export
-this path to $JRE_HOME for convenience. If the file `$JRE_HOME/lib/security/cacerts` doesn't exist (you might need to be
-root to see it), you've got the wrong path for your JRE_HOME.  Once you've found it, you can add the appliance's cert
-to your keystore like this:
-
-```bash
-keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cacerts"  -file ./conjur-youraccount.der
-```
 
 ## JAX-RS Implementations
 
