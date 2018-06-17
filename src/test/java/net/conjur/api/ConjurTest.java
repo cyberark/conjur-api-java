@@ -14,7 +14,7 @@ import java.util.UUID;
  * Before running this test, verify that:
  *  - Conjur CE is running, healthy and accessible
  *  - A Policy that provides permission for this application to access a secret is loaded
- *  - This policy has an account and a variable named 'testSecret' related to that account
+ *  - This policy has an account and a variable named 'testVariable' related to that account
  *  - The following system properties are loaded:
  *      * CONJUR_ACCOUNT=myorg
  *      * CONJUR_AUTHN_LOGIN=host/myhost.example.com
@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 public class ConjurTest {
 
-    private static final String VARIABLE_KEY = "test/testVariable";
+    private static final String VARIABLE_KEY = "testVariable";
     private static final String VARIABLE_VALUE = "testSecret";
     private static final String NON_EXISTING_VARIABLE_KEY = UUID.randomUUID().toString();
     private static final String NOT_FOUND_STATUS_CODE = "404";
