@@ -115,7 +115,7 @@ public class Token {
         return toJson();
     }
 
-	public String toJson(){
+	private String toJson(){
 		return json;
 	}
 
@@ -127,7 +127,7 @@ public class Token {
         return new String(Base64.decodeBase64(base64), StandardCharsets.UTF_8);
     }
 
-    public String toBase64(){
+    private String toBase64(){
         // NB url safe mode *does not* work
 		return Base64.encodeBase64String(toJson().getBytes());
 	}
