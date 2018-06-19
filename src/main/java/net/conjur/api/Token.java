@@ -24,7 +24,7 @@ public class Token {
         private String protectedText;
         private String payload;
         private String signature;
-        private String expiration;//todo ???
+        private String expiration;
     }
 
     private static class Payload {
@@ -124,7 +124,6 @@ public class Token {
     }
 
     private String fromBase64(String base64){
-        // NB url safe mode *does not* work
         return new String(Base64.decodeBase64(base64), StandardCharsets.UTF_8);
     }
 
