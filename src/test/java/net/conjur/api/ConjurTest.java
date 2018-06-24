@@ -14,7 +14,7 @@ import java.util.UUID;
  * Before running this test, verify that:
  *  - Conjur CE is running, healthy and accessible
  *  - A Policy that provides permission for this application to access a secret is loaded
- *  - This policy has an account and a variable named 'testSecret' related to that account
+ *  - This policy has an account and a variable named 'test/testVariable' related to that account
  *  - The following system properties are loaded:
  *      * CONJUR_ACCOUNT=myorg
  *      * CONJUR_AUTHN_LOGIN=host/myhost.example.com
