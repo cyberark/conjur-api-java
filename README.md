@@ -22,7 +22,7 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 <dependency>
   <groupId>net.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
-  <version>1.2</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -145,7 +145,7 @@ alternative implementation.
 
 ## License
 
-Copyright 2016-2017 CyberArk
+Copyright 2016-2018 CyberArk
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this software except in compliance with the License.
