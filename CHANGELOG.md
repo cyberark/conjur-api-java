@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.0.0] - 2018-7-12
+## [v2.0.0] - 2018-7-12
 ### Added
 - License updated to Apache v2 - PR [8](https://github.com/cyberark/conjur-api-java/pull/8)
 ### Changed
