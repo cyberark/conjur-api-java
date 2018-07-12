@@ -6,11 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [v2.0.0] - 2018-7-12
+## [2.0.0](https://github.com/cyberark/conjur-api-java/releases/tag/v2.0.0) - 2018-7-12
 ### Added
-- License updated to Apache v2 - PR [8](https://github.com/cyberark/conjur-api-java/pull/8)
+- License updated to Apache v2 - [PR #8](https://github.com/cyberark/conjur-api-java/pull/8)
 ### Changed
-- Authn tokens now use the new Conjur 5 format - PR [21](https://github.com/cyberark/conjur-api-java/pull/21)
+- Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now
     instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
