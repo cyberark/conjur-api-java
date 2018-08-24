@@ -22,7 +22,7 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 <dependency>
   <groupId>net.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
