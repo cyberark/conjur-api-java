@@ -31,6 +31,11 @@ public class Conjur {
         variables = new Variables(credentials);
     }
 
+    
+    public Conjur(Token token) {
+        variables = new Variables(token);
+    }
+    
     /**
      * Get a Variables instance configured with the same parameters as this instance.
      * @return the variables instance
