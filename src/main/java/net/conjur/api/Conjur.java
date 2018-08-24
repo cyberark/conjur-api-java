@@ -31,11 +31,15 @@ public class Conjur {
         variables = new Variables(credentials);
     }
 
-    
+
+    /**
+     * Create a Conjur instance that uses a ResourceClient &amp; an AuthnClient constructed with the given credentials
+     * @param token the conjur authorization token to use
+     */
     public Conjur(Token token) {
         variables = new Variables(token);
     }
-    
+
     /**
      * Get a Variables instance configured with the same parameters as this instance.
      * @return the variables instance

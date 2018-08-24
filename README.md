@@ -29,13 +29,13 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 If you aren't using Maven, you can add the `jar` in the normal way. This `jar` can be found in
 the `target` directory created when you ran `mvn package`.
 
-Note that we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the 
+Note that we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the
 integration tests with `mvn package` once you finished with the configuration.
 
 ### Configuration
 
-The simplest way to configure the Conjur API is by using environment variables, which is often a bit more convenient. 
-Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the 
+The simplest way to configure the Conjur API is by using environment variables, which is often a bit more convenient.
+Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the
 configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.  
 
 The following environment variables are mandatory for running the API: CONJUR_ACCOUNT, CONJUR_AUTHN_LOGIN, CONJUR_AUTHN_API_KEY & CONJUR_APPLIANCE_URL.
@@ -96,20 +96,49 @@ to your keystore like this:
 keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cacerts"  -file ./conjur-youraccount.der
 ```
 
-## Basic Usage
+## Examples
 
-### Creating a Conjur Instance
+### Authorization Patterns
+All authorization options require the environment variables `CONJUR_ACCOUNT` and `CONJUR_APPLIANCE_URL` are set:
+```sh
+export CONJUR_ACCOUNT=<account specified during Conjur setup>
+export CONJUR_APPLIANCE_URL=<Conjur HTTPS endpoint>
+```
 
 A `Conjur` instance provides access to the individual Conjur services. To create one, you'll need the environment
 variables as described above. You will typically create a Conjur instance from these values in the following way:
 
+#### Environment Variables
+```sh
+# Additionally set the following environment variables:
+export CONJUR_AUTHN_LOGIN=<user/host identity>
+export CONJUR_AUTHN_API_KEY=<user/host API key>
+```
 ```java
+// Using environment variables
 Conjur conjur = new Conjur();
-
 ```
 
-where the Conjur object is logged in to the account & ready for use.
+#### Username and Password
+```java
+// Authenticate using provided username/hostname and password/API key
+Conjur conjur = new Conjur('host/host-id', 'api-key');
+Conjur conjur = new Conjur('username', 'password');
+```
 
+#### Credentials
+```java
+// Authenticate using a Credentials object
+Credentials credentials = new Credentials('username', 'password');
+Conjur conjur = new Conjur(credentials);
+```
+
+#### Authorization Token
+```java
+String authTokenString = new String(Files.readAllBytes(Paths.get('path/to/conjur/authentication/token.json')));
+Token token = Token.fromJson(authTokenString);
+Conjur conjur = new Conjur(token);
+```
 
 ### Variable Operations
 
@@ -119,13 +148,9 @@ A variable can have one or more (up to 20) secrets associated with it, and order
 You will typically add secrets to variables & retrieve secrets from variables in the following way:
 
 ```java
-Conjur conjur = new Conjur();
-
 conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
-
 String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
 ```
-
 
 ## JAX-RS Implementations
 
