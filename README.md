@@ -135,8 +135,16 @@ Conjur conjur = new Conjur(credentials);
 
 #### Authorization Token
 ```java
-String authTokenString = new String(Files.readAllBytes(Paths.get('path/to/conjur/authentication/token.json')));
-Token token = Token.fromJson(authTokenString);
+Token token = Token.fromFile(Paths.get('path/to/conjur/authentication/token.json'));
+Conjur conjur = new Conjur(token);
+```
+
+Alternatively, to use the `CONJUR_AUTHN_TOKEN_FILE` environment variable:
+```bash
+export CONJUR_AUTHN_TOKEN_FILE="path/to/conjur/authentication/token.json"
+```
+```java
+Token token = Token.fromEnv();
 Conjur conjur = new Conjur(token);
 ```
 
