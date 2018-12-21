@@ -27,7 +27,7 @@ public class ResourceClient implements ResourceProvider {
         init(username, password);
 	}
 
-	// Build ResourceClient using a K8S auth token
+	// Build ResourceClient using a Conjur auth token
 	public ResourceClient(final Token token, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
@@ -61,7 +61,7 @@ public class ResourceClient implements ResourceProvider {
 
     private void init(Token token){
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnK8sClient(token)));
+                .register(new TokenAuthFilter(new AuthnTokenClient(token)));
 
         Client client = builder.build();
 

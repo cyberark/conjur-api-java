@@ -2,11 +2,11 @@ package net.conjur.api.clients;
 import net.conjur.api.AuthnProvider;
 import net.conjur.api.Token;
 
-public class AuthnK8sClient implements AuthnProvider {
+public class AuthnTokenClient implements AuthnProvider {
 
 	private Token token;
 	
-	public AuthnK8sClient(Token token) {
+	public AuthnTokenClient(Token token) {
 		this.token = token;
 	}
 	
