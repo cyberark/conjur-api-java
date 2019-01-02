@@ -99,7 +99,7 @@ keytool -import -alias conjur-youraccount -keystore "$JRE_HOME/lib/security/cace
 ## Examples
 
 ### Authorization Patterns
-All authorization options require the environment variables `CONJUR_ACCOUNT` and `CONJUR_APPLIANCE_URL` are set:
+All authorization options require the environment variables `CONJUR_ACCOUNT` and `CONJUR_APPLIANCE_URL` to be set:
 ```sh
 export CONJUR_ACCOUNT=<account specified during Conjur setup>
 export CONJUR_APPLIANCE_URL=<Conjur HTTPS endpoint>
