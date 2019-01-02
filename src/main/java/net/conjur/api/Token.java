@@ -8,6 +8,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Represents a Conjur API authentication token.
@@ -17,6 +23,7 @@ public class Token {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             // tokens use dates like 2013-10-01 18:48:32 UTC
             DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
+    private static final String TOKEN_FILE_ENV_VARIABLE = "CONJUR_AUTHN_TOKEN_FILE";
 
     // Hold our fields in here to facilitate json serialization/deserialization
     private static class Fields {
@@ -121,6 +128,29 @@ public class Token {
 
     public static Token fromJson(String json){
         return new Token(json);
+    }
+
+    public static Token fromFile(Path filepath, Charset encoding)
+        throws IOException {
+        byte[] encodedJson = Files.readAllBytes(filepath);
+        String json = new String(encodedJson, encoding);
+        return fromJson(json);
+    }
+
+    public static Token fromFile(Path filepath)
+        throws IOException {
+        return fromFile(filepath, StandardCharsets.UTF_8);
+    }
+
+    public static Token fromEnv(Charset encoding) 
+        throws IOException {
+        String tokenFilePath = System.getenv(TOKEN_FILE_ENV_VARIABLE);
+        return fromFile(Paths.get(tokenFilePath), encoding);
+    }
+
+    public static Token fromEnv()
+        throws IOException {
+        return fromEnv(StandardCharsets.UTF_8);
     }
 
     private String fromBase64(String base64){
