@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -ex
 
+function finish {
+  echo '-----------------------test.sh------------------------------'
+  echo 'Removing test environment'
+  echo '------------------------------------------------------------'
+  docker-compose down -v
+}
 
-#function finish {
-#  echo '-----------------------test.sh------------------------------'
-#  echo 'Removing test environment'
-#  echo '------------------------------------------------------------'
-#  docker-compose down -v
-#}
-
-#trap finish EXIT
+trap finish EXIT
 
 function main() {
   runDAP
@@ -18,27 +17,20 @@ function main() {
 
 # Run DAP Enterprise test suite
 function runDAP() {
-  prepareOutputDir
   createDAPTestEnvironment
   loadDAPTestPolicy
   initializeDAPCert
   runDAPTests
 }
 
+# Run OSS test suite
 function runOSS () {
-  prepareOutputDir
   createOSSTestEnvironment
   loadOSSTestPolicy
   runOSSTests
   printOSSProxyConfiguration
   initializeOSSCert
   runOSSHTTPSTests
-}
-
-function prepareOutputDir() {
-  # Clean then generate output folder locally
-  rm -rf output
-  mkdir -p output
 }
 
 # Build DAP test container & start the cluster
@@ -57,14 +49,13 @@ function loadDAPTestPolicy() {
   echo "Loading DAP test policy"
   echo '------------------------------------------------------------'
 
-  # get DAP container id
   dap_client_cid=$(docker-compose ps -q client)
 
-  # get certificate from cuke-master
-  ssl_cert=$(docker-compose exec cuke-master cat /opt/conjur/etc/ssl/conjur.pem) > ssl_cert.txt
+  # Get certificate from cuke-master
+  ssl_cert=$(docker-compose exec -T cuke-master cat /opt/conjur/etc/ssl/conjur.pem)
 
   docker exec \
-    -e CONJUR_SSL_CERTIFICATE="{$ssl_cert}" \
+    -e CONJUR_SSL_CERTIFICATE="$ssl_cert" \
     ${dap_client_cid} conjur authn login -u admin -p secret
 
   # copy test-policy into a /tmp/test-policy within the client container
@@ -81,7 +72,8 @@ function initializeDAPCert() {
   echo '------------------------------------------------------------'
 
   dap_client_cid=$(docker-compose ps -q client)
-  # get the pem file from conjur server
+
+  # Get the pem file from conjur server
   CONJUR_ACCOUNT="cucumber"
   CONJUR_PROXY="https://cuke-master"
 
@@ -99,10 +91,11 @@ function initializeDAPCert() {
   echo "import cert inside DAP test container"
   dap_test_cid=$(docker-compose ps -q test-dap)
 
-  JRE_HOME='/usr/lib/jvm/java-8-openjdk-amd64/jre'
+  # Import cert converted above into keystore
+  JRE_HOME='/usr/local/openjdk-8/jre'
   import_command="keytool \
      -import \
-     -alias cucumber -v \
+     -alias cuke-master -v \
      -trustcacerts \
      -noprompt \
      -keystore $JRE_HOME/lib/security/cacerts \
@@ -117,15 +110,14 @@ function runDAPTests() {
 
   dap_test_cid=$(docker-compose ps -q test-dap)
 
-  # rotate_api_key returns an extra char which effects the value of api key so it is required to remove that char to be successfu
-  api_key_admin=$(echo $(docker-compose exec client conjur user rotate_api_key) | tr -dc '[:alnum:]')
+  api_key_admin=$(docker-compose exec -T client conjur user rotate_api_key)
 
-  # Execute tests
+  # Execute DAP tests
   docker exec \
   -e CONJUR_AUTHN_API_KEY=${api_key_admin} \
   -e CONJUR_AUTHN_LOGIN="admin" \
   ${dap_test_cid} \
-  mvn test
+    mvn test
 }
 
 function createOSSTestEnvironment() {
@@ -149,12 +141,11 @@ function loadOSSTestPolicy() {
   echo "Loading OSS test policy"
   echo '------------------------------------------------------------'
 
-  # get conjur container id
   conjur_client_cid=$(docker-compose ps -q client)
 
   api_key=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
 
-  # copy test-policy into a /tmp/test-policy within the possum container
+  # Copy test-policy into a /tmp/test-policy within the possum container
   docker cp test-policy ${conjur_client_cid}:/tmp
 
   docker exec -e CONJUR_AUTHN_API_KEY=${api_key} \
@@ -168,8 +159,8 @@ function printOSSProxyConfiguration() {
   echo '------------------------------------------------------------'
   echo 'Note: in order to change configuration, you need to edit the file: default.conf '
 
-  # get conjur client container id
   conjur_proxy_cid=$(docker-compose ps -q conjur-proxy-nginx)
+
   exec_command='nginx-debug -T'
   docker exec ${conjur_proxy_cid} ${exec_command}
 }
@@ -179,10 +170,9 @@ function initializeOSSCert() {
   echo "Fetch certificate for OSS using client cli"
   echo '------------------------------------------------------------'
 
-  # get conjur client container id
   conjur_client_cid=$(docker-compose ps -q client)
 
-  # get the pem file from conjur server
+  # Get the pem file from conjur server
   CONJUR_ACCOUNT="cucumber"
   CONJUR_PROXY="https://conjur-proxy-nginx"
 
@@ -206,7 +196,8 @@ function initializeOSSCert() {
   # get conjur test https container id
   conjur_test_cid=$(docker-compose ps -q test-https)
 
-  JRE_HOME='/usr/lib/jvm/java-8-openjdk-amd64/jre'
+  # Import cert converted above into keystore
+  JRE_HOME='/usr/local/openjdk-8/jre'
   import_command="keytool \
     -import \
     -alias cucumber \
@@ -214,7 +205,6 @@ function initializeOSSCert() {
     -noprompt \
     -keystore $JRE_HOME/lib/security/cacerts \
     -file /test-cert/conjur-cucumber.der -storepass changeit"
-
   docker exec ${conjur_test_cid} ${import_command}
 }
 
@@ -224,9 +214,11 @@ function runOSSTests() {
   echo "Running tests"
   echo '------------------------------------------------------------'
 
+  conjur_client_cid=$(docker-compose ps -q client)
+
   api_key_admin=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
 
-  # Execute tests
+  # Execute OSS tests
   docker-compose run --rm \
     -e CONJUR_AUTHN_LOGIN="admin" \
     -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
