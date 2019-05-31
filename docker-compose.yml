@@ -4,7 +4,7 @@ services:
     image: postgres:9.3
 
   conjur:
-    image: cyberark/conjur:0.1.0-stable
+    image: cyberark/conjur:latest
     command: server -a cucumber
     environment:
       PORT: 3000
@@ -15,33 +15,40 @@ services:
     depends_on:
       - postgres
 
+  # Create EE container
+  cuke-master:
+    image: registry2.itci.conjur.net/conjur-appliance-cuke-master:5.0-stable
+    ports:
+      - "9443:443"
+      - "5432:5432"
+      - "1999:1999"
+    security_opt:
+      - "seccomp:unconfined"
+
   conjur-proxy-nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
     entrypoint: nginx-debug -g 'daemon off;'
     environment:
-        TERM: xterm
+      TERM: xterm
     ports:
-    - "8080:80"
-    - "8443:443"
+      - "8080:8080"
+      - "8443:8443"
     depends_on:
       - conjur
       - client
 
-
   client:
-    image: conjurinc/cli5
+    image: cyberark/conjur-cli:5
     volumes:
       - ./test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:
-      CONJUR_APPLIANCE_URL: http://conjur:3000
+      CONJUR_APPLIANCE_URL:
       CONJUR_ACCOUNT: cucumber
       CONJUR_AUTHN_LOGIN: admin
-    depends_on:
-      - conjur
 
   test:
     build:
@@ -53,6 +60,21 @@ services:
       CONJUR_APPLIANCE_URL: http://conjur:3000
       CONJUR_ACCOUNT: cucumber
 
+  # Spin up container for EE testing
+  test-dap:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./target:/conjurinc/api-java/target
+      - ./test-cert:/test-cert
+    entrypoint: sleep
+    command: infinity
+    environment:
+      CONJUR_APPLIANCE_URL: https://cuke-master
+      CONJUR_ACCOUNT: cucumber
+    depends_on:
+      - cuke-master
 
   test-https:
     build:
