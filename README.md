@@ -1,11 +1,15 @@
 Conjur API for Java
 ===================
+Java API SDK for Conjur OSS and Conjur Appliance. This SDK allows customers and developers to build new Java apps that communicate with Conjur, adding and retrieving resources for application use as needed.
 
-## Installation
+## Table of Contents
+- [Building](#building)
+- [Setup](#setup)
+- [Configuration](#configuration)
 
-### From Source
+### Building
 
-To build the library from source you'll need Maven.  You can build it like this:
+To build the library, you'll need Maven.  You can build the project (skipping the test build) like so:
 
 ```bash
 git clone {repo}
@@ -16,7 +20,11 @@ mvn package -DskipTests
 
 ```
 
-If you are using Maven to manage your project's dependencies, you can run `mvn install` to install the package locally, and then include following dependency in your `pom.xml`:
+### Setup
+To facilitate communication between the Java application and Conjur using the Conjur Java API, the following setup steps belows.
+
+1. Create new maven project using an IDE of your choice
+2. If you are using Maven to manage your project's dependencies, include the following Conjur API dependency in your `pom.xml`: 
 
 ```xml
 <dependency>
@@ -26,26 +34,32 @@ If you are using Maven to manage your project's dependencies, you can run `mvn i
 </dependency>
 ```
 
+_NOTE:_ Depending on what version of the Java compiler you have, you may need to update the version. At this time, the {version} most compatible is `1.6`:
+```xml
+<properties>
+    <maven.compiler.source>{version}</maven.compiler.source>
+    <maven.compiler.target>{version}</maven.compiler.target>
+</properties>
+```
+
+3. Run `mvn install` to install packages and their dependencies locally.
+
 If you aren't using Maven, you can add the `jar` in the normal way. This `jar` can be found in
 the `target` directory created when you ran `mvn package`.
 
-Note that we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the
-integration tests with `mvn package` once you finished with the configuration.
-
 ### Configuration
-
-The simplest way to configure the Conjur API is by using environment variables, which is often a bit more convenient.
-Environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the
+Once the setup steps have been success, we will now make the connection between the new Java application and Conjur. The best way to do so is by setting environment variables. 
+In Conjur (both OSS and Enterprise), environment variables are mapped to configuration variables by prepending `CONJUR_` to the all-caps name of the
 configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.  
 
-The following environment variables are mandatory for running the API: CONJUR_ACCOUNT, CONJUR_AUTHN_LOGIN, CONJUR_AUTHN_API_KEY & CONJUR_APPLIANCE_URL.
+The following environment variables need to be included in the apps runtime environment in order use the Conjur API: CONJUR_ACCOUNT, CONJUR_AUTHN_LOGIN, CONJUR_AUTHN_API_KEY & CONJUR_APPLIANCE_URL.
 
 CONJUR_ACCOUNT - account specified during Conjur setup
-CONJUR_APPLIANCE_URL - Conjur HTTPS endpoint
+CONJUR_APPLIANCE_URL - Conjur HTTPS endpoint (OSS/Appliance)
 CONJUR_AUTHN_LOGIN - user/host identity
 CONJUR_AUTHN_API_KEY - user/host API key
 
-For example, specify the environment variables like this:
+For example, specify the environment variables like so:
 
 ```bash
 CONJUR_ACCOUNT=myorg
@@ -54,25 +68,62 @@ CONJUR_AUTHN_API_KEY=sb0ncv1yj9c4w2e9pb1a2s
 CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api
 ```
 
-Note that if you are connecting as a host, the login should be prefixed with `host/`. For example: `host/myhost.example.com`,
-not just `myhost.example.com`.
+_NOTE:_ Defining environment variables is dependent on where the application is running. For example, if the Java app is running in Docker, you would set them in `docker-compose.yml`.
+If the app is running locally, you can configure them in a IDE.
 
-In addition, to run the integration tests you will need to load a Conjur policy. Save this file as `root.yml`:
+In order to set CONJUR_AUTHN_LOGIN and CONJUR_AUTHN_API_KEY, you will need to add the host to Conjur with the proper privileges in policy. 
+If you have already done so, you can skip the next set of steps.
 
-```yaml
+1. Make sure Conjur is running in the background and open the Conjur CLI.
+    
+    _NOTE:_ If using Docker: `docker-compose exec <NAME_OF_CLI_CONTAINER> bash`
+
+2. Copy the following policy, substitute the name of the policy, hostname, and permissions according to deemed necessary, and save it as a `.yml` file. In this policy, we are defining our Java 
+application as a host and granting permissions over some variable. This variable will later hold a secret value.
+
+```xml
 - !policy
-  id: test
+  id: <POLICY_ID>
   body:
+    - !host
+      id: <NAME_OF_HOST>
+
     - !variable
-      id: testVariable
+      id: <NAME_OF_VARIABLE>
+
+    - !permit
+      role: !host <NAME_OF_HOST>
+      privileges: [read, execute]
+      resource: !variable <NAME_OF_VARIABLE>
 ```
 
-To load the policy, use the CLI command `conjur policy load root root.yml`
+3. Load the policy into Conjur like so: `conjur policy load <NAME_OF_POLICY>.yml`
 
+4. Once the policy is loaded (for the first time), an id and API key should be returned for the host. It should look something like:
+```bash
+Loaded policy 'root'
+{
+  "created_roles": {
+    "cucumber:host:<POLICY_ID>/<NAME_OF_HOST>": {
+      "id": "cucumber:host:<POLICY_ID>/<NAME_OF_HOST>",
+      "api_key": "3scdjaz3aq90vn26avdv11s2mf2h2wnwfzw3cbgbja1jspzyc1rdzwqx"
+    }
+  },
+  "version": 1
+}
+```
+
+5. Set the id and API key as the environment variables CONJUR_AUTHN_LOGIN and CONJUR_AUTHN_API_KEY respectively. 
+    _Note:_ In Conjur, it is the standard that hosts are referred to in terms of its full hostname. Therefore, when setting the environment variable, the host id should be prefixed with `host/`. For example, the `host/<NAME_OF_HOST>`,
+not just `<NAME_OF_HOST>`.
+
+6. Give the variable defined in the previous policy a value like so: `conjur variable values add <POLICY_ID>/<NAME_OF_VARIABLE>`
+
+There you have it! Now you are all configured to start leveraging the Conjur Java API in your Java program.
+ 
 ### SSL Certificates
-
-By default, the Conjur appliance generates and uses self-signed SSL certificates. You'll need to configure
-Java to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore.
+By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific certificates known as cacerts). 
+You'll need to configure your Java app to trust them. You can accomplish this by loading the Conjur certificate into the Java keystore.
 First, you'll need a copy of this certificate, which you can get using the [Conjur CLI](https://developer.conjur.net/cli).
 Once you've installed the command line tools, you can run
 
