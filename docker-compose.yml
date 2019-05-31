@@ -19,7 +19,7 @@ services:
   cuke-master:
     image: registry2.itci.conjur.net/conjur-appliance-cuke-master:5.0-stable
     ports:
-      - "443:443"
+      - "9443:443"
       - "5432:5432"
       - "1999:1999"
     security_opt:

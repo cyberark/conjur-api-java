@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -ex
+set -o pipefail
 
 function finish {
   echo '-----------------------test.sh------------------------------'
@@ -11,26 +12,27 @@ function finish {
 trap finish EXIT
 
 function main() {
-  runDAP
-  runOSS
+  finish
+  runDap
+  runOss
 }
 
 # Run DAP Enterprise test suite
-function runDAP() {
+function runDap() {
   createDAPTestEnvironment
-  loadDAPTestPolicy
-  initializeDAPCert
-  runDAPTests
+  loadDapTestPolicy
+  initializeDapCert
+  runDapTests
 }
 
 # Run OSS test suite
-function runOSS () {
-  createOSSTestEnvironment
-  loadOSSTestPolicy
-  runOSSTests
-  printOSSProxyConfiguration
-  initializeOSSCert
-  runOSSHTTPSTests
+function runOss () {
+  createOssTestEnvironment
+  loadOssTestPolicy
+  runOssTests
+  printOssProxyConfiguration
+  initializeOssCert
+  runOssHttpsTests
 }
 
 # Build DAP test container & start the cluster
@@ -44,7 +46,7 @@ function createDAPTestEnvironment() {
   docker-compose run --rm test ./wait_for_server.sh
 }
 
-function loadDAPTestPolicy() {
+function loadDapTestPolicy() {
   echo '-----------------------test.sh------------------------------'
   echo "Loading DAP test policy"
   echo '------------------------------------------------------------'
@@ -66,7 +68,7 @@ function loadDAPTestPolicy() {
     ${dap_client_cid} conjur policy load root /tmp/test-policy/root.yml
 }
 
-function initializeDAPCert() {
+function initializeDapCert() {
   echo '-----------------------test.sh------------------------------'
   echo "Fetch certificate for DAP using client cli"
   echo '------------------------------------------------------------'
@@ -85,25 +87,28 @@ function initializeDAPCert() {
   docker exec ${dap_client_cid} /bin/bash -c "$exec_command"
 
   echo "convert pem to der file and copy it to share memory"
-  convert_command="openssl x509 -outform der -in /root/conjur-cucumber.pem -out /test-cert/conjur-cucumber.der"
+  convert_command="openssl x509 \
+     -outform der \
+     -in /root/conjur-cucumber.pem \
+     -out /test-cert/conjur-cucumber.der"
   docker exec ${dap_client_cid} ${convert_command}
 
   echo "import cert inside DAP test container"
   dap_test_cid=$(docker-compose ps -q test-dap)
 
   # Import cert converted above into keystore
-  JRE_HOME='/usr/local/openjdk-8/jre'
+  JAVA_PATH=$(docker exec ${dap_test_cid} sh -c 'echo $JAVA_HOME')
   import_command="keytool \
      -import \
      -alias cuke-master -v \
      -trustcacerts \
      -noprompt \
-     -keystore $JRE_HOME/lib/security/cacerts \
+     -keystore "${JAVA_PATH}/jre/lib/security/cacerts" \
      -file /test-cert/conjur-cucumber.der -storepass changeit"
   docker exec ${dap_test_cid} ${import_command}
 }
 
-function runDAPTests() {
+function runDapTests() {
   echo '-----------------------test.sh------------------------------'
   echo "Running DAP tests"
   echo '------------------------------------------------------------'
@@ -120,7 +125,7 @@ function runDAPTests() {
     mvn test
 }
 
-function createOSSTestEnvironment() {
+function createOssTestEnvironment() {
   echo '-----------------------test.sh------------------------------'
   echo "Creating OSS test environment"
   echo '------------------------------------------------------------'
@@ -136,7 +141,7 @@ function createOSSTestEnvironment() {
   docker-compose run --rm test ./wait_for_server.sh
 }
 
-function loadOSSTestPolicy() {
+function loadOssTestPolicy() {
   echo '-----------------------test.sh------------------------------'
   echo "Loading OSS test policy"
   echo '------------------------------------------------------------'
@@ -153,7 +158,7 @@ function loadOSSTestPolicy() {
     conjur policy load root /tmp/test-policy/root.yml
 }
 
-function printOSSProxyConfiguration() {
+function printOssProxyConfiguration() {
   echo '-----------------------test.sh------------------------------'
   echo "Print Nginx proxy server configuration"
   echo '------------------------------------------------------------'
@@ -165,7 +170,7 @@ function printOSSProxyConfiguration() {
   docker exec ${conjur_proxy_cid} ${exec_command}
 }
 
-function initializeOSSCert() {
+function initializeOssCert() {
   echo '-----------------------test.sh------------------------------'
   echo "Fetch certificate for OSS using client cli"
   echo '------------------------------------------------------------'
@@ -188,7 +193,10 @@ function initializeOSSCert() {
   docker exec ${conjur_client_cid} ${print_command}
 
   echo "convert pem to der file and copy it to share memory"
-  convert_command="openssl x509 -outform der -in /root/conjur-cucumber.pem -out /test-cert/conjur-cucumber.der"
+  convert_command="openssl x509 \
+    -outform der \
+    -in /root/conjur-cucumber.pem \
+    -out /test-cert/conjur-cucumber.der"
   docker exec ${conjur_client_cid} ${convert_command}
 
   echo "import cert inside test https container"
@@ -197,19 +205,19 @@ function initializeOSSCert() {
   conjur_test_cid=$(docker-compose ps -q test-https)
 
   # Import cert converted above into keystore
-  JRE_HOME='/usr/local/openjdk-8/jre'
+  JAVA_PATH=$(docker exec ${conjur_test_cid} sh -c 'echo $JAVA_HOME')
   import_command="keytool \
     -import \
     -alias cucumber \
     -v -trustcacerts \
     -noprompt \
-    -keystore $JRE_HOME/lib/security/cacerts \
+    -keystore "${JAVA_PATH}/jre/lib/security/cacerts" \
     -file /test-cert/conjur-cucumber.der -storepass changeit"
   docker exec ${conjur_test_cid} ${import_command}
 }
 
 
-function runOSSTests() {
+function runOssTests() {
   echo '-----------------------test.sh------------------------------'
   echo "Running tests"
   echo '------------------------------------------------------------'
@@ -226,7 +234,7 @@ function runOSSTests() {
       bash -c "mvn test"
 }
 
-function runOSSHTTPSTests() {
+function runOssHttpsTests() {
   echo '-----------------------test.sh------------------------------'
   echo "Running https tests"
   echo '------------------------------------------------------------'
