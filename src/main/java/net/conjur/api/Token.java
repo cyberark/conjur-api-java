@@ -57,7 +57,7 @@ public class Token {
         this.json = json;
     }
 
-    //explanation can be found: https://gist.github.com/ryanprior/6afed20e85fae71386e4ede7ffa902b1
+    //explanation can be found: https://gist.github.com/jvanderhoof/cdea80c9f4acc62ed87e74c19b262f35
     private Fields fields(){
         if(fields == null){
             fields = JsonSupport.fromJson(json, Fields.class);
