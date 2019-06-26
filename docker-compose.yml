@@ -17,7 +17,7 @@ services:
 
   # Create EE container
   cuke-master:
-    image: registry2.itci.conjur.net/conjur-appliance-cuke-master:5.0-stable
+    image: registry.tld/conjur-appliance-cuke-master:5.0-stable
     ports:
       - "9443:443"
       - "5432:5432"
