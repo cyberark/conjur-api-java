@@ -13,7 +13,7 @@ Programmatic Java access to the Conjur API (for both Conjur OSS and Enterprise/D
 - [Contributing](#contributing)
 - [License](#license)
 
-##Prerequisites
+## Prerequisites
 It is assumed that Conjur (OSS or Enterprise/DAP) and the Conjur CLI have already been installed in the environment and running in the background. If you haven't done so, follow these instructions for installation of the [OSS](https://docs.conjur.org/Latest/en/Content/OSS/Installation/Install_methods.htm) and these for installation of [Enterprise/DAP](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/Deployment/platforms/platforms.html).
 
 Once Conjur and the Conjur CLI are running in the background, you are ready to start setting up your Java app to work with our Conjur Java API!
@@ -34,7 +34,7 @@ To do so from the source using Maven, following the setup steps belows:
 </dependency>
 ```
 
-_NOTE:_ Depending on what version of the Java compiler you have, you may need to update the version. At this time, the {version} most compatible is `1.8`:
+_NOTE:_ Depending on what version of the Java compiler you have, you may need to update the version. At this time, the `{version}` most compatible is `1.8`:
 
 ```xml
 <properties>
@@ -53,7 +53,7 @@ If generating a JAR is preferred, you can build the library locally and add the 
     
     _NOTE:_ we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the integration tests with mvn package once you finished with the configuration. For more information on how to run the tests, take a look at our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTRIBUTING.md) guide.
 
-4. Follow the steps outlined [here](https://docs.oracle.com/cd/E13224_01/wlw/docs100/guide/ideuserguide/conJARLibraryDependencies.html) for information on how add JAR files into the new app's project files 
+4. Follow the steps outlined [here](https://www.jetbrains.com/help/idea/library.html) for information on how add JAR files into the new app's project files using Intelij and [here](https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.wst.webtools.doc.user%2Ftopics%2Ftwplib.html) for Eclipse
 
 ## Configuration
 Once the setup steps have been successfully run, we will now define the environment variables needed to make the connection between the new app and Conjur. The best way to do so is by setting environment variables. 
@@ -68,10 +68,13 @@ The following environment variables need to be included in the apps runtime envi
 - `CONJUR_AUTHN_API_KEY`
 - `CONJUR_APPLIANCE_URL`
 
-CONJUR_ACCOUNT - account specified during Conjur setup
-CONJUR_APPLIANCE_URL - Conjur HTTPS endpoint (OSS/DAP)
-CONJUR_AUTHN_LOGIN - user/host identity
-CONJUR_AUTHN_API_KEY - user/host API key
+`CONJUR_ACCOUNT` - account specified during Conjur setup
+
+`CONJUR_APPLIANCE_URL` - Conjur HTTPS endpoint (OSS/DAP)
+
+`CONJUR_AUTHN_LOGIN` - user/host identity
+
+`CONJUR_AUTHN_API_KEY` - user/host API key
 
 For example, specify the environment variables like so:
 
@@ -110,6 +113,8 @@ another desired outcome. If a policy already exists for your host, you can skip 
       resource: !variable <NAME_OF_VARIABLE>
 ```
 
+_NOTE:_ If you cannot remember the admin's API key and you have the proper privileges, you can run `conjurctl role retrieve-key cucumber:user:admin` from the Conjur server to rotate the admin's API key and load the policy
+
 3. Load the policy into Conjur using the CLI like so: `conjur policy load <PATH_TO_POLICY> <NAME_OF_POLICY>.yml`
 
 _NOTE:_ For this policy, `<PATH_TO_POLICY>` is root. Meaning, this policy has been loaded into the root node of the policy tree. You may want to change this. For more information about the Conjur policy tree, check out [this](https://www.conjur.org/blog/understanding-conjur-policy/) blog post.
@@ -133,7 +138,7 @@ Loaded policy 'root'
     _NOTE:_ In Conjur, it is the standard that hosts are referred to in terms of their full qualifier and type. Therefore, when setting value for the host's environment 
     variable, the host ID should be prefixed with `host/`. For example, the `host/<NAME_OF_HOST>`, not just `<NAME_OF_HOST>`.
 
-6. Give the credential variable defined in the previous policy a value like so: `conjur variable values add <POLICY_ID>/<NAME_OF_VARIABLE>`
+6. Give the credential variable defined in the previous policy a value like so: `conjur variable values add <POLICY_ID>/<NAME_OF_VARIABLE> <VARIABLE_VALUE>`
 
 Now that we have identified our host in Conjur, we now need the app to trust Conjur. To do this, the Conjur self-signed SSL certificate needs to be added to Java's certificate authority keystore.  
 
