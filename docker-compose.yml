@@ -7,9 +7,11 @@ services:
     image: cyberark/conjur:latest
     command: server -a cucumber
     environment:
+      CONJUR_ACCOUNT: cucumber
       PORT: 3000
       DATABASE_URL: postgres://postgres@postgres/postgres
       CONJUR_DATA_KEY: "W0BuL8iTr/7QvtjIluJbrb5LDAnmXzmcpxkqihO3dXA="
+      RAILS_ENV: development
     ports:
       - "3000:3000"
     depends_on:
