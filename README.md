@@ -19,39 +19,13 @@ It is assumed that Conjur (OSS or Enterprise/DAP) and the Conjur CLI have alread
 Once Conjur and the Conjur CLI are running in the background, you are ready to start setting up your Java app to work with our Conjur Java API!
 
 ## Setup
-You can grab the library's dependencies from the source by using Maven **or** locally by generating a JAR file and adding it to the project manually. 
- 
-To do so from the source using Maven, following the setup steps belows: 
-
-1. Create new maven project using an IDE of your choice
-2. If you are using Maven to manage your project's dependencies, include the following Conjur API dependency in your `pom.xml`: 
-
-```xml
-<dependency>
-  <groupId>net.conjur.api</groupId>
-  <artifactId>conjur-api</artifactId>
-  <version>2.1.0</version>
-</dependency>
-```
-
-_NOTE:_ Depending on what version of the Java compiler you have, you may need to update the version. At this time, the `{version}` most compatible is `1.8`:
-
-```xml
-<properties>
-    <maven.compiler.source>{version}</maven.compiler.source>
-    <maven.compiler.target>{version}</maven.compiler.target>
-</properties>
-```
-
-3. Run `mvn install` to install packages and their dependencies locally.
-
-If generating a JAR is preferred, you can build the library locally and add the dependency to the project manually by following the setup steps below:
+You can build our Java client library locally and add the dependency to your project manually by following the setup steps below:
 
 1. Clone the Conjur Java API repo locally: `git clone {repo}`
 2. `cd conjur-api-java`
 3. Run `mvn package -DskipTests` to generate a JAR file. These files should be in the `target` directory of the repo
     
-    _NOTE:_ we ran `mvn package` without running the integration tests, since these require access to a Conjur instance. You can run the integration tests with mvn package once you finished with the configuration. For more information on how to run the tests, take a look at our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTRIBUTING.md) guide.
+    _NOTE:_ we ran `mvn package -DskipTests` to avoid running the integration tests, since these require access to a Conjur instance. You can run the integration tests with `mvn package` once you finished with the configuration. For more information on how to run the tests, take a look at our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTRIBUTING.md) guide.
 
 4. Follow the steps outlined [here](https://www.jetbrains.com/help/idea/library.html) for information on how to add JAR files into the new app's project files using Intellij and [here](https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.wst.webtools.doc.user%2Ftopics%2Ftwplib.html) for Eclipse
 
