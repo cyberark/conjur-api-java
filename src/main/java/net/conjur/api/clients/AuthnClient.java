@@ -1,6 +1,7 @@
 package net.conjur.api.clients;
 
 import net.conjur.api.AuthnProvider;
+import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.api.Token;
 import net.conjur.util.rs.HttpBasicAuthFilter;
@@ -30,13 +31,16 @@ public class AuthnClient implements AuthnProvider {
 
     private String apiKey;
 
-	public AuthnClient(final String username, final String password, final Endpoints endpoints) {
+	public AuthnClient(final Credentials credentials, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
-        init(username, password);
+        init(credentials.getUsername(), credentials.getPassword());
 
         // replacing the password with an API key
-        this.apiKey = login();
+        this.apiKey = credentials.getPassword();
+        if(credentials.getServiceID() == "authn"){
+            this.apiKey = login();
+        }
     }
 
     public Token authenticate() {

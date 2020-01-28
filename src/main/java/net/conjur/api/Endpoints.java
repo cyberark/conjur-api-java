@@ -10,6 +10,7 @@ import java.net.URI;
 public class Endpoints implements Serializable {
     private static final String URL_PROPERTY_NAME = "CONJUR_APPLIANCE_URL";
     private static final String ACCOUNT_PROPERTY_NAME = "CONJUR_ACCOUNT";
+    private static final String AUTHN_SERVICE_ID_PROPERTY_NAME = "CONJUR_AUTHN_SERVICE_ID";
 
     private final URI authnUri;
     private final URI secretsUri;
@@ -30,11 +31,19 @@ public class Endpoints implements Serializable {
     }
 
     public static Endpoints fromSystemProperties(){
-
-        String account = System.getProperty(ACCOUNT_PROPERTY_NAME);
+        String account = Args.getMandatoryProperty(ACCOUNT_PROPERTY_NAME);
+        String authnServiceID = Args.getMandatoryProperty(AUTHN_SERVICE_ID_PROPERTY_NAME, "authn");
 
         return new Endpoints(
-                getServiceUri("authn", account),
+                getServiceUri(authnServiceID, account),
+                getServiceUri("secrets", account, "variable")
+        );
+    }
+
+    public static Endpoints fromCredentials(Credentials credentials){
+        String account = Args.getMandatoryProperty(ACCOUNT_PROPERTY_NAME);
+        return new Endpoints(
+                getServiceUri(credentials.getServiceID(), account),
                 getServiceUri("secrets", account, "variable")
         );
     }
@@ -44,7 +53,7 @@ public class Endpoints implements Serializable {
     }
 
     private static URI getServiceUri(String service, String accountName, String path){
-        return URI.create(String.format("%s/%s/%s/%s", System.getProperty(URL_PROPERTY_NAME), service, accountName, path));
+        return URI.create(String.format("%s/%s/%s/%s", Args.getMandatoryProperty(URL_PROPERTY_NAME), service, accountName, path));
     }
 
     @Override

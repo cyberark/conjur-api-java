@@ -25,6 +25,16 @@ public class Conjur {
 
     /**
      * Create a Conjur instance that uses a ResourceClient &amp; an AuthnClient constructed with the given credentials
+     * @param username username for the Conjur identity to authenticate as
+     * @param password password or api key for the Conjur identity to authenticate as
+     * @param serviceID service for authenticating to Conjur
+     */
+    public Conjur(String username, String password, String serviceID) {
+        this(new Credentials(username, password, serviceID));
+    }
+
+    /**
+     * Create a Conjur instance that uses a ResourceClient &amp; an AuthnClient constructed with the given credentials
      * @param credentials the conjur identity to authenticate as
      */
     public Conjur(Credentials credentials) {

@@ -7,8 +7,7 @@ public class Variables {
     private ResourceClient resourceClient;
 
     public Variables(Credentials credentials) {
-        resourceClient = new ResourceClient(
-                credentials.getUsername(), credentials.getPassword(), Endpoints.fromSystemProperties());
+        resourceClient = new ResourceClient(credentials, Endpoints.fromCredentials(credentials));
     }
 
     public Variables(Token token) {

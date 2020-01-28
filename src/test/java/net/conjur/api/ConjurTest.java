@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import java.util.UUID;
 
@@ -27,6 +28,12 @@ public class ConjurTest {
     private static final String VARIABLE_VALUE = "testSecret";
     private static final String NON_EXISTING_VARIABLE_KEY = UUID.randomUUID().toString();
     private static final String NOT_FOUND_STATUS_CODE = "404";
+    private static final String UNAUTHORIZED_STATUS_CODE = "401";
+    private static final String ALTERNATIVE_USERNAME = "host/73789374/iam-role-name";
+    private static final String ALTERNATIVE_API_KEY = "notRealApiKey";
+    private static final String ALTERNATIVE_SERVICE_ID = "authn-iam/test";
+    private static final String INVALID_SERVICE_ID = "authn-not-good/test";
+
 
     public ConjurTest() {
     }
@@ -58,6 +65,23 @@ public class ConjurTest {
         Conjur conjur = new Conjur();
 
         conjur.variables().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
+    }
+
+    @Test
+    public void testLogonWithAlterativeAuthenticator() {
+        expectedException.expect(ProcessingException.class);
+        expectedException.expectMessage(UNAUTHORIZED_STATUS_CODE);
+
+        Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, ALTERNATIVE_SERVICE_ID);
+        conjur.variables().retrieveSecret(VARIABLE_KEY);
+    }
+
+    @Test
+    public void testInvalidServiceID() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid service id");
+
+        new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, INVALID_SERVICE_ID);
     }
 
     @Rule

@@ -3,7 +3,6 @@ package net.conjur.util;
  * Copied from org.apache.http.utils.Args to avoid dependencies.
  */
 
-import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -88,6 +87,20 @@ public class Args {
         return n;
     }
 
+    public static String getMandatoryProperty(String name) {
+        return getMandatoryProperty(name, null);
+    }
+
+    public static String getMandatoryProperty(String name, String def) {
+        String value = System.getProperty(name, System.getenv(name));
+		if(value == null) { 
+            value = def; 
+        }
+		if (value == null) {
+		    throw new IllegalArgumentException(String.format("Conjur config property '%s' was not provided", name));
+		}
+		return value;
+    }
 
     public static <T> T notNull(T value) {
         return notNull(value, "argument");
