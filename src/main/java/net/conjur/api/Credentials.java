@@ -27,7 +27,9 @@ public class Credentials {
      * @param password the password or api key for this Conjur identity
      */
     public Credentials(String username, String password) {
-        this(username, password, Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY) + "/authn");
+        this(username, password, 
+           Properties.getMandatoryProperty(CONJUR_AUTHN_URL_PROPERTY,
+           Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY) + "/authn"));
     }
 
     /**
