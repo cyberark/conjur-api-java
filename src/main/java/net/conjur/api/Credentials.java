@@ -53,7 +53,7 @@ public class Credentials {
         String login = Properties.getMandatoryProperty(CONJUR_AUTHN_LOGIN_PROPERTY);
         String apiKey = Properties.getMandatoryProperty(CONJUR_AUTHN_API_KEY_PROPERTY);
         String applianceUrl = Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY);
-        String authnUrl = Properties.getMandatoryProperty(CONJUR_AUTHN_SERVICE_ID_PROPERTY, applianceUrl + "/authn");
+        String authnUrl = Properties.getMandatoryProperty(CONJUR_AUTHN_URL_PROPERTY, applianceUrl + "/authn");
 
         return new Credentials(login, apiKey, authnUrl);
     }
