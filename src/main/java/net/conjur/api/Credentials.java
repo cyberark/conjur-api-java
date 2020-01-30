@@ -1,6 +1,5 @@
 package net.conjur.api;
 
-import net.conjur.util.Args;
 import net.conjur.util.Properties;
 
 /**
