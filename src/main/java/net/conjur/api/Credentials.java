@@ -15,7 +15,7 @@ import net.conjur.util.Properties;
 public class Credentials {
     private static final String CONJUR_AUTHN_LOGIN_PROPERTY = "CONJUR_AUTHN_LOGIN";
     private static final String CONJUR_AUTHN_API_KEY_PROPERTY = "CONJUR_AUTHN_API_KEY";
-    private static final String CONJUR_AUTHN_SERVICE_ID_PROPERTY = "CONJUR_AUTHN_URL";
+    private static final String CONJUR_AUTHN_URL_PROPERTY = "CONJUR_AUTHN_URL";
     private static final String CONJUR_APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
 
     private String username;
