@@ -31,8 +31,8 @@ public class ConjurTest {
     private static final String UNAUTHORIZED_STATUS_CODE = "401";
     private static final String ALTERNATIVE_USERNAME = "host/73789374/iam-role-name";
     private static final String ALTERNATIVE_API_KEY = "notRealApiKey";
-    private static final String ALTERNATIVE_SERVICE_ID = "authn-iam/test";
-    private static final String INVALID_SERVICE_ID = "authn-not-good/test";
+    private static final String ALTERNATIVE_AUTHN_ENDPOINT = "/authn-iam/test";
+    private static final String APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
 
 
     public ConjurTest() {
@@ -72,17 +72,12 @@ public class ConjurTest {
         expectedException.expect(ProcessingException.class);
         expectedException.expectMessage(UNAUTHORIZED_STATUS_CODE);
 
-        Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, ALTERNATIVE_SERVICE_ID);
+        String authnUrl = System.getProperty(APPLIANCE_URL_PROPERTY) + ALTERNATIVE_AUTHN_ENDPOINT;
+
+        Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, authnUrl);
         conjur.variables().retrieveSecret(VARIABLE_KEY);
     }
 
-    @Test
-    public void testInvalidServiceID() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid service id");
-
-        new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, INVALID_SERVICE_ID);
-    }
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

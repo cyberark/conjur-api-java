@@ -1,6 +1,7 @@
 package net.conjur.api;
 
 import net.conjur.util.Args;
+import net.conjur.util.Properties;
 
 /**
  * Stores credentials for a Conjur identity.
@@ -15,27 +16,30 @@ import net.conjur.util.Args;
 public class Credentials {
     private static final String CONJUR_AUTHN_LOGIN_PROPERTY = "CONJUR_AUTHN_LOGIN";
     private static final String CONJUR_AUTHN_API_KEY_PROPERTY = "CONJUR_AUTHN_API_KEY";
-    private static final String CONJUR_AUTHN_SERVICE_ID_PROPERTY = "CONJUR_AUTHN_SERVICE_ID";
+    private static final String CONJUR_AUTHN_SERVICE_ID_PROPERTY = "CONJUR_AUTHN_URL";
+    private static final String CONJUR_APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
 
     private String username;
     private String password;
-    private String serviceID;
+    private String authnUrl;
 
     /**
      * @param username the username/login for this Conjur identity
      * @param password the password or api key for this Conjur identity
      */
     public Credentials(String username, String password) {
-        this(username, password, "authn");
+        this(username, password, Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY) + "/authn");
     }
 
-    public Credentials(String username, String password, String serviceID) {
+    /**
+     * @param username the username/login for this Conjur identity
+     * @param password the password or api key for this Conjur identity
+     * @param authnUrl the conjur authentication url
+     */
+    public Credentials(String username, String password, String authnUrl) {
         this.username = username;
         this.password = password;
-        if((serviceID != "authn") && !serviceID.startsWith("authn-iam/") && !serviceID.startsWith("authn-oidc/")) {
-            throw new IllegalArgumentException(String.format("Invalid service id '%s'", serviceID));
-        }
-        this.serviceID = serviceID;
+        this.authnUrl = authnUrl;
     }
 
     /**
@@ -45,11 +49,12 @@ public class Credentials {
      * @return the credentials stored in the system property.
      */
     public static Credentials fromSystemProperties(){
-        String login = Args.getMandatoryProperty(CONJUR_AUTHN_LOGIN_PROPERTY);
-        String apiKey = Args.getMandatoryProperty(CONJUR_AUTHN_API_KEY_PROPERTY);
-        String serviceID = Args.getMandatoryProperty(CONJUR_AUTHN_SERVICE_ID_PROPERTY, "authn");
+        String login = Properties.getMandatoryProperty(CONJUR_AUTHN_LOGIN_PROPERTY);
+        String apiKey = Properties.getMandatoryProperty(CONJUR_AUTHN_API_KEY_PROPERTY);
+        String applianceUrl = Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY);
+        String authnUrl = Properties.getMandatoryProperty(CONJUR_AUTHN_SERVICE_ID_PROPERTY, applianceUrl + "/authn");
 
-        return new Credentials(login, apiKey, serviceID);
+        return new Credentials(login, apiKey, authnUrl);
     }
 
     /**
@@ -69,8 +74,8 @@ public class Credentials {
     /**
      * @return the service id of this Conjur identity
      */
-    public String getServiceID() {
-        return serviceID;
+    public String getAuthnUrl() {
+        return authnUrl;
     }
 
     public String toString(){

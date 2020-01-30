@@ -38,7 +38,7 @@ public class AuthnClient implements AuthnProvider {
 
         // replacing the password with an API key
         this.apiKey = credentials.getPassword();
-        if(credentials.getServiceID() == "authn"){
+        if(credentials.getAuthnUrl().endsWith("/authn")){
             this.apiKey = login();
         }
     }

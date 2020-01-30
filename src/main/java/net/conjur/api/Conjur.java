@@ -29,8 +29,8 @@ public class Conjur {
      * @param password password or api key for the Conjur identity to authenticate as
      * @param serviceID service for authenticating to Conjur
      */
-    public Conjur(String username, String password, String serviceID) {
-        this(new Credentials(username, password, serviceID));
+    public Conjur(String username, String password, String authnUrl) {
+        this(new Credentials(username, password, authnUrl));
     }
 
     /**
