@@ -7,6 +7,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import net.conjur.api.Credentials;
 import net.conjur.api.Endpoints;
 import net.conjur.api.ResourceProvider;
 import net.conjur.api.Token;
@@ -20,12 +21,12 @@ public class ResourceClient implements ResourceProvider {
 
     private WebTarget secrets;
     private final Endpoints endpoints;
-
-	public ResourceClient(final String username, final String password, final Endpoints endpoints) {
+    
+    public ResourceClient(final Credentials credentials, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
-        init(username, password);
-	}
+        init(credentials);
+    }
 
 	// Build ResourceClient using a Conjur auth token
 	public ResourceClient(final Token token, final Endpoints endpoints) {
@@ -50,9 +51,9 @@ public class ResourceClient implements ResourceProvider {
         return endpoints;
     }
 
-    private void init(String username, String password){
+    private void init(Credentials credentials){
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnClient(username, password, endpoints)));
+                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints)));
 
         Client client = builder.build();
 

@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import java.util.UUID;
 
@@ -27,6 +28,12 @@ public class ConjurTest {
     private static final String VARIABLE_VALUE = "testSecret";
     private static final String NON_EXISTING_VARIABLE_KEY = UUID.randomUUID().toString();
     private static final String NOT_FOUND_STATUS_CODE = "404";
+    private static final String UNAUTHORIZED_STATUS_CODE = "401";
+    private static final String ALTERNATIVE_USERNAME = "host/73789374/iam-role-name";
+    private static final String ALTERNATIVE_API_KEY = "notRealApiKey";
+    private static final String ALTERNATIVE_AUTHN_ENDPOINT = "/authn-iam/test";
+    private static final String APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
+
 
     public ConjurTest() {
     }
@@ -59,6 +66,18 @@ public class ConjurTest {
 
         conjur.variables().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
     }
+
+    @Test
+    public void testLogonWithAlterativeAuthenticator() {
+        expectedException.expect(ProcessingException.class);
+        expectedException.expectMessage(UNAUTHORIZED_STATUS_CODE);
+
+        String authnUrl = System.getProperty(APPLIANCE_URL_PROPERTY) + ALTERNATIVE_AUTHN_ENDPOINT;
+
+        Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, authnUrl);
+        conjur.variables().retrieveSecret(VARIABLE_KEY);
+    }
+
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

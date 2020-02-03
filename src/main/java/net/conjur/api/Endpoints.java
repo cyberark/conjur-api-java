@@ -1,6 +1,8 @@
 package net.conjur.api;
 
 import net.conjur.util.Args;
+import net.conjur.util.Properties;
+
 import java.io.Serializable;
 import java.net.URI;
 
@@ -10,6 +12,7 @@ import java.net.URI;
 public class Endpoints implements Serializable {
     private static final String URL_PROPERTY_NAME = "CONJUR_APPLIANCE_URL";
     private static final String ACCOUNT_PROPERTY_NAME = "CONJUR_ACCOUNT";
+    private static final String AUTHN_URL_PROPERTY_NAME = "CONJUR_AUTHN_URL";
 
     private final URI authnUri;
     private final URI secretsUri;
@@ -30,21 +33,30 @@ public class Endpoints implements Serializable {
     }
 
     public static Endpoints fromSystemProperties(){
-
-        String account = System.getProperty(ACCOUNT_PROPERTY_NAME);
+        String account = Properties.getMandatoryProperty(ACCOUNT_PROPERTY_NAME);
+        String applianceUrl = Properties.getMandatoryProperty(URL_PROPERTY_NAME);
+        String authnUrl = Properties.getMandatoryProperty(AUTHN_URL_PROPERTY_NAME, applianceUrl + "/authn");
 
         return new Endpoints(
-                getServiceUri("authn", account),
+                getAuthnServiceUri(authnUrl, account),
                 getServiceUri("secrets", account, "variable")
         );
     }
 
-    private static URI getServiceUri(String service, String accountName){
-        return getServiceUri(service, accountName, "");
+    public static Endpoints fromCredentials(Credentials credentials){
+        String account = Properties.getMandatoryProperty(ACCOUNT_PROPERTY_NAME);
+        return new Endpoints(
+                getAuthnServiceUri(credentials.getAuthnUrl(), account),
+                getServiceUri("secrets", account, "variable")
+        );
+    }
+
+    private static URI getAuthnServiceUri(String authnUrl, String accountName) {
+        return URI.create(String.format("%s/%s", authnUrl, accountName));
     }
 
     private static URI getServiceUri(String service, String accountName, String path){
-        return URI.create(String.format("%s/%s/%s/%s", System.getProperty(URL_PROPERTY_NAME), service, accountName, path));
+        return URI.create(String.format("%s/%s/%s/%s", Properties.getMandatoryProperty(URL_PROPERTY_NAME), service, accountName, path));
     }
 
     @Override
