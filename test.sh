@@ -58,7 +58,7 @@ function loadDapTestPolicy() {
 
   docker exec \
     -e CONJUR_SSL_CERTIFICATE="$ssl_cert" \
-    ${dap_client_cid} conjur authn login -u admin -p secret
+    ${dap_client_cid} conjur authn login -u admin -p SEcret12!!!!
 
   # copy test-policy into a /tmp/test-policy within the client container
   docker cp test-policy ${dap_client_cid}:/tmp
