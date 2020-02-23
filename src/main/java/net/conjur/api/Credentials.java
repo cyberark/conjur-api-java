@@ -13,10 +13,6 @@ import net.conjur.util.Properties;
  * example for caching.</p>
  */
 public class Credentials {
-    private static final String CONJUR_AUTHN_LOGIN_PROPERTY = "CONJUR_AUTHN_LOGIN";
-    private static final String CONJUR_AUTHN_API_KEY_PROPERTY = "CONJUR_AUTHN_API_KEY";
-    private static final String CONJUR_AUTHN_URL_PROPERTY = "CONJUR_AUTHN_URL";
-    private static final String CONJUR_APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
 
     private String username;
     private String password;
@@ -28,8 +24,8 @@ public class Credentials {
      */
     public Credentials(String username, String password) {
         this(username, password, 
-           Properties.getMandatoryProperty(CONJUR_AUTHN_URL_PROPERTY,
-           Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY) + "/authn"));
+           Properties.getMandatoryProperty(Constants.CONJUR_AUTHN_URL_PROPERTY,
+           Properties.getMandatoryProperty(Constants.CONJUR_APPLIANCE_URL_PROPERTY) + "/authn"));
     }
 
     /**
@@ -50,10 +46,10 @@ public class Credentials {
      * @return the credentials stored in the system property.
      */
     public static Credentials fromSystemProperties(){
-        String login = Properties.getMandatoryProperty(CONJUR_AUTHN_LOGIN_PROPERTY);
-        String apiKey = Properties.getMandatoryProperty(CONJUR_AUTHN_API_KEY_PROPERTY);
-        String applianceUrl = Properties.getMandatoryProperty(CONJUR_APPLIANCE_URL_PROPERTY);
-        String authnUrl = Properties.getMandatoryProperty(CONJUR_AUTHN_URL_PROPERTY, applianceUrl + "/authn");
+        String login = Properties.getMandatoryProperty(Constants.CONJUR_AUTHN_LOGIN_PROPERTY);
+        String apiKey = Properties.getMandatoryProperty(Constants.CONJUR_AUTHN_API_KEY_PROPERTY);
+        String applianceUrl = Properties.getMandatoryProperty(Constants.CONJUR_APPLIANCE_URL_PROPERTY);
+        String authnUrl = Properties.getMandatoryProperty(Constants.CONJUR_AUTHN_URL_PROPERTY, applianceUrl + "/authn");
 
         return new Credentials(login, apiKey, authnUrl);
     }
