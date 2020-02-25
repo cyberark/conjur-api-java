@@ -1,165 +1,170 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.conjur.api</groupId>
+  <artifactId>conjur-api</artifactId>
+  <version>2.1.0</version>
 
-    <groupId>net.conjur.api</groupId>
-    <artifactId>conjur-api</artifactId>
-    <version>2.1.0</version>
+  <name>Conjur</name>
+  <description>Client for the Conjur API</description>
 
-    <name>Conjur</name>
-    <description>Client for the Conjur API</description>
+  <scm>
+    <url>https://github.com/cyberark/conjur-api-java</url>
+  </scm>
 
-    <scm>
-        <url>https://github.com/cyberark/conjur-api-java</url>
-    </scm>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jaxrs.version>2.0</jaxrs.version>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <jaxrs.version>2.0</jaxrs.version>
     </properties>
     <dependencies>
-        <!--
-
+      <!--
         JAXRS Implementation
-
         You can change any of this, for example if you use Jersey 2.0 or a different implementation
         (codehaus has one, I think).
-        -->
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>${jaxrs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>3.0.0-milestone1</version>
-        </dependency>
+      -->
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${jaxrs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-client</artifactId>
+        <version>3.0.0-milestone1</version>
+      </dependency>
 
-        <!-- JSON support -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.3.1</version>
-        </dependency>
+      <!-- JSON support -->
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.3.1</version>
+      </dependency>
 
-        <!-- to work with token expirations -->
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.3</version>
-        </dependency>
+      <!-- to work with token expirations -->
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.3</version>
+      </dependency>
 
-        <!-- for base64 -->
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.7</version>
-        </dependency>
+      <!-- for base64 -->
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.7</version>
+      </dependency>
 
-        <!-- for converting response streams to string -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.5</version>
-        </dependency>
+      <!-- for converting response streams to string -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.5</version>
+      </dependency>
 
-        <!-- decent-ish logging -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.3</version>
-        </dependency>
+      <!-- decent-ish logging -->
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.3</version>
+      </dependency>
 
-        <!-- To run examples -->
-        <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.4.0</version>
-            <type>maven-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-junit</artifactId>
-            <version>1.1.5</version>
-            <scope>test</scope>
-        </dependency>
+      <!-- To run examples -->
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <type>maven-plugin</type>
+      </dependency>
+      <dependency>
+        <groupId>info.cukes</groupId>
+        <artifactId>cucumber-junit</artifactId>
+        <version>1.1.5</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
 
     <packaging>jar</packaging>
 
     <distributionManagement>
-        <repository>
-            <id>conjurinc-releases</id>
-            <name>conjurinc-releases</name>
-            <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>conjurinc-snapshots</id>
-            <name>conjurinc-snapshots</name>
-            <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
-        </snapshotRepository>
+      <repository>
+        <id>conjurinc-releases</id>
+        <name>conjurinc-releases</name>
+        <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
+      </repository>
+      <snapshotRepository>
+        <id>conjurinc-snapshots</id>
+        <name>conjurinc-snapshots</name>
+        <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
+      </snapshotRepository>
     </distributionManagement>
 
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
+      <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.3.2</version>
+            <configuration>
+              <source>1.6</source>
+              <target>1.6</target>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.20</version>
+            <configuration>
+              <systemPropertyVariables>
+                <CONJUR_ACCOUNT>${env.CONJUR_ACCOUNT}</CONJUR_ACCOUNT>
+                <CONJUR_APPLIANCE_URL>${env.CONJUR_APPLIANCE_URL}</CONJUR_APPLIANCE_URL>
+                <CONJUR_AUTHN_LOGIN>${env.CONJUR_AUTHN_LOGIN}</CONJUR_AUTHN_LOGIN>
+                <CONJUR_AUTHN_API_KEY>${env.CONJUR_AUTHN_API_KEY}</CONJUR_AUTHN_API_KEY>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <configuration>
+
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Plugin to create jar with dependencies -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                  <shadedClassifierName>with-dependencies</shadedClassifierName>
+                  <shadedArtifactAttached>true</shadedArtifactAttached>
+	          <transformers>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>MainTest</mainClass>
+                    </transformer>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                      <resource>META-INF/cxf/bus-extensions.txt</resource>
+                    </transformer>
+                  </transformers>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <CONJUR_ACCOUNT>${env.CONJUR_ACCOUNT}</CONJUR_ACCOUNT>
-                        <CONJUR_APPLIANCE_URL>${env.CONJUR_APPLIANCE_URL}</CONJUR_APPLIANCE_URL>
-                        <CONJUR_AUTHN_LOGIN>${env.CONJUR_AUTHN_LOGIN}</CONJUR_AUTHN_LOGIN>
-                        <CONJUR_AUTHN_API_KEY>${env.CONJUR_AUTHN_API_KEY}</CONJUR_AUTHN_API_KEY>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <configuration>
-
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>javadoc</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Plugin to create jar with dependencies -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <shadedClassifierName>with-dependencies</shadedClassifierName>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                    </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
     </build>
 </project>
