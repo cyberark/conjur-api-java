@@ -16,7 +16,7 @@ This project is container-based and therefore, you will need [Docker](https://hu
 ### Access to Conjur Registry (for contributing to testing ONLY)
 To contribute to testing, you will need both the Conjur OSS and DAP (Enterprise). You shouldn't have a problem pulling down the OSS image, but to pull the Enterprise image, you must be granted access to the Conjur registry.
 
-You will want to get in contact with the Infrastructure team via our [Slack](https://slackin-conjur.herokuapp.com/) to be granted access. If you have been granted access, run: `docker login registry.tld`.
+You will want to get in contact with the Infrastructure team via the [CyberArk Commons](https://discuss.cyberarkcommons.org/) to be granted access. If you have been granted access, run: `docker login registry.tld`.
  
 _NOTE:_ Your password should be the API key given to you by the Infrastructure team.
  
