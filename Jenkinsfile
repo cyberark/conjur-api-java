@@ -13,11 +13,20 @@ pipeline {
   }
 
   stages {
+    stage('Validate') {
+      parallel {
+        stage('Changelog') {
+          steps { sh './bin/parse-changelog.sh' }
+        }
+      }
+    }
+    
     stage('Create and archive the Maven package') {
       steps {
         echo 'TODO'
       }
     }
+
     stage('Run tests and archive test results') {
       steps {
         lock("api-java-${env.NODE_NAME}") {
