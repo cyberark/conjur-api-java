@@ -2,8 +2,8 @@
 source utils.sh
 trap finish EXIT
 
-createOssTestEnvironment
-loadOssTestPolicy
+createOssEnvironment
+loadOssPolicy
 
 service_cid="conjur-api-java_conjur_1"
 api_key=$(docker exec $service_cid conjurctl role retrieve-key cucumber:user:admin)
