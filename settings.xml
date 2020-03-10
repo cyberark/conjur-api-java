@@ -2,16 +2,27 @@
 <settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd" 
     xmlns="http://maven.apache.org/SETTINGS/1.1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
   <servers>
     <server>
-      <username>${env.ARTIFACTORY_USERNAME}</username>
-      <password>${env.ARTIFACTORY_PASSWORD}</password>
-      <id>conjurinc-releases</id>
-    </server>
-    <server>
-      <username>${env.ARTIFACTORY_USERNAME}</username>
-      <password>${env.ARTIFACTORY_PASSWORD}</password>
-      <id>conjurinc-snapshots</id>
+      <id>ossrh</id>
+      <username>username</username>
+      <password>password</password>
     </server>
   </servers>
+
+  <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.passphrase>password</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
+
+
+
 </settings>

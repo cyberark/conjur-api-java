@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -euo pipefail
+
+####
+# Functions to generate version numbers for this project
+####
+
+# Get the most recent version tag
+function latest_tag() {
+  TAG=$(git describe --abbrev=0 --tags)
+  # Strip the 'v' from the tag name
+  echo ${TAG:1}
+}
+
+# Get the current version tag (if any) that matches the current commit
+function current_tag() {
+  git describe --exact 2> /dev/null || true
+}
+
+function latest_version() {
+  LATEST_VERSION=$(latest_tag)
+
+  # When we're building a commit matching the latest tag
+  if [ -n "$(current_tag)" ]; then
+      VERSION="${LATEST_VERSION}"
+  else
+      VERSION="${LATEST_VERSION}-SNAPSHOT"
+  fi
+
+  echo ${VERSION}
+}

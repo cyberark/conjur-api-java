@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 set -ex
 set -o pipefail
-source bin/utils.sh
+
+source bin/build_utils
+
+export VERSION=$(./get-version.sh)
+
+function finish {
+  echo '-----------------------test.sh------------------------------'
+  echo 'Removing test environment'
+  echo '------------------------------------------------------------'
+  docker-compose down -v
+}
 
 trap finish EXIT
 
