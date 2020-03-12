@@ -41,8 +41,6 @@ public class Credentials {
 
     /**
      * Creates a Credentials instance from the system properties
-     * {@link Credentials#CONJUR_AUTHN_LOGIN_PROPERTY} and
-     * {@link Credentials#CONJUR_AUTHN_API_KEY_PROPERTY}
      * @return the credentials stored in the system property.
      */
     public static Credentials fromSystemProperties(){
