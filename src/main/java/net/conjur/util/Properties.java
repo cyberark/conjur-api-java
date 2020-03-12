@@ -9,12 +9,16 @@ public class Properties {
         return getMandatoryProperty(name, null);
     }
 
-	/**
-	 * Retrieve properties for system properties if not 
-	 * found then retrieve from environment variables.
-	 * If still not found and default value is null
-	 * throw IllegalArgumentException
-	 */
+	/** 
+	* Retrieve properties for system properties if not 
+	* found then retrieve from environment variables.
+	* If still not found and default value is null 
+	* throw IllegalArgumentException
+	@param name the name of the configuration property
+	@param def the definition of the property
+	@return the properties for system properties
+	*/
+	 
     public static String getMandatoryProperty(String name, String def) {
         String value = System.getProperty(name, System.getenv(name));
 		if(value == null) { 
