@@ -23,7 +23,7 @@ pipeline {
     
     stage('Create and archive the Maven package') {
       steps {
-        echo 'TODO'
+        sh './build.sh'
       }
     }
 
