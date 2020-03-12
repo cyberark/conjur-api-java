@@ -35,9 +35,6 @@ public class ConjurTest {
     private static final String APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
 
 
-    public ConjurTest() {
-    }
-
     @Test
     public void testLogin() {
         Conjur conjur = new Conjur();
