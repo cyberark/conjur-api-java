@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 set -o pipefail
-source utils.sh
+source bin/utils.sh
 
 trap finish EXIT
 
@@ -37,7 +37,7 @@ function createDAPTestEnvironment() {
 
   # Delay to allow time for conjur to come up
   echo 'Waiting for conjur server to be healthy'
-  docker-compose run --rm test ./wait_for_server.sh
+  docker-compose exec -T cuke-master /opt/conjur/evoke/bin/wait_for_conjur
 }
 
 function loadDapTestPolicy() {
