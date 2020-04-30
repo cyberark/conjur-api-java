@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Enabled supplying alternative authentication URLs when instantiating the client,
+  which allows clients to use alternative Conjur authentication methods such as
+  authn-iam and authn-oidc. ([cyberark/conjur-api-java#40](https://github.com/cyberark/conjur-api-java/issues/40))
+- Maven pom.xml file includes fat jar creation to allow easy incorporation of
+  this client ([PR cyberark/conjur-api-java#47](https://github.com/cyberark/conjur-api-java/issues/47))
+
+### Fixed
+- Updated code so that properties will be retrieved from system properties, and
+  if not found will then be retrieved from environment variables. ([cyberark/conjur-api-java#17](https://github.com/cyberark/conjur-api-java/issues/17))
+- If a mandatory property (`CONJUR_ACCOUNT`, `CONJUR_APPLIANCE_URL`) is not provided
+  a more verbose exception message will be thrown instead of a `NullPointerException`.
+  ([cyberark/conjur-api-java#41](https://github.com/cyberark/conjur-api-java/issues/41))
+- Improved error handling for missing / undefined env properties that are
+  mandatory for proper system functioning.
+  ([PR cyberark/conjur-api-java#47](https://github.com/cyberark/conjur-api-java/issues/47))
+
 ## 2.1.0 - 2018-08-24
 ### Added
 - Adds support for token based authentication to support Kubernetes Authenticator
