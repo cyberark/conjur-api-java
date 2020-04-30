@@ -13,7 +13,7 @@ function createOssEnvironment() {
   # Delay to allow time for conjur to come up
   # TODO: remove this once we have HEALTHCHECK in place
   echo 'Waiting for conjur server to be healthy'
-  docker-compose run --rm test ./wait_for_server.sh
+  docker-compose exec -T conjur conjurctl wait -r 60 -p 3000
 }
 
 function loadOssPolicy() {

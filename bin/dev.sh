@@ -1,5 +1,5 @@
 #!/bin/bash -e
-source utils.sh
+source bin/utils.sh
 trap finish EXIT
 
 createOssEnvironment

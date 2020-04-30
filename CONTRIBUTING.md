@@ -6,6 +6,7 @@ For general contribution and community guidelines, please see the [community rep
 - [Prerequisites](#prerequisites)
 - [Building and Testing](#building-and-testing)
 - [Troubleshooting Steps](#troubleshooting-steps)
+- [Releasing](#releasing)
 - [Contribution Workflow](#contribution-workflow)
 
 ## Prerequisites
@@ -57,6 +58,43 @@ This section includes helpful troubleshooting hints to help you navigate the cod
 
 TTY ("teletype") is a terminal interface (from when terminals were attached to mainframes) that support input/output streams. Since then, pseudo-terminal drivers/emulators were developed to allow terminals to perform actions and send signals without the need to write to terminal directly. When pushing your changes, you may notice that you are receiving the above error because Jenkins doesn't support terminal connection sessions (with stdin and stdout streams) and therefore doesn't execute its jobs in a TTY. To disable this, add `-T` to your docker command.
     _NOTE_: this can happen with `cat` as it may sometimes not notice that the input stream has ended.
+
+## Releasing
+
+### Update version, changelog, and dependency info
+1. Check whether any dependencies have changed since the last release by
+   comparing [pom.xml](pom.xml) versions to the dependencies and versions in
+   [NOTICES.txt](NOTICES.txt). If any dependencies have been added, removed, or
+   updated, update the NOTICES.txt with those corresponding changes.
+1. Review the [CHANGELOG.md](CHANGELOG.md) against the unreleased commits and
+   make sure all user-relevant changes have been captured.
+1. Based on the unreleased content, determine the new version number and update
+   the version tag in [pom.xml](pom.xml) and add the version to the
+   [CHANGELOG.md](CHANGELOG.md).
+1. Commit these changes - `Bump version to x.y.z` is an acceptable commit
+   message - and open a PR for review. Your PR should include updates to
+   `pom.xml`, `CHANGELOG.md`, and if there are any dependency updates since
+   the last tag, to `NOTICES.txt`.
+
+### Add a git tag
+1. Once your changes have been reviewed and merged into master, tag the version
+   using `git tag -s vx.y.z -m vx.y.z`. Note: this requires you to be able to
+   sign releases. Consult the [github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
+   on how to set this up.
+1. Push the tag: `git push vx.y.z` (or `git push origin vx.y.z` if you are working
+   from your local machine).
+
+### Publish the release
+1. **From a clean checkout of master** build a tarball of the repo by running
+   `./bin/package.sh`, which outputs `output/dist/conjur-api-java.tar.gz` and
+   `output/dist/SHA256SUMS.txt`.
+1. Create a GitHub release from the tag, add a description by copying the
+   CHANGELOG entries from the version, and upload the release artifacts from
+   `output/dist/` that you created in the last step. The following artifacts
+   should also be updated to the release:
+   - CHANGELOG.md
+   - LICENSE
+   - NOTICES.txt
 
 ## Contribution Workflow
 1. Fork or clone repository

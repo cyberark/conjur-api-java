@@ -23,14 +23,14 @@ pipeline {
     
     stage('Create and archive the Maven package') {
       steps {
-        sh './build.sh'
+        sh './bin/build.sh'
       }
     }
 
     stage('Run tests and archive test results') {
       steps {
         lock("api-java-${env.NODE_NAME}") {
-          sh './test.sh'
+          sh './bin/test.sh'
         }
 
         junit 'target/surefire-reports/*.xml'
