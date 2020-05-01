@@ -67,6 +67,7 @@ The following environment variables need to be included in the apps runtime envi
 - `CONJUR_AUTHN_LOGIN`
 - `CONJUR_AUTHN_API_KEY`
 - `CONJUR_APPLIANCE_URL`
+- `CONJUR_AUTHN_URL`
 
 `CONJUR_ACCOUNT` - account specified during Conjur setup
 
@@ -75,6 +76,8 @@ The following environment variables need to be included in the apps runtime envi
 `CONJUR_AUTHN_LOGIN` - user/host identity
 
 `CONJUR_AUTHN_API_KEY` - user/host API key
+
+`CONJUR_AUTHN_URL` - (optional) Set this variable if using alternative authentication method
 
 For example, specify the environment variables like so:
 
