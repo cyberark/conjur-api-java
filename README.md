@@ -62,7 +62,7 @@ configuration variable. For example, `appliance_url` is `CONJUR_APPLIANCE_URL`, 
 
 _NOTE:_ For ways to set credentials (for `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` environment variables ONLY) in the app instead of environment variables, see the [Authorization Examples](#authorization-examples) section below.
 
-The following environment variables need to be included in the apps runtime environment in order use the Conjur API:
+The following environment variables or system properties need to be included in the apps runtime environment in order use the Conjur API:
 - `CONJUR_ACCOUNT`
 - `CONJUR_AUTHN_LOGIN`
 - `CONJUR_AUTHN_API_KEY`
