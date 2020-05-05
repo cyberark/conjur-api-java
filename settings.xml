@@ -11,7 +11,8 @@
     </server>
   </servers>
 
-  <profile>
+  <profiles>
+    <profile>
       <id>ossrh</id>
       <activation>
         <activeByDefault>true</activeByDefault>
@@ -22,7 +23,5 @@
       </properties>
     </profile>
   </profiles>
-
-
-
+  
 </settings>
