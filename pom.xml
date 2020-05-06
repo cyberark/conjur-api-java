@@ -153,7 +153,7 @@
                 <configuration>
                   <shadedClassifierName>with-dependencies</shadedClassifierName>
                   <shadedArtifactAttached>true</shadedArtifactAttached>
-	          <transformers>
+                  <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                       <mainClass>MainTest</mainClass>
                     </transformer>

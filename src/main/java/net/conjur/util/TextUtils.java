@@ -68,7 +68,7 @@ public final class TextUtils {
             return new String(data, offset, length);
         }
     }
-    
+
     /**
      * Converts the specified string to a byte array.  If the charset is not supported the
      * default system charset is used.

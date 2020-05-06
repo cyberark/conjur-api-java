@@ -13,7 +13,7 @@ public class Variables {
     public Variables(Token token) {
         resourceClient = new ResourceClient(token, Endpoints.fromSystemProperties());
     }
-    
+
     public String retrieveSecret(String variableId) {
         return resourceClient.retrieveSecret(variableId);
     }

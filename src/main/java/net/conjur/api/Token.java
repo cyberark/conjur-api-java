@@ -80,16 +80,16 @@ public class Token {
     }
 
     public String getData() {
-		return payload().data;
-	}
-	
-	public String getSignature() {
-		return fields().signature;
-	}
+        return payload().data;
+    }
 
-	public String getKey() {
-		return protectedText().key;
-	}
+    public String getSignature() {
+        return fields().signature;
+    }
+
+    public String getKey() {
+        return protectedText().key;
+    }
 
     public DateTime getTimestamp(){
         if(timestamp == null){
@@ -122,9 +122,9 @@ public class Token {
         return toJson();
     }
 
-	private String toJson(){
-		return json;
-	}
+    private String toJson(){
+        return json;
+    }
 
     public static Token fromJson(String json){
         return new Token(json);
@@ -159,13 +159,13 @@ public class Token {
 
     private String toBase64(){
         // NB url safe mode *does not* work
-		return Base64.encodeBase64String(toJson().getBytes());
-	}
+        return Base64.encodeBase64String(toJson().getBytes());
+    }
 
-	public String toHeader(){
+    public String toHeader(){
         return new StringBuilder()
                 .append("Token token=\"")
                 .append(toBase64())
                 .append("\"").toString();
-	}
+    }
 }
