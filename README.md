@@ -58,8 +58,8 @@ the version. At this time, the `{version}` most compatible is `1.8`:
   </properties>
 ```
 
-3. Run `mvn install -DskipTests -Dmaven.javadoc.skip=true` in this repo's directory to install
-Conjur API into your local maven repository.
+3. Run `mvn install -DskipTests` in this repo's directory to install Conjur API into your
+   local maven repository.
 
 ### Using the Jarfile
 
@@ -68,8 +68,8 @@ to the project manually by following the setup steps below:
 
 1. Clone the Conjur Java API repo locally: `git clone {repo}`
 2. Go into the cloned repository with `cd conjur-api-java`
-3. Run `mvn package -DskipTests -Dmaven.javadoc.skip=true` to generate a JAR file. The output
-   `.jar` files will be located in the `target` directory of the repo
+3. Run `mvn package -DskipTests` to generate a JAR file. The output `.jar` files will be located
+   in the `target` directory of the repo
 
 _NOTE:_ we ran `mvn package` without running the integration tests, since these require access
 to a Conjur instance. You can run the integration tests with mvn package once you finished with
