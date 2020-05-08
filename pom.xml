@@ -127,9 +127,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
+            <version>3.2.0</version>
             <configuration>
-
+              <show>public</show>
+              <source>8</source>
             </configuration>
             <executions>
               <execution>
@@ -153,7 +154,7 @@
                 <configuration>
                   <shadedClassifierName>with-dependencies</shadedClassifierName>
                   <shadedArtifactAttached>true</shadedArtifactAttached>
-	          <transformers>
+                  <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                       <mainClass>MainTest</mainClass>
                     </transformer>

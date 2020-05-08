@@ -31,7 +31,7 @@ public class AuthnClient implements AuthnProvider {
 
     private String apiKey;
 
-	public AuthnClient(final Credentials credentials, final Endpoints endpoints) {
+    public AuthnClient(final Credentials credentials, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
         init(credentials.getUsername(), credentials.getPassword());
@@ -44,8 +44,8 @@ public class AuthnClient implements AuthnProvider {
     }
 
     public Token authenticate() {
-	    Response res = authenticate.request("application/json").post(Entity.text(apiKey), Response.class);
-	    validateResponse(res);
+        Response res = authenticate.request("application/json").post(Entity.text(apiKey), Response.class);
+        validateResponse(res);
 
         return Token.fromJson(res.readEntity(String.class));
      }
@@ -60,8 +60,8 @@ public class AuthnClient implements AuthnProvider {
      * @return The API key of the user
      */
     public String login(){
-	    Response res = login.request("text/plain").get(Response.class);
-	    validateResponse(res);
+        Response res = login.request("text/plain").get(Response.class);
+        validateResponse(res);
 
         return res.readEntity(String.class);
      }

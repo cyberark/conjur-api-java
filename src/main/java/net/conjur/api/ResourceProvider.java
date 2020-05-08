@@ -5,7 +5,7 @@ package net.conjur.api;
  */
 public interface ResourceProvider {
 
-    /***
+    /**
      * Fetch the value of a secret in the specified variable
      * @param variableId - id of the variable
      * @return The value of a secret from the specified variable

@@ -24,5 +24,4 @@ public interface AuthnProvider {
      */
     // TODO orenbm: Do we need this?
     Token authenticate(boolean useCachedToken);
-
 }

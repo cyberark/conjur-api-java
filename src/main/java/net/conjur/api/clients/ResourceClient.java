@@ -21,20 +21,20 @@ public class ResourceClient implements ResourceProvider {
 
     private WebTarget secrets;
     private final Endpoints endpoints;
-    
+
     public ResourceClient(final Credentials credentials, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
         init(credentials);
     }
 
-	// Build ResourceClient using a Conjur auth token
-	public ResourceClient(final Token token, final Endpoints endpoints) {
+    // Build ResourceClient using a Conjur auth token
+    public ResourceClient(final Token token, final Endpoints endpoints) {
         this.endpoints = endpoints;
 
         init(token);
-	}
-	
+    }
+
     public String retrieveSecret(String variableId) {
         Response response = secrets.path(variableId).request().get(Response.class);
         validateResponse(response);
@@ -68,6 +68,7 @@ public class ResourceClient implements ResourceProvider {
 
         secrets = client.target(getEndpoints().getSecretsUri());
     }
+
     // TODO orenbm: Remove when we have a response filter to handle this
     private void validateResponse(Response response) {
         int status = response.getStatus();
