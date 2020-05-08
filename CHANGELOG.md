@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.1] - 2020-05-08
+### Fixed
+- README has been updated to reflect the correct/expected usage of this SDK ([#70](https://github.com/cyberark/conjur-api-java/issues/70),
+  [#50](https://github.com/cyberark/conjur-api-java/issues/50),
+  [#39](https://github.com/cyberark/conjur-api-java/issues/39),
+  [#18](https://github.com/cyberark/conjur-api-java/issues/18))
+
 ## [2.2.0] - 2020-04-30
 ### Added
 - Enabled supplying alternative authentication URLs when instantiating the client,
@@ -36,7 +43,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v2.2.1...HEAD
 [2.0.0]: https://github.com/cyberark/conjur-api-java/compare/v1.1.0...v2.0.0
 [2.1.0]: https://github.com/cyberark/conjur-api-java/compare/v2.0.0...v2.1.0
 [2.2.0]: https://github.com/cyberark/conjur-api-java/compare/v2.1.0...v2.2.0
+[2.2.1]: https://github.com/cyberark/conjur-api-java/compare/v2.2.0...v2.2.1
