@@ -1,11 +1,8 @@
 package net.conjur.api.clients;
 
-import net.conjur.api.AuthnProvider;
-import net.conjur.api.Credentials;
-import net.conjur.api.Endpoints;
-import net.conjur.api.Token;
-import net.conjur.util.rs.HttpBasicAuthFilter;
+import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -13,11 +10,15 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+import net.conjur.api.AuthnProvider;
+import net.conjur.api.Credentials;
+import net.conjur.api.Endpoints;
+import net.conjur.api.Token;
+import net.conjur.util.rs.HttpBasicAuthFilter;
 
 /**
  * Conjur authentication service client.
- * 
+ *
  * This client provides methods to get API tokens from the conjur authentication service,
  * which can then be used to make authenticated calls to other conjur services.
  *
@@ -32,9 +33,15 @@ public class AuthnClient implements AuthnProvider {
     private String apiKey;
 
     public AuthnClient(final Credentials credentials, final Endpoints endpoints) {
+        this(credentials, endpoints, null);
+    }
+
+    public AuthnClient(final Credentials credentials,
+                       final Endpoints endpoints,
+                       final SSLContext sslContext) {
         this.endpoints = endpoints;
 
-        init(credentials.getUsername(), credentials.getPassword());
+        init(credentials.getUsername(), credentials.getPassword(), sslContext);
 
         // replacing the password with an API key
         this.apiKey = credentials.getPassword();
@@ -43,6 +50,7 @@ public class AuthnClient implements AuthnProvider {
         }
     }
 
+    @Override
     public Token authenticate() {
         Response res = authenticate.request("application/json").post(Entity.text(apiKey), Response.class);
         validateResponse(res);
@@ -51,6 +59,7 @@ public class AuthnClient implements AuthnProvider {
      }
 
     // implementation of AuthnProvider method
+    @Override
     public Token authenticate(boolean useCachedToken) {
         return authenticate();
     }
@@ -66,9 +75,10 @@ public class AuthnClient implements AuthnProvider {
         return res.readEntity(String.class);
      }
 
-    private void init(final String username, final String password){
+    private void init(final String username, final String password, final SSLContext sslContext) {
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new HttpBasicAuthFilter(username, password));
+                .register(new HttpBasicAuthFilter(username, password))
+                .sslContext(sslContext);
 
         Client client = builder.build();
         WebTarget root = client.target(endpoints.getAuthnUri());

@@ -260,6 +260,32 @@ conjur-default, May 6, 2020, trustedCertEntry,
 There you have it! Now you are all configured to start leveraging the Conjur Java API in
 your Java program.
 
+### Programmatic Set Up Trust Between App and Conjur using SSLContext
+
+We can set up a trust between the client application and a Conjur server using
+Java javax.net.ssl.SSLContext. This can be done from Java code during
+Conjur class initialization.
+
+Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
+server dynamically from the Kubernetes secret and/or configmap data.
+
+```java
+final String conjurTlsCaPath = "/var/conjur-config/tls-ca.pem";
+
+final CertificateFactory cf = CertificateFactory.getInstance("X.509");
+final FileInputStream certIs = new FileInputStream(conjurTlsCaPath);
+final Certificate cert = cf.generateCertificate(certIs);
+
+final KeyStore ks = KeyStore.getInstance("JKS");
+ks.load(null);
+ks.setCertificateEntry("conjurTlsCaPath", cert);
+final TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+tmf.init(ks);
+
+SSLContext conjurSslContext = SSLContext.getInstance("TLS");
+conjurSslContext.init(null, tmf.getTrustManagers(), null);
+```
+
 ## Authorization Examples
 
 As mentioned in the [Configuration](#configuration) section, you can provide varying ways
@@ -287,6 +313,8 @@ import net.conjur.api.Conjur;
 
 // Configured using environment variables
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(conjurSslContext);
 ```
 
 ### System Properties
@@ -303,6 +331,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(conjurSslContext);
 ```
 
 ### System Properties with Maven
@@ -320,6 +350,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(conjurSslContext);
 ```
 
 ### Username and Password
@@ -337,6 +369,8 @@ import net.conjur.api.Conjur;
 Conjur conjur = new Conjur('host/host-id', 'password-or-api-key');
 // or
 Conjur conjur = new Conjur('username', 'password-or-api-key');
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur('username', 'password-or-api-key', conjurSslContext);
 ```
 
 ### Credentials
@@ -354,6 +388,8 @@ import net.conjur.api.Credentials;
 // regarding how 'password-or-api-key' is processed.
 Credentials credentials = new Credentials('username', 'password-or-api-key');
 Conjur conjur = new Conjur(credentials);
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(credentials, conjurSslContext);
 ```
 
 ### Authorization Token
@@ -371,6 +407,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromFile(Paths.get('path/to/conjur/authentication/token.json'));
 Conjur conjur = new Conjur(token);
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(token, conjurSslContext);
 ```
 
 Alternatively, use the `CONJUR_AUTHN_TOKEN_FILE` environment variable:
@@ -387,6 +425,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromEnv();
 Conjur conjur = new Conjur(token);
+// or using custom SSLContext setup as conjurSslContext variable
+Conjur conjur = new Conjur(token, conjurSslContext);
 ```
 
 ## Client APIs
@@ -400,10 +440,15 @@ a secret from Conjur, so we provide some sample code for this use case below.
 The client can be instantiated with any of these methods:
 ```java
 Conjur client = Conjur();
+Conjur client = Conjur(SSLContext sslContext);
 Conjur client = Conjur(String username, String password);
+Conjur client = Conjur(String username, String password, SSLContext sslContext);
 Conjur client = Conjur(String username, String password, String authnUrl);
+Conjur client = Conjur(String username, String password, String authnUrl, SSLContext sslContext);
 Conjur client = Conjur(Credentials credentials);
+Conjur client = Conjur(Credentials credentials, SSLContext sslContext);
 Conjur client = Conjur(Token token);
+Conjur client = Conjur(Token token, SSLContext sslContext);
 ```
 
 _Note:_ **As mentioned before, if you use the default `CONJUR_AUTHN_URL` value or your
