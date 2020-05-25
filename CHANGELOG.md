@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Implemented [#74](https://github.com/cyberark/conjur-api-java/issues/74)
+- Updated code to enable adding custom javax.net.ssl.SSLContext to Conjur which
+  enables us to set up a trust between application and Conjur server from Java
+  code
+- README has been updated with example SSLContext setup and it's use in Conjur
+  class constructors
+
 ## [2.2.1] - 2020-05-08
 ### Fixed
 - README has been updated to reflect the correct/expected usage of this SDK ([#70](https://github.com/cyberark/conjur-api-java/issues/70),

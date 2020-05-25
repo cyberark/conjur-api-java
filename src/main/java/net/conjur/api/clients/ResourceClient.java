@@ -1,5 +1,6 @@
 package net.conjur.api.clients;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -23,18 +24,32 @@ public class ResourceClient implements ResourceProvider {
     private final Endpoints endpoints;
 
     public ResourceClient(final Credentials credentials, final Endpoints endpoints) {
+        this(credentials, endpoints, null);
+    }
+
+    public ResourceClient(final Credentials credentials,
+                          final Endpoints endpoints,
+                          final SSLContext sslContext) {
         this.endpoints = endpoints;
 
-        init(credentials);
+        init(credentials, sslContext);
     }
 
     // Build ResourceClient using a Conjur auth token
     public ResourceClient(final Token token, final Endpoints endpoints) {
-        this.endpoints = endpoints;
-
-        init(token);
+        this(token, endpoints, null);
     }
 
+    // Build ResourceClient using a Conjur auth token
+    public ResourceClient(final Token token,
+                          final Endpoints endpoints,
+                          final SSLContext sslContext) {
+        this.endpoints = endpoints;
+
+        init(token, sslContext);
+    }
+
+    @Override
     public String retrieveSecret(String variableId) {
         Response response = secrets.path(variableId).request().get(Response.class);
         validateResponse(response);
@@ -42,6 +57,7 @@ public class ResourceClient implements ResourceProvider {
         return response.readEntity(String.class);
     }
 
+    @Override
     public void addSecret(String variableId, String secret) {
         Response response = secrets.path(EncodeUriComponent.encodeUriComponent(variableId)).request().post(Entity.text(secret), Response.class);
         validateResponse(response);
@@ -51,18 +67,20 @@ public class ResourceClient implements ResourceProvider {
         return endpoints;
     }
 
-    private void init(Credentials credentials){
-        final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints)));
+    private void init(Credentials credentials, SSLContext sslContext){
+        ClientBuilder builder = ClientBuilder.newBuilder()
+                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)))
+                .sslContext(sslContext);
 
         Client client = builder.build();
 
         secrets = client.target(getEndpoints().getSecretsUri());
     }
 
-    private void init(Token token){
-        final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnTokenClient(token)));
+    private void init(Token token, SSLContext sslContext){
+        ClientBuilder builder = ClientBuilder.newBuilder()
+                .register(new TokenAuthFilter(new AuthnTokenClient(token)))
+                .sslContext(sslContext);
 
         Client client = builder.build();
 
