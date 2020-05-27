@@ -190,6 +190,42 @@ values (like the API key) in source-controlled property files!
 By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific
 certificates known as cacerts). Without trusting them, your Java app will not be able to connect
 to the Conjur server over APIs and so you will need to configure your app to trust them. You can
+accomplish this by using the [Client-level `SSLContext`](#client--level-trust) when creating
+the client or with a [JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into
+Java's CA keystore that holds the list of all the allowed certificates for https connections.
+
+### Client-level trust
+
+We can set up a trust between the client application and a Conjur server using
+Java javax.net.ssl.SSLContext. This can be done from Java code during
+Conjur class initialization.
+
+Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
+server dynamically from the Kubernetes secret and/or configmap data.
+
+```java
+final String conjurTlsCaPath = "/var/conjur-config/tls-ca.pem";
+
+final CertificateFactory cf = CertificateFactory.getInstance("X.509");
+final FileInputStream certIs = new FileInputStream(conjurTlsCaPath);
+final Certificate cert = cf.generateCertificate(certIs);
+
+final KeyStore ks = KeyStore.getInstance("JKS");
+ks.load(null);
+ks.setCertificateEntry("conjurTlsCaPath", cert);
+
+final TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+tmf.init(ks);
+
+SSLContext conjurSslContext = SSLContext.getInstance("TLS");
+conjurSslContext.init(null, tmf.getTrustManagers(), null);
+```
+
+### JVM-level trust
+
+By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific
+certificates known as cacerts). Without trusting them, your Java app will not be able to connect
+to the Conjur server over APIs and so you will need to configure your app to trust them. You can
 accomplish this by loading the Conjur certificate into Java's CA keystore that holds the list of
 all the allowed certificates for https connections.
 
@@ -259,32 +295,6 @@ conjur-default, May 6, 2020, trustedCertEntry,
 
 There you have it! Now you are all configured to start leveraging the Conjur Java API in
 your Java program.
-
-### Programmatic Set Up Trust Between App and Conjur using SSLContext
-
-We can set up a trust between the client application and a Conjur server using
-Java javax.net.ssl.SSLContext. This can be done from Java code during
-Conjur class initialization.
-
-Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
-server dynamically from the Kubernetes secret and/or configmap data.
-
-```java
-final String conjurTlsCaPath = "/var/conjur-config/tls-ca.pem";
-
-final CertificateFactory cf = CertificateFactory.getInstance("X.509");
-final FileInputStream certIs = new FileInputStream(conjurTlsCaPath);
-final Certificate cert = cf.generateCertificate(certIs);
-
-final KeyStore ks = KeyStore.getInstance("JKS");
-ks.load(null);
-ks.setCertificateEntry("conjurTlsCaPath", cert);
-final TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-tmf.init(ks);
-
-SSLContext conjurSslContext = SSLContext.getInstance("TLS");
-conjurSslContext.init(null, tmf.getTrustManagers(), null);
-```
 
 ## Authorization Examples
 
