@@ -187,17 +187,17 @@ values (like the API key) in source-controlled property files!
 
 ## Set Up Trust Between App and Conjur
 
-By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific
-certificates known as cacerts). Without trusting them, your Java app will not be able to connect
-to the Conjur server over APIs and so you will need to configure your app to trust them. You can
-accomplish this by using the [Client-level `SSLContext`](#client--level-trust) when creating
-the client or with a [JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into
-Java's CA keystore that holds the list of all the allowed certificates for https connections.
+By default, the Conjur appliance generates and uses self-signed SSL certificates. Without
+trusting them, your Java app will not be able to connect to the Conjur server over APIs
+and so you will need to configure your app to trust them. You can accomplish this by using
+the [Client-level `SSLContext`](#client--level-trust) when creating the client or with a
+[JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into Java's CA
+keystore that holds the list of all the allowed certificates for https connections.
 
 ### Client-level trust
 
 We can set up a trust between the client application and a Conjur server using
-Java javax.net.ssl.SSLContext. This can be done from Java code during
+Java `javax.net.ssl.SSLContext`. This can be done from Java code during
 Conjur class initialization.
 
 Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
@@ -223,11 +223,9 @@ conjurSslContext.init(null, tmf.getTrustManagers(), null);
 
 ### JVM-level trust
 
-By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific
-certificates known as cacerts). Without trusting them, your Java app will not be able to connect
-to the Conjur server over APIs and so you will need to configure your app to trust them. You can
-accomplish this by loading the Conjur certificate into Java's CA keystore that holds the list of
-all the allowed certificates for https connections.
+For a JVM-level trust between Conjur and the API client, you need to load the Conjur
+certificate into Java's CA keystore that holds the list of all the allowed certificates
+for https connections.
 
 First, we need to get a copy of this certificate, which you can get using `openssl`. Run the
 following step from a terminal with OpenSSL that has access to Conjur:
