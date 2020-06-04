@@ -44,7 +44,7 @@ services:
   client:
     image: cyberark/conjur-cli:5
     volumes:
-      - ./test-cert:/test-cert
+      - .bin/test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:
@@ -70,7 +70,7 @@ services:
       dockerfile: Dockerfile.test
     volumes:
       - ./target:/conjurinc/api-java/target
-      - ./test-cert:/test-cert
+      - ./bin/test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:
@@ -85,7 +85,7 @@ services:
       dockerfile: Dockerfile.test
     volumes:
       - ./target:/conjurinc/api-java/target
-      - ./test-cert:/test-cert
+      - ./bin/test-cert:/test-cert
     entrypoint: sleep
     command: infinity
     environment:

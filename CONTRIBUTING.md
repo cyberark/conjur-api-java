@@ -27,7 +27,7 @@ _NOTE:_ Your password should be the API key given to you by the Infrastructure t
 ## Building and Testing
 Before making changes, it is recommended that the test script is run first to ensure that Java and the provided dependencies are not out-of-date.
 You can run the test script in your shell like so:
-`./test.sh`
+`./bin/test`
 
 _NOTE:_ The tests (for both Conjur OSS and DAP) are part of the build so if a change is made to the actual API, but the tests fail, the build will also fail.
 
@@ -86,7 +86,7 @@ TTY ("teletype") is a terminal interface (from when terminals were attached to m
 
 ### Publish the release
 1. **From a clean checkout of master** build a tarball of the repo by running
-   `./bin/package.sh`, which outputs `output/dist/conjur-api-java.tar.gz` and
+   `./bin/package`, which outputs `output/dist/conjur-api-java.tar.gz` and
    `output/dist/SHA256SUMS.txt`.
 1. Create a GitHub release from the tag, add a description by copying the
    CHANGELOG entries from the version, and upload the release artifacts from
@@ -101,7 +101,7 @@ TTY ("teletype") is a terminal interface (from when terminals were attached to m
 2. If issue for relevant change has not been created, open one [here](https://github.com/cyberark/conjur-api-java/issues)
 3. Add the `implementing` label to the issue once you begin to work on it 
 4. Create your feature branch (`git checkout -b my-new-feature`)
-5. Run test script (`./test.sh`) to ensure tests are not out of date
+5. Run test script (`./bin/test`) to ensure tests are not out of date
 5. Once changes are made, run test script again to ensure your changes haven't broken anything
 6. Commit your changes (`git commit -m 'Add X feature that does Y'`)
 7. Push to the branch (`git push origin my-new-feature`)

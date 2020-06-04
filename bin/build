@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Builds conjur-java-api package
+# usage: ./bin/build
+set -ex
+
+. bin/build_utils
+
+CURRENT_DIR=$("$(dirname "$0")/abspath")
+TOPLEVEL_DIR="$CURRENT_DIR/.."
+
+VERSION="$(latest_version)"
+
+docker run --rm \
+  -v "${TOPLEVEL_DIR}:/conjurinc/api-java" \
+  -e ${VERSION} \
+  -w /conjurinc/api-java maven:3-jdk-8 \
+  /bin/bash -exc "mvn versions:set -DnewVersion="${VERSION}" && \\
+  echo \"================ NOW PACKAGING ==========\" && \\
+  rm pom.xml.versionsBackup && \\
+  mvn -X -e -Dmaven.test.skip=true clean package"

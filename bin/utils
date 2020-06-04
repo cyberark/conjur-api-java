@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function createOssEnvironment() {
-  echo '-----------------------test.sh------------------------------'
+  echo '-----------------------test------------------------------'
   echo "Creating OSS test environment"
   echo '------------------------------------------------------------'
 
@@ -17,7 +17,7 @@ function createOssEnvironment() {
 }
 
 function loadOssPolicy() {
-  echo '-----------------------test.sh------------------------------'
+  echo '-----------------------test------------------------------'
   echo "Loading OSS test policy"
   echo '------------------------------------------------------------'
 
@@ -34,7 +34,7 @@ function loadOssPolicy() {
 }
 
 function printOssProxyConfiguration() {
-  echo '-----------------------test.sh------------------------------'
+  echo '-----------------------test------------------------------'
   echo "Print Nginx proxy server configuration"
   echo '------------------------------------------------------------'
   echo 'Note: in order to change configuration, you need to edit the file: default.conf '
@@ -46,7 +46,7 @@ function printOssProxyConfiguration() {
 }
 
 function initializeOssCert() {
-  echo '-----------------------test.sh------------------------------'
+  echo '-----------------------test------------------------------'
   echo "Fetch certificate for OSS using client cli"
   echo '------------------------------------------------------------'
 
@@ -92,7 +92,7 @@ function initializeOssCert() {
 }
 
 function finish {
-  echo '-----------------------test.sh------------------------------'
+  echo '-----------------------test------------------------------'
   echo 'Removing test environment'
   echo '------------------------------------------------------------'
   docker-compose down -v

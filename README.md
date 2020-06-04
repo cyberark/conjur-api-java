@@ -247,7 +247,7 @@ $ # your addition of the cert did not work.
 
 _Note:_ On macOS, your default Java may not be able to run this tool so you may need to install
 an alternate JDK like `openjdk`. You can find more info about this [here](https://docs.oracle.com/javase/8/docs/technotes/guides/install/mac_jdk.html)
-and [here](https://formulae.brew.sh/formula/openjdk).
+and [here](https://formulae.brew/formula/openjdk).
 
 Verify the addition of the SSL key:
 ```sh-session

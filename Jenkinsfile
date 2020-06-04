@@ -16,14 +16,14 @@ pipeline {
     stage('Validate') {
       parallel {
         stage('Changelog') {
-          steps { sh './bin/parse-changelog.sh' }
+          steps { sh './bin/parse-changelog' }
         }
       }
     }
     
     stage('Create and archive the Maven package') {
       steps {
-        sh './bin/build.sh'
+        sh './bin/build'
 
     stage('Fetch tags') {
       steps {
@@ -40,15 +40,18 @@ pipeline {
     stage('Run tests and archive test results') {
       steps {
         lock("api-java-${env.NODE_NAME}") {
-          sh './bin/test.sh'
+          sh './bin/test'
         }
 
         junit 'target/surefire-reports/*.xml'
       }
     }
     stage('Publish the Maven package') {
+      when {
+        branch 'master'
+      }
       steps {
-        sh './publish.sh'
+        sh './bin/publish'
       }
     }
   }
