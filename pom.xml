@@ -4,11 +4,30 @@
   <groupId>com.cyberark.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
   <version>2.2.1</version>
+  <packaging>jar</packaging>
 
   <name>Conjur</name>
   <description>Client for the Conjur API</description>
 
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Cyberark Conjur</name>
+      <email>conj_maintainers@cyberark.com</email>
+      <organization>Cyberark Software Ltd.</organization>
+      <organizationUrl>https://conjur.org</organizationUrl>
+    </developer>
+  </developers>
+
   <scm>
+    <connection>scm:git:git://github.com/cyberark/conjur-api-java.git</connection>
+    <developerConnection>scm:git:ssh://github.com:cyberark/conjur-api-java.git</developerConnection>
     <url>https://github.com/cyberark/conjur-api-java</url>
   </scm>
 
@@ -82,8 +101,6 @@
         <scope>test</scope>
       </dependency>
     </dependencies>
-
-    <packaging>jar</packaging>
 
     <distributionManagement>
       <repository>
