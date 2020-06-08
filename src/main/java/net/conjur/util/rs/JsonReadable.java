@@ -1,4 +1,4 @@
-package net.conjur.util.rs;
+package com.cyberark.conjur.util.rs;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

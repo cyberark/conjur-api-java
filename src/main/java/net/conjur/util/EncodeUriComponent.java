@@ -1,4 +1,4 @@
-package net.conjur.util;
+package com.cyberark.conjur.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

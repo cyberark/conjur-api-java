@@ -1,8 +1,8 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 import javax.net.ssl.SSLContext;
 
-import net.conjur.api.clients.ResourceClient;
+import com.cyberark.conjur.api.clients.ResourceClient;
 
 public class Variables {
 

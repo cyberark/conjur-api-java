@@ -1,5 +1,5 @@
 
-package net.conjur.util.rs;
+package com.cyberark.conjur.util.rs;
 
 import com.google.gson.Gson;
 import edu.emory.mathcs.backport.java.util.Collections;

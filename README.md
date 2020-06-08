@@ -42,7 +42,7 @@ To do so from the source using Maven, following the setup steps below:
 
 ```xml
     <dependency>
-      <groupId>net.conjur.api</groupId>
+      <groupId>com.cyberark.conjur.api</groupId>
       <artifactId>conjur-api</artifactId>
       <version>2.2.0</version>
     <dependency>
@@ -95,7 +95,7 @@ our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTR
     or
     ```sh-session
     $ mvn install:install-file -Dfile=/path/to/api/repo/target/conjur-api-$VERSION-with-dependencies.jar \
-        -DgroupId=net.conjur.api \
+        -DgroupId=com.cyberark.conjur.api \
         -DartifactId=conjur-api \
         -Dversion=$VERSION \
         -Dpackaging=jar
@@ -317,7 +317,7 @@ export CONJUR_AUTHN_LOGIN=<user/host identity>
 export CONJUR_AUTHN_API_KEY=<user/host API key or password - see notes about `CONJUR_AUTHN_URL`>
 ```
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 // Configured using environment variables
 Conjur conjur = new Conjur();
@@ -335,7 +335,7 @@ $ java -jar myConjurClient.jar \
      -DCONJUR_AUTHN_API_KEY=<user/host API key - see notes about `CONJUR_AUTHN_URL`>
 ```
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
@@ -354,7 +354,7 @@ $ mvn exec:java \
   -Dexec.mainClass="com.myorg.client.App"
 ```
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
@@ -370,7 +370,7 @@ export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
 ```
 
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 // Authenticate using provided username/hostname and password/API key. See notes about
 // `CONJUR_AUTHN_URL` regarding how 'password-or-api-key' is processed.
@@ -389,8 +389,8 @@ export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
 ```
 
 ```java
-import net.conjur.api.Conjur;
-import net.conjur.api.Credentials;
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.Credentials;
 
 // Authenticate using a Credentials object. See notes about `CONJUR_AUTHN_URL`
 // regarding how 'password-or-api-key' is processed.
@@ -410,8 +410,8 @@ export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
 ```
 
 ```java
-import net.conjur.api.Conjur;
-import net.conjur.api.Token;
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.Token;
 
 Token token = Token.fromFile(Paths.get('path/to/conjur/authentication/token.json'));
 Conjur conjur = new Conjur(token);
@@ -428,8 +428,8 @@ export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
 export CONJUR_AUTHN_TOKEN_FILE="path/to/conjur/authentication/token.json"
 ```
 ```java
-import net.conjur.api.Conjur;
-import net.conjur.api.Token;
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.Token;
 
 Token token = Token.fromEnv();
 Conjur conjur = new Conjur(token);
@@ -443,7 +443,7 @@ To use the client, you will first create an instance of the client and then call
 to send requests to the Conjur API. The most common use case is adding and retrieving
 a secret from Conjur, so we provide some sample code for this use case below.
 
-### Conjur Client Instance (`net.conjur.api.Conjur`)
+### Conjur Client Instance (`com.cyberark.conjur.api.Conjur`)
 
 The client can be instantiated with any of these methods:
 ```java
@@ -471,7 +471,7 @@ Sets a variable to a specific value based on its ID.
 
 Example:
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 Conjur conjur = new Conjur();
 conjur.variables().addSecret(VARIABLE_ID, VARIABLE_VALUE);
@@ -487,7 +487,7 @@ Retireves a variable based on its ID.
 
 Example:
 ```java
-import net.conjur.api.Conjur;
+import com.cyberark.conjur.api.Conjur;
 
 Conjur conjur = new Conjur();
 conjur.variables().retrieveSecret("<VARIABLE_ID>");
@@ -504,7 +504,7 @@ alternative implementation.
 
 ## Troubleshooting
 
-### `error: package net.conjur does not exist`
+### `error: package com.cyberark.conjur does not exist`
 
 This is caused by Maven's (or your dependency resolution tooling) inability to find Conjur
 APIs. Please ensure that you have followed the [setup](#setup) section to properly install

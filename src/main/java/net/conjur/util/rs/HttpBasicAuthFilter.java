@@ -1,4 +1,4 @@
-package net.conjur.util.rs;
+package com.cyberark.conjur.util.rs;
 
 import org.apache.commons.codec.binary.Base64;
 

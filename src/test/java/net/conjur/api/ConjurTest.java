@@ -1,4 +1,4 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 import org.junit.Assert;
 import org.junit.Rule;

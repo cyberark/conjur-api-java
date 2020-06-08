@@ -1,7 +1,7 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 import com.google.gson.annotations.SerializedName;
-import net.conjur.util.JsonSupport;
+import com.cyberark.conjur.util.JsonSupport;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

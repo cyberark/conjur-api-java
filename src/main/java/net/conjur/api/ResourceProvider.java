@@ -1,4 +1,4 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 /**
  * Provides methods for retrieving and setting Conjur resources

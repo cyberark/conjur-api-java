@@ -1,4 +1,4 @@
-package net.conjur.util;
+package com.cyberark.conjur.util;
 /*
  * Copied from org.apache.http.utils.Args to avoid dependencies.
  */

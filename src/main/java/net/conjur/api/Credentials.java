@@ -1,6 +1,6 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
-import net.conjur.util.Properties;
+import com.cyberark.conjur.util.Properties;
 
 /**
  * Stores credentials for a Conjur identity.
@@ -80,9 +80,9 @@ public class Credentials {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof net.conjur.api.Credentials)) return false;
+        if (!(o instanceof com.cyberark.conjur.api.Credentials)) return false;
 
-        net.conjur.api.Credentials that = (net.conjur.api.Credentials) o;
+        com.cyberark.conjur.api.Credentials that = (com.cyberark.conjur.api.Credentials) o;
 
         if (!password.equals(that.getPassword())) return false;
         if (!username.equals(that.getUsername())) return false;
