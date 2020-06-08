@@ -1,8 +1,12 @@
 - !policy
   id: test
   body:
-    - !variable
-      id: testVariable
+    - &variables
+      - !variable
+        id: testVariable
+
+      - !variable
+        id: var with spaces
 
     - !user
       id: alice
@@ -20,7 +24,7 @@
       member: !host myapp
 
     - !permit
-      resource: !variable testVariable
+      resource: *variables
       privileges: [ read, execute, update]
       roles: !group secrets-users
 
