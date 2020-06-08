@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Encode spaces to "%20" instead of "+". This encoding fixes an issue where Conjur
+  variables that have spaces were not encoded correctly
+  ([https://github.com/cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78))
 
 ## [2.2.1] - 2020-05-08
 ### Fixed
