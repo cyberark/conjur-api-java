@@ -3,6 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cyberark.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
+  <!-- Only bump version number,
+  SNAPSHOT is automatically removed during release deployments -->
   <version>2.2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
@@ -32,8 +34,26 @@
   </scm>
 
   <profiles>
+    <!-- Profile for activating Artifactory as our deployment goal -->
     <profile>
-      <id>release</id>
+      <id>artifactory</id>
+      <distributionManagement>
+        <repository>
+          <id>conjurinc-releases</id>
+          <name>conjurinc-releases</name>
+          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+          <id>conjurinc-snapshots</id>
+          <name>conjurinc-snapshots</name>
+          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+
+    <!-- Profile for deploying and releasing to Maven Central through OSSRH -->
+    <profile>
+      <id>ossrh</id>
       <distributionManagement>
         <snapshotRepository>
           <id>ossrh</id>
@@ -44,6 +64,7 @@
           <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
       </distributionManagement>
+
       <build>
         <plugins>
           <plugin>
@@ -83,6 +104,15 @@
               </execution>
             </executions>
           </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Profile for signing releases -->
+    <profile>
+      <id>sign</id>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -94,6 +124,10 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <keyname>${gpg.keyname}</keyname>
+                  <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -173,19 +207,6 @@
       </dependency>
     </dependencies>
 
-    <distributionManagement>
-      <repository>
-        <id>conjurinc-releases</id>
-        <name>conjurinc-releases</name>
-        <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
-      </repository>
-      <snapshotRepository>
-        <id>conjurinc-snapshots</id>
-        <name>conjurinc-snapshots</name>
-        <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
-      </snapshotRepository>
-    </distributionManagement>
-
     <build>
       <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
@@ -254,6 +275,22 @@
               </execution>
             </executions>
           </plugin>
+
+          <!--  automate the changes to the Maven POM files, sanity checks,
+          the SCM operations required and the actual deployment execution.  -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.5.3</version>
+            <configuration>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <useReleaseProfile>false</useReleaseProfile>
+              <releaseProfiles>ossrh,sign</releaseProfiles>
+              <goals>deploy</goals>
+              <tagNameFormat>v@{project.version}</tagNameFormat>
+            </configuration>
+          </plugin>
+
         </plugins>
     </build>
 </project>
