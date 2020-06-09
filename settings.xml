@@ -13,5 +13,26 @@
       <password>${env.ARTIFACTORY_PASSWORD}</password>
       <id>conjurinc-snapshots</id>
     </server>
+    <server>
+      <username>${env.OSSRH_USERNAME}</username>
+      <password>${env.OSSRH_PASSWORD}</password>
+      <id>ossrh</id>
+    </server>
+    <!-- Used by GPG for automated signing -->
+    <server>
+      <id>gpg.key</id>
+      <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+    </server>
+    <profiles>
+      <profile>
+        <id>ossrh</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+        <properties>
+          <gpg.keyname>gpg.key</gpg.keyname>
+        </properties>
+      </profile>
+    </profiles>
   </servers>
 </settings>

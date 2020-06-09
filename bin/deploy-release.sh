@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Strip the 'v' from the Tag Name
+export TAG=${TAG_NAME:1}
+
 # Deploy release to OSSRH
 # 1. Set the version in the POM to the Tagged Version
 # 2. Sign our build and deploy to OSSRH
@@ -10,6 +13,6 @@ set -eo pipefail
 docker run --rm \
   -v "$PWD:/conjurinc/api-java" \
   -w /conjurinc/api-java maven:3-jdk-8 \
-  /bin/bash -c "mvn versions:set -DnewVersion=${TAG_NAME} \\
+  /bin/bash -c "mvn versions:set -DnewVersion=${TAG} \\
                 mvn clean deploy -Dmaven.test.skip=true -P ossrh,sign \\
                 mvn nexus-staging:release"
