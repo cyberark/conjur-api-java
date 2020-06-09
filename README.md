@@ -217,8 +217,8 @@ ks.setCertificateEntry("conjurTlsCaPath", cert);
 final TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
 tmf.init(ks);
 
-SSLContext conjurSslContext = SSLContext.getInstance("TLS");
-conjurSslContext.init(null, tmf.getTrustManagers(), null);
+SSLContext conjurSSLContext = SSLContext.getInstance("TLS");
+conjurSSLContext.init(null, tmf.getTrustManagers(), null);
 ```
 
 ### JVM-level trust
@@ -321,8 +321,8 @@ import net.conjur.api.Conjur;
 
 // Configured using environment variables
 Conjur conjur = new Conjur();
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### System Properties
@@ -339,8 +339,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### System Properties with Maven
@@ -358,8 +358,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### Username and Password
@@ -377,8 +377,8 @@ import net.conjur.api.Conjur;
 Conjur conjur = new Conjur('host/host-id', 'password-or-api-key');
 // or
 Conjur conjur = new Conjur('username', 'password-or-api-key');
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur('username', 'password-or-api-key', conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur('username', 'password-or-api-key', conjurSSLContext);
 ```
 
 ### Credentials
@@ -396,8 +396,8 @@ import net.conjur.api.Credentials;
 // regarding how 'password-or-api-key' is processed.
 Credentials credentials = new Credentials('username', 'password-or-api-key');
 Conjur conjur = new Conjur(credentials);
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(credentials, conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(credentials, conjurSSLContext);
 ```
 
 ### Authorization Token
@@ -415,8 +415,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromFile(Paths.get('path/to/conjur/authentication/token.json'));
 Conjur conjur = new Conjur(token);
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(token, conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(token, conjurSSLContext);
 ```
 
 Alternatively, use the `CONJUR_AUTHN_TOKEN_FILE` environment variable:
@@ -433,8 +433,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromEnv();
 Conjur conjur = new Conjur(token);
-// or using custom SSLContext setup as conjurSslContext variable
-Conjur conjur = new Conjur(token, conjurSslContext);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(token, conjurSSLContext);
 ```
 
 ## Client APIs
