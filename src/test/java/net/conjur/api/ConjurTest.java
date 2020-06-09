@@ -25,6 +25,7 @@ import java.util.UUID;
 public class ConjurTest {
 
     private static final String VARIABLE_KEY = "test/testVariable";
+    private static final String VARIABLE_KEY_WITH_SPACES = "test/var with spaces";
     private static final String VARIABLE_VALUE = "testSecret";
     private static final String NON_EXISTING_VARIABLE_KEY = UUID.randomUUID().toString();
     private static final String NOT_FOUND_STATUS_CODE = "404";
@@ -47,11 +48,20 @@ public class ConjurTest {
     public void testAddSecretAndRetrieveSecret() {
         Conjur conjur = new Conjur();
 
-        conjur.variables().addSecret(VARIABLE_KEY, VARIABLE_VALUE);
+        String[] variableIds = {
+            VARIABLE_KEY,
+            VARIABLE_KEY_WITH_SPACES
+        };
 
-        String retrievedSecret = conjur.variables().retrieveSecret(VARIABLE_KEY);
+        String retrievedSecret;
+        for (String variableId : variableIds)
+        {
+            conjur.variables().addSecret(variableId, VARIABLE_VALUE);
 
-        Assert.assertEquals(retrievedSecret, VARIABLE_VALUE);
+            retrievedSecret = conjur.variables().retrieveSecret(variableId);
+
+            Assert.assertEquals(retrievedSecret, VARIABLE_VALUE);
+        }
     }
 
     @Test

@@ -36,15 +36,25 @@ public class ResourceClient implements ResourceProvider {
     }
 
     public String retrieveSecret(String variableId) {
-        Response response = secrets.path(variableId).request().get(Response.class);
+        Response response = secrets.path(encodeVariableId(variableId))
+          .request().get(Response.class);
         validateResponse(response);
 
         return response.readEntity(String.class);
     }
 
     public void addSecret(String variableId, String secret) {
-        Response response = secrets.path(EncodeUriComponent.encodeUriComponent(variableId)).request().post(Entity.text(secret), Response.class);
+        Response response = secrets.path(encodeVariableId(variableId)).request()
+          .post(Entity.text(secret), Response.class);
         validateResponse(response);
+    }
+
+    // The "encodeUriComponent" method encodes plus signs into %2B and spaces
+    // into '+'. However, our server decodes plus signs into plus signs in the
+    // retrieveSecret request so we need to replace the plus signs (which are
+    // spaces) into %20.
+    private String encodeVariableId(String variableId) {
+        return EncodeUriComponent.encodeUriComponent(variableId).replaceAll("\\+", "%20");
     }
 
     private Endpoints getEndpoints() {
