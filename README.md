@@ -187,11 +187,45 @@ values (like the API key) in source-controlled property files!
 
 ## Set Up Trust Between App and Conjur
 
-By default, the Conjur appliance generates and uses self-signed SSL certificates (Java-specific
-certificates known as cacerts). Without trusting them, your Java app will not be able to connect
-to the Conjur server over APIs and so you will need to configure your app to trust them. You can
-accomplish this by loading the Conjur certificate into Java's CA keystore that holds the list of
-all the allowed certificates for https connections.
+By default, the Conjur appliance generates and uses self-signed SSL certificates. Without
+trusting them, your Java app will not be able to connect to the Conjur server over APIs
+and so you will need to configure your app to trust them. You can accomplish this by using
+the [Client-level `SSLContext`](#client--level-trust) when creating the client or with a
+[JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into Java's CA
+keystore that holds the list of all the allowed certificates for https connections.
+
+### Client-level trust
+
+We can set up a trust between the client application and a Conjur server using
+Java `javax.net.ssl.SSLContext`. This can be done from Java code during
+Conjur class initialization.
+
+Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
+server dynamically from the Kubernetes secret and/or configmap data.
+
+```java
+final String conjurTlsCaPath = "/var/conjur-config/tls-ca.pem";
+
+final CertificateFactory cf = CertificateFactory.getInstance("X.509");
+final FileInputStream certIs = new FileInputStream(conjurTlsCaPath);
+final Certificate cert = cf.generateCertificate(certIs);
+
+final KeyStore ks = KeyStore.getInstance("JKS");
+ks.load(null);
+ks.setCertificateEntry("conjurTlsCaPath", cert);
+
+final TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+tmf.init(ks);
+
+SSLContext conjurSSLContext = SSLContext.getInstance("TLS");
+conjurSSLContext.init(null, tmf.getTrustManagers(), null);
+```
+
+### JVM-level trust
+
+For a JVM-level trust between Conjur and the API client, you need to load the Conjur
+certificate into Java's CA keystore that holds the list of all the allowed certificates
+for https connections.
 
 First, we need to get a copy of this certificate, which you can get using `openssl`. Run the
 following step from a terminal with OpenSSL that has access to Conjur:
@@ -287,6 +321,8 @@ import net.conjur.api.Conjur;
 
 // Configured using environment variables
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### System Properties
@@ -303,6 +339,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### System Properties with Maven
@@ -320,6 +358,8 @@ import net.conjur.api.Conjur;
 
 // Configured using system properties
 Conjur conjur = new Conjur();
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(conjurSSLContext);
 ```
 
 ### Username and Password
@@ -337,6 +377,8 @@ import net.conjur.api.Conjur;
 Conjur conjur = new Conjur('host/host-id', 'password-or-api-key');
 // or
 Conjur conjur = new Conjur('username', 'password-or-api-key');
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur('username', 'password-or-api-key', conjurSSLContext);
 ```
 
 ### Credentials
@@ -354,6 +396,8 @@ import net.conjur.api.Credentials;
 // regarding how 'password-or-api-key' is processed.
 Credentials credentials = new Credentials('username', 'password-or-api-key');
 Conjur conjur = new Conjur(credentials);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(credentials, conjurSSLContext);
 ```
 
 ### Authorization Token
@@ -371,6 +415,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromFile(Paths.get('path/to/conjur/authentication/token.json'));
 Conjur conjur = new Conjur(token);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(token, conjurSSLContext);
 ```
 
 Alternatively, use the `CONJUR_AUTHN_TOKEN_FILE` environment variable:
@@ -387,6 +433,8 @@ import net.conjur.api.Token;
 
 Token token = Token.fromEnv();
 Conjur conjur = new Conjur(token);
+// or using custom SSLContext setup as conjurSSLContext variable
+Conjur conjur = new Conjur(token, conjurSSLContext);
 ```
 
 ## Client APIs
@@ -400,10 +448,15 @@ a secret from Conjur, so we provide some sample code for this use case below.
 The client can be instantiated with any of these methods:
 ```java
 Conjur client = Conjur();
+Conjur client = Conjur(SSLContext sslContext);
 Conjur client = Conjur(String username, String password);
+Conjur client = Conjur(String username, String password, SSLContext sslContext);
 Conjur client = Conjur(String username, String password, String authnUrl);
+Conjur client = Conjur(String username, String password, String authnUrl, SSLContext sslContext);
 Conjur client = Conjur(Credentials credentials);
+Conjur client = Conjur(Credentials credentials, SSLContext sslContext);
 Conjur client = Conjur(Token token);
+Conjur client = Conjur(Token token, SSLContext sslContext);
 ```
 
 _Note:_ **As mentioned before, if you use the default `CONJUR_AUTHN_URL` value or your
