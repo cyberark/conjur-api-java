@@ -42,7 +42,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        echo './bin/deploy-snapshot'
+        sh 'summon ./bin/deploy-snapshot.sh'
       }
     }
 
@@ -51,7 +51,7 @@ pipeline {
         buildingTag()
       }
       steps {
-        echo './bin/deploy-release'
+        sh 'summon ./bin/deploy-release.sh'
       }
     }
   }

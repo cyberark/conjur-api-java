@@ -125,8 +125,13 @@
                   <goal>sign</goal>
                 </goals>
                 <configuration>
-                  <keyname>${gpg.keyname}</keyname>
-                  <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                  <!-- This is necessary for gpg to not try to use the pinentry programs -->
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                    <arg>--passphrase-file</arg>
+                    <arg>/gpg_password</arg>
+                  </gpgArguments>
                 </configuration>
               </execution>
             </executions>
