@@ -1,6 +1,6 @@
 package com.cyberark.conjur.api.clients;
 
-import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+import static com.cyberark.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.WebApplicationException;

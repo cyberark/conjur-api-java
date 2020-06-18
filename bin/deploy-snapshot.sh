@@ -1,5 +1,5 @@
-#!/bin/bash -ex
-set -eo pipefail
+#!/bin/bash
+set -exo pipefail
 
 # Deploy snapshot to OSSRH
 docker run --rm \

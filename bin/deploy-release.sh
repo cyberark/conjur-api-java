@@ -1,8 +1,8 @@
-#!/bin/bash -ex
-set -eo pipefail
+#!/bin/bash
+set -exo pipefail
 
 # Strip the 'v' from the Tag Name
-export TAG=${TAG_NAME:1}
+export TAG=${TAG_NAME//"v"}
 
 # Deploy release to OSSRH
 # 1. Set the version in the POM to the Tagged Version
