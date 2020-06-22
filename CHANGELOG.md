@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.0.0] - 2020-06-22
 ### Fixed
 - Encode spaces to "%20" instead of "+". This encoding fixes an issue where Conjur
   variables that have spaces were not encoded correctly
@@ -62,7 +64,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/cyberark/conjur-api-java/compare/v2.2.1...v3.0.0
 [2.0.0]: https://github.com/cyberark/conjur-api-java/compare/v1.1.0...v2.0.0
 [2.1.0]: https://github.com/cyberark/conjur-api-java/compare/v2.0.0...v2.1.0
 [2.2.0]: https://github.com/cyberark/conjur-api-java/compare/v2.1.0...v2.2.0
