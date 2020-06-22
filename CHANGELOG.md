@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   code
 - README has been updated with example SSLContext setup and it's use in Conjur
   class constructors
+- Introduced [upgrade instructions](https://github.com/cyberark/conjur-api-java/UPGRADING.md) to provide instructions for
+  upgrading to 3.0.0, or make use of published artifacts. These can be found in
+  `UPGRADING.md`. ([cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77))
+
+### Changed
+- Revised package references from `net.conjur.api` to `com.cyberark.conjur.api` 
+  ([cyberark/conjur-api-java#6](https://github.com/cyberark/conjur-api-java/issues/6))
 
 ## [2.2.1] - 2020-05-08
 ### Fixed
