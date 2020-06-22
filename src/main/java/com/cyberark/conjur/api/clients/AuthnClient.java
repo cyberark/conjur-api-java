@@ -1,6 +1,6 @@
-package net.conjur.api.clients;
+package com.cyberark.conjur.api.clients;
 
-import static net.conjur.util.EncodeUriComponent.encodeUriComponent;
+import static com.cyberark.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.WebApplicationException;
@@ -10,11 +10,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import net.conjur.api.AuthnProvider;
-import net.conjur.api.Credentials;
-import net.conjur.api.Endpoints;
-import net.conjur.api.Token;
-import net.conjur.util.rs.HttpBasicAuthFilter;
+import com.cyberark.conjur.api.AuthnProvider;
+import com.cyberark.conjur.api.Credentials;
+import com.cyberark.conjur.api.Endpoints;
+import com.cyberark.conjur.api.Token;
+import com.cyberark.conjur.util.rs.HttpBasicAuthFilter;
 
 /**
  * Conjur authentication service client.

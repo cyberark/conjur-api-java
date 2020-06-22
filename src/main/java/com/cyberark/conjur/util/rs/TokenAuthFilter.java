@@ -1,8 +1,8 @@
-package net.conjur.util.rs;
+package com.cyberark.conjur.util.rs;
 
-import net.conjur.api.AuthnProvider;
-import net.conjur.api.Token;
-import net.conjur.util.Args;
+import com.cyberark.conjur.api.AuthnProvider;
+import com.cyberark.conjur.api.Token;
+import com.cyberark.conjur.util.Args;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;

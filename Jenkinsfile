@@ -20,7 +20,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Create and archive the Maven package') {
       steps {
         sh './bin/build.sh'
@@ -37,12 +37,21 @@ pipeline {
       }
     }
 
-    stage('Publish the Maven package') {
+    stage('Perform Snapshot Deployment') {
       when {
         branch 'master'
       }
       steps {
-        echo 'TODO'
+        sh 'summon ./bin/deploy-snapshot.sh'
+      }
+    }
+
+    stage('Perform Release Deployment') {
+      when {
+        buildingTag()
+      }
+      steps {
+        sh 'summon ./bin/deploy-release.sh'
       }
     }
   }

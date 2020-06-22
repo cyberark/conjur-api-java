@@ -1,6 +1,6 @@
-package net.conjur.api.clients;
-import net.conjur.api.AuthnProvider;
-import net.conjur.api.Token;
+package com.cyberark.conjur.api.clients;
+import com.cyberark.conjur.api.AuthnProvider;
+import com.cyberark.conjur.api.Token;
 
 public class AuthnTokenClient implements AuthnProvider {
     private Token token;

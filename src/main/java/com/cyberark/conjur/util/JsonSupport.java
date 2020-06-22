@@ -1,4 +1,4 @@
-package net.conjur.util;
+package com.cyberark.conjur.util;
 
 
 import com.google.gson.Gson;

@@ -1,4 +1,4 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 import javax.net.ssl.SSLContext;
 

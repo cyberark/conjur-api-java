@@ -1,4 +1,4 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
 public class Constants
 {

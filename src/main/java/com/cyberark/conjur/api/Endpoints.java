@@ -1,7 +1,7 @@
-package net.conjur.api;
+package com.cyberark.conjur.api;
 
-import net.conjur.util.Args;
-import net.conjur.util.Properties;
+import com.cyberark.conjur.util.Args;
+import com.cyberark.conjur.util.Properties;
 
 import java.io.Serializable;
 import java.net.URI;
