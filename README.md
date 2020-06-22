@@ -101,6 +101,70 @@ our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTR
         -Dpackaging=jar
     ```
 
+### Using Maven Releases
+
+To make use of tagged releases published to Maven, verify that you have the dependency 
+added to your `pom.xml`
+
+1. Add the following snippet to `pom.xml`
+```xml
+<dependency>
+  <groupId>com.cyberark.conjur.api</groupId>
+  <artifactId>conjur-java-api</artifactId>
+  <version>x.x.x</version>
+</dependency>
+```
+
+### Using Maven Snapshots
+To make use of SNAPSHOTS, which are deployed following a nightly build, there are 
+several steps required for configuring your project.
+
+> Note: Snapshots contain the latest changes to `conjur-java-api`, but it is recommended
+> to use the current stable release unless there is a significant update required by your
+> project 
+
+1. Add the following to your `settings.xml`
+```xml
+<profiles>
+  <profile>
+     <id>allow-snapshots</id>
+        <activation><activeByDefault>true</activeByDefault></activation>
+     <repositories>
+       <repository>
+         <id>snapshots-repo</id>
+         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+         <releases><enabled>false</enabled></releases>
+         <snapshots><enabled>true</enabled></snapshots>
+       </repository>
+     </repositories>
+   </profile>
+</profiles>
+```
+
+Alternatively, add the following to your list of repositories in `pom.xml`
+```xml
+<repository>
+  <id>oss.sonatype.org-snapshot</id>
+  <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+  <releases>
+    <enabled>false</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+```
+
+2. In your `pom.xml`, verify that your `conjur-java-api` dependency includes `SNAPSHOT`
+in the version tag.
+```xml
+<dependency>
+  <groupId>com.cyberark.conjur.api</groupId>
+  <artifactId>conjur-java-api</artifactId>
+  <version>x.x.x-SNAPSHOT</version>
+</dependency>
+```
+
 ## Configuration
 
 Once the setup steps have been successfully run, we will now define the variables needed
