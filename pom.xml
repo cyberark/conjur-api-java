@@ -9,7 +9,8 @@
   <packaging>jar</packaging>
 
   <name>Conjur</name>
-  <description>Client for the Conjur API</description>
+  <description>Programmatic Java access to the Conjur API</description>
+  <url>https://github.com/cyberark/conjur-api-java</url>
 
   <licenses>
     <license>
