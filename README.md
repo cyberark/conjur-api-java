@@ -28,6 +28,9 @@ Once Conjur and the Conjur CLI are running in the background, you are ready to s
 setting up your Java app to work with our Conjur Java API!
 
 ## Setup
+The Conjur Java API can be imported manually through building the source code locally, 
+or by using a dependency configuration to import from Maven Central. Please refer to
+the following instructions for your specific use case.
 
 ### Using the Source Code
 
@@ -44,7 +47,7 @@ To do so from the source using Maven, following the setup steps below:
     <dependency>
       <groupId>com.cyberark.conjur.api</groupId>
       <artifactId>conjur-api</artifactId>
-      <version>2.2.0</version>
+      <version>3.0.1</version>
     <dependency>
 ```
 
@@ -164,6 +167,11 @@ in the version tag.
   <version>x.x.x-SNAPSHOT</version>
 </dependency>
 ```
+
+### Using Other Dependency Management Configurations
+Please refer to the instructions available on [Maven Central](https://search.maven.org/artifact/com.cyberark.conjur.api/conjur-api) 
+and select a version for specific instructions on including the Conjur Java API in your
+project through Gradle, Kotlin, and more!
 
 ## Configuration
 
