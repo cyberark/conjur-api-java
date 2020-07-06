@@ -7,6 +7,7 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
 ## Table of Contents
 
 - [Prequisites](#prerequisites)
+  - [Using This Project With Conjur-OSS](#Using-conjur-api-java-with-Conjur-OSS)
 - [Setup](#setup)
 - [Configuration](#configuration)
 - [Set Up Trust Between App and Conjur](#set-up-trust-between-app-and-conjur)
@@ -26,6 +27,17 @@ and these for installation of [Enterprise/DAP](https://docs.cyberark.com/Product
 
 Once Conjur and the Conjur CLI are running in the background, you are ready to start
 setting up your Java app to work with our Conjur Java API!
+
+### Using conjur-api-java with Conjur OSS 
+
+Are you using this project with [Conjur OSS](https://github.com/cyberark/conjur)? Then we 
+**strongly** recommend choosing the version of this project to use from the latest [Conjur OSS 
+suite release](https://docs.conjur.org/Latest/en/Content/Overview/Conjur-OSS-Suite-Overview.html). 
+Conjur maintainers perform additional testing on the suite release versions to ensure 
+compatibility. When possible, upgrade your Conjur version to match the 
+[latest suite release](https://docs.conjur.org/Latest/en/Content/ReleaseNotes/ConjurOSS-suite-RN.htm); 
+when using integrations, choose the latest suite release that matches your Conjur version. For any 
+questions, please contact us on [Discourse](https://discuss.cyberarkcommons.org/c/conjur/5).
 
 ## Setup
 The Conjur Java API can be imported manually through building the source code locally, 
