@@ -21,7 +21,7 @@ public class Properties {
 
     public static String getMandatoryProperty(String name, String def) {
         String value = System.getProperty(name, System.getenv(name));
-        if(value == null) { 
+        if (value == null) { 
             value = def; 
         }
         if (value == null) {
