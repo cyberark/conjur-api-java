@@ -574,7 +574,7 @@ Example:
 import com.cyberark.conjur.api.Conjur;
 
 Conjur conjur = new Conjur();
-conjur.variables().retrieveSecret("<VARIABLE_ID>");
+String secret = conjur.variables().retrieveSecret("<VARIABLE_ID>");
 ```
 
 ## JAX-RS Implementations
