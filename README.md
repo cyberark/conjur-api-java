@@ -60,7 +60,7 @@ To do so from the source using Maven, following the setup steps below:
       <groupId>com.cyberark.conjur.api</groupId>
       <artifactId>conjur-api</artifactId>
       <version>3.0.1</version>
-    <dependency>
+    </dependency>
 ```
 
 _NOTE:_ Depending on what version of the Java compiler you have, you may need to update
