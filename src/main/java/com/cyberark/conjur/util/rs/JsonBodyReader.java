@@ -2,8 +2,6 @@
 package com.cyberark.conjur.util.rs;
 
 import com.google.gson.Gson;
-import edu.emory.mathcs.backport.java.util.Collections;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -12,6 +10,7 @@ import javax.ws.rs.ext.Provider;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
