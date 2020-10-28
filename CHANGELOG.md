@@ -18,13 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   ([https://github.com/cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78))
 
 ### Added
-- Enabled setting custom SSLContext for TLS connection to Conjur server.
+- Enabled setting custom `javax.net.ssl.SSLContext` for TLS connection to Conjur server,
+  which enables users to set up trust between the app and Conjur directly from the Java code.
   [cyberark/conjur-api-java#74](https://github.com/cyberark/conjur-api-java/issues/74)
-- Updated code to enable adding custom javax.net.ssl.SSLContext to Conjur which
-  enables us to set up a trust between application and Conjur server from Java
-  code
-- README has been updated with example SSLContext setup and it's use in Conjur
-  class constructors
 - Introduced [upgrade instructions](https://github.com/cyberark/conjur-api-java/UPGRADING.md) to provide instructions for
   upgrading to 3.0.0, or make use of published artifacts. These can be found in
   `UPGRADING.md`. ([cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77))
