@@ -11,6 +11,7 @@ import java.net.URI;
  */
 public class Endpoints implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final URI authnUri;
     private final URI secretsUri;
 
