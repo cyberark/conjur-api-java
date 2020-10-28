@@ -22,4 +22,4 @@ docker run --rm \
   /bin/bash -ec "gpg --batch --passphrase-file /gpg_password --trust-model always --import /gpg_key
                 mvn versions:set -DnewVersion=${TAG}
                 mvn --settings settings.xml clean deploy -Dmaven.test.skip=true -P ossrh,sign
-                mvn nexus-staging:release"
+                mvn --settings settings.xml nexus-staging:release -Dmaven.test.skip=true -P ossrh,sign"
