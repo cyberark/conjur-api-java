@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [3.0.1] - 2020-06-23
 ### Added
 - Additional information was added to the `pom.xml` to meet Maven Central
-  publishing requirements for this project.
+  publishing requirements for this project. [PR cyberark/conjur-api-java#87](https://github.com/cyberark/conjur-api-java/pull/87)
 
 ## [3.0.0] - 2020-06-22
 ### Fixed
 - Encode spaces to "%20" instead of "+". This encoding fixes an issue where Conjur
-  variables that have spaces were not encoded correctly
-  ([https://github.com/cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78))
+  variables that have spaces were not encoded correctly.
+  [https://github.com/cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78)
 
 ### Added
 - Enabled setting custom `javax.net.ssl.SSLContext` for TLS connection to Conjur server,
@@ -23,11 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur-api-java#74](https://github.com/cyberark/conjur-api-java/issues/74)
 - Introduced [upgrade instructions](https://github.com/cyberark/conjur-api-java/UPGRADING.md) to provide instructions for
   upgrading to 3.0.0, or make use of published artifacts. These can be found in
-  `UPGRADING.md`. ([cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77))
+  `UPGRADING.md`. [cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77)
 
 ### Changed
-- Revised package references from `net.conjur.api` to `com.cyberark.conjur.api` 
-  ([cyberark/conjur-api-java#6](https://github.com/cyberark/conjur-api-java/issues/6))
+- Package renamed from `net.conjur.api` to `com.cyberark.conjur.api`.
+  [cyberark/conjur-api-java#6](https://github.com/cyberark/conjur-api-java/issues/6)
 
 ## [2.2.1] - 2020-05-08
 ### Fixed
