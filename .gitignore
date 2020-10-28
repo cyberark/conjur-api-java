@@ -1,4 +1,4 @@
-# Eclicpse Garbage
+# Eclicpse 
 /.settings
 /.classpath
 /.project
@@ -14,12 +14,12 @@
 # Maven Output
 /target
 
-# IntelliJ trash
+# IntelliJ 
 .idea
 *.iml
 
 .cache
-
-# More IntelliJ trash
 src/main/main.iml
 
+# VSCode
+/.vscode
