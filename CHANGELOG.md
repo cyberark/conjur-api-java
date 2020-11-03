@@ -8,27 +8,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.0.2] - 2020-10-28
 ### Fixed
-- Multiple unused transitive dependencies, such as `exec-maven-plugin`, were removed.
-  [cyberark/conjur-api-java#93](https://github.com/cyberark/conjur-api-java/issues/93)
+- Multiple unused transitive dependencies, such as `exec-maven-plugin`, were removed. 
+  These could cause issues with downstream projects that had the `conjur-api-java` as 
+  a dependency [cyberark/conjur-api-java#93](https://github.com/cyberark/conjur-api-java/issues/93)
 
 ## [3.0.1] - 2020-06-23
-### Added
-- Additional information was added to the `pom.xml` to meet Maven Central
-  publishing requirements for this project. [PR cyberark/conjur-api-java#87](https://github.com/cyberark/conjur-api-java/pull/87)
+### Fixed
+- A minor syntax issue in the `pom.xml` did not meet the requirements for Maven Central 
+  publishing, preventing `3.0.0` from being released on Maven Central. This requirement 
+  has been added, and all versions from `3.0.1` onward will be released on Maven Central. 
+  [PR cyberark/conjur-api-java#86](https://github.com/cyberark/conjur-api-java/pull/86)
 
 ## [3.0.0] - 2020-06-22
 ### Fixed
 - Encode spaces to "%20" instead of "+". This encoding fixes an issue where Conjur
   variables that have spaces were not encoded correctly.
-  [https://github.com/cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78)
+  [cyberark/conjur-api-java#78](https://github.com/cyberark/conjur-api-java/issues/78)
 
 ### Added
+- The `conjur-api-java` is now available through Maven Central without needing to be 
+  built locally. Please see our [README.md](./README.md#using-maven-releases) for more 
+  information on how you can use our latest Maven releases in your project! Alternatively, 
+  check out [UPGRADING.md](./UPGRADING.md) to find out how to upgrade to `3.0.0` 
+  through maven central. [cyberark/conjur-api-java#6](https://github.com/cyberark/conjur-api-java/issues/6)
 - Enabled setting custom `javax.net.ssl.SSLContext` for TLS connection to Conjur server,
   which enables users to set up trust between the app and Conjur directly from the Java code.
   [cyberark/conjur-api-java#74](https://github.com/cyberark/conjur-api-java/issues/74)
-- Introduced [upgrade instructions](https://github.com/cyberark/conjur-api-java/UPGRADING.md) to provide instructions for
-  upgrading to 3.0.0, or make use of published artifacts. These can be found in
-  `UPGRADING.md`. [cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77)
+- Introduced [upgrade instructions](https://github.com/cyberark/conjur-api-java/UPGRADING.md) 
+  to provide instructions for upgrading to 3.0.0, or make use of published artifacts. These can be 
+  found in `UPGRADING.md`. [cyberark/conjur-api-java#77](https://github.com/cyberark/conjur-api-java/issues/77)
 
 ### Changed
 - Package renamed from `net.conjur.api` to `com.cyberark.conjur.api`.
