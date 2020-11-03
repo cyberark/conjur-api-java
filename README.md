@@ -6,17 +6,43 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
 
 ## Table of Contents
 
-- [Prequisites](#prerequisites)
-  - [Using This Project With Conjur-OSS](#Using-conjur-api-java-with-Conjur-OSS)
+- [Prerequisites](#prerequisites)
+  * [Using conjur-api-java with Conjur OSS](#using-conjur-api-java-with-conjur-oss)
 - [Setup](#setup)
+  * [Using the Source Code](#using-the-source-code)
+  * [Using the Jarfile](#using-the-jarfile)
+  * [Using Maven Releases](#using-maven-releases)
+  * [Using Maven Snapshots](#using-maven-snapshots)
+  * [Using Other Dependency Management Configurations](#using-other-dependency-management-configurations)
 - [Configuration](#configuration)
+  * [Environment Variables](#environment-variables)
+  * [System Properties](#system-properties)
 - [Set Up Trust Between App and Conjur](#set-up-trust-between-app-and-conjur)
+  * [Client-level trust](#client-level-trust)
+  * [JVM-level trust](#jvm-level-trust)
 - [Authorization Examples](#authorization-examples)
+  * [Environment Variables](#environment-variables-1)
+  * [System Properties](#system-properties-1)
+  * [System Properties with Maven](#system-properties-with-maven)
+  * [Username and Password](#username-and-password)
+  * [Credentials](#credentials)
+  * [Authorization Token](#authorization-token)
 - [Client APIs](#client-apis)
+  * [Conjur Client Instance (`com.cyberark.conjur.api.Conjur`)](#conjur-client-instance---comcyberarkconjurapiconjur--)
+  * [Variables (`client.variables()`)](#variables---clientvariables----)
+    + [`void addSecret(String variableId, String secret)`](#-void-addsecret-string-variableid--string-secret--)
+    + [`String retrieveSecret(String variableId)`](#-string-retrievesecret-string-variableid--)
 - [JAX-RS Implementations](#jax-rs-implementations)
 - [Troubleshooting](#troubleshooting)
+  * [`error: package com.cyberark.conjur does not exist`](#-error--package-comcyberarkconjur-does-not-exist-)
+  * [`java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException`](#-javalangnoclassdeffounderror--javax-xml-bind-jaxbexception-)
+  * [SSL/TLS/Certificate Issues](#ssl-tls-certificate-issues)
 - [Contributing](#contributing)
 - [License](#license)
+
+<!-- 
+[Table of contents generated with markdown-toci](http://ecotrust-canada.github.io/markdown-toc/)
+-->
 
 ## Prerequisites
 
