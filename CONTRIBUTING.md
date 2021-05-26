@@ -77,7 +77,7 @@ TTY ("teletype") is a terminal interface (from when terminals were attached to m
    the last tag, to `NOTICES.txt`.
 
 ### Add a git tag
-1. Once your changes have been reviewed and merged into master, tag the version
+1. Once your changes have been reviewed and merged into main, tag the version
    using `git tag -s vx.y.z -m vx.y.z`. Note: this requires you to be able to
    sign releases. Consult the [github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
    on how to set this up.
@@ -85,7 +85,7 @@ TTY ("teletype") is a terminal interface (from when terminals were attached to m
    from your local machine).
 
 ### Publish the release
-1. **From a clean checkout of master** build a tarball of the repo by running
+1. **From a clean checkout of main** build a tarball of the repo by running
    `./bin/package.sh`, which outputs `output/dist/conjur-api-java.tar.gz` and
    `output/dist/SHA256SUMS.txt`.
 1. Create a GitHub release from the tag, add a description by copying the

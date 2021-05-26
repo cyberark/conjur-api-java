@@ -39,7 +39,7 @@ pipeline {
 
     stage('Perform Snapshot Deployment') {
       when {
-        branch 'master'
+        branch 'main'
       }
       steps {
         sh 'summon ./bin/deploy-snapshot.sh'

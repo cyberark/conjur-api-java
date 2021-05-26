@@ -116,7 +116,7 @@ to the project manually by following the setup steps below:
 _NOTE:_ The above command runs `mvn package` without running the integration tests, since
 these require access to a Conjur instance. You can run the integration tests with mvn package
 once you finish the configuration. For more information on how to run the tests, take a look at
-our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTRIBUTING.md) guide.
+our [Contributing](https://github.com/cyberark/conjur-api-java/blob/main/CONTRIBUTING.md) guide.
 
 4a. For Intellij, Follow the steps outlined [here](https://www.jetbrains.com/help/idea/library.html)
     to add the SDK JAR files into the new app's project.
@@ -650,7 +650,7 @@ JDKs/JREs installed.
 
 ## Contributing
 
-For instructions on how to contribute, please see our [Contributing](https://github.com/cyberark/conjur-api-java/blob/master/CONTRIBUTING.md)
+For instructions on how to contribute, please see our [Contributing](https://github.com/cyberark/conjur-api-java/blob/main/CONTRIBUTING.md)
 guide.
 
 ## License
