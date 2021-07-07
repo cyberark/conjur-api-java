@@ -1,13 +1,13 @@
 Conjur API for Java
 ===================
-Programmatic Java access to the Conjur API (for both Conjur OSS and Enterprise/DAP versions).
+Programmatic Java access to the Conjur API (for both Conjur Open Source and Enterprise/DAP versions).
 This Java SDK allows developers to build new apps in Java that communicate with Conjur by
 invoking our Conjur API to perform operations on stored data (add, retrieve, etc).
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-  * [Using conjur-api-java with Conjur OSS](#using-conjur-api-java-with-conjur-oss)
+  * [Using conjur-api-java with Conjur Open Source](#using-conjur-api-java-with-conjur-open-source)
 - [Setup](#setup)
   * [Using the Source Code](#using-the-source-code)
   * [Using the Jarfile](#using-the-jarfile)
@@ -54,9 +54,9 @@ and these for installation of [Enterprise/DAP](https://docs.cyberark.com/Product
 Once Conjur and the Conjur CLI are running in the background, you are ready to start
 setting up your Java app to work with our Conjur Java API!
 
-### Using conjur-api-java with Conjur OSS 
+### Using conjur-api-java with Conjur Open Source 
 
-Are you using this project with [Conjur OSS](https://github.com/cyberark/conjur)? Then we 
+Are you using this project with [Conjur Open Source](https://github.com/cyberark/conjur)? Then we 
 **strongly** recommend choosing the version of this project to use from the latest [Conjur OSS 
 suite release](https://docs.conjur.org/Latest/en/Content/Overview/Conjur-OSS-Suite-Overview.html). 
 Conjur maintainers perform additional testing on the suite release versions to ensure 
@@ -223,7 +223,7 @@ variable.
 
 ### Environment Variables
 
-In Conjur (both OSS and DAP), environment variables are mapped to configuration variables
+In Conjur (both Open Source and Enterprise), environment variables are mapped to configuration variables
 by prepending `CONJUR_` to the all-caps name of the configuration variable. For example,
 `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.
 
@@ -232,7 +232,7 @@ order use the Conjur API if no other configuration is done (e.g. over system pro
 CLI parameters):
 
 - `CONJUR_APPLIANCE_URL` - The URL of the Conjur instance you are connecting to. When connecting to
-  DAP configured for high availability, this should be the URL of the master load balancer (if
+  Conjur Enterprise configured for high availability, this should be the URL of the master load balancer (if
   performing read and write operations) or the URL of a follower load balancer (if performing
   read-only operations).
 - `CONJUR_ACCOUNT` - Conjur account that you are connecting to. This value is set during Conjur deployment.
