@@ -1,6 +1,6 @@
 Conjur API for Java
 ===================
-Programmatic Java access to the Conjur API (for both Conjur Open Source and Enterprise/DAP versions).
+Programmatic Java access to the Conjur API (for both Conjur Open Source and Enterprise versions).
 This Java SDK allows developers to build new apps in Java that communicate with Conjur by
 invoking our Conjur API to perform operations on stored data (add, retrieve, etc).
 
@@ -46,10 +46,10 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
 
 ## Prerequisites
 
-It is assumed that Conjur (OSS or Enterprise/DAP) and the Conjur CLI have already been
+It is assumed that Conjur (OSS or Enterprise) and the Conjur CLI have already been
 installed in the environment and running in the background. If you haven't done so,
 follow these instructions for installation of the [OSS](https://docs.conjur.org/Latest/en/Content/OSS/Installation/Install_methods.htm)
-and these for installation of [Enterprise/DAP](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/Deployment/platforms/platforms.html).
+and these for installation of [Enterprise](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/HomeTilesLPs/LP-Tile2.htm).
 
 Once Conjur and the Conjur CLI are running in the background, you are ready to start
 setting up your Java app to work with our Conjur Java API!
