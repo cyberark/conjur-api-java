@@ -302,9 +302,34 @@ trusting them, your Java app will not be able to connect to the Conjur server ov
 and so you will need to configure your app to trust them. You can accomplish this by using
 the [Client-level `SSLContext`](#client--level-trust) when creating the client or with a
 [JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into Java's CA
-keystore that holds the list of all the allowed certificates for https connections.
+keystore that holds the list of all the allowed certificates for https connections. 
 
 ### Client-level trust
+
+#### Using `CONJUR_SSL_CERTIFICATE` environment variable
+
+Use [EnvKeyStore](https://github.com/heroku/env-keystore) java library to create KeyStore and TrustStore objects in memory from environment variables.
+
+Include this library in your application as a Maven depenency:
+
+```xml
+<dependency>
+  <groupId>com.heroku.sdk</groupId>
+  <artifactId>env-keystore</artifactId>
+</dependency>
+```
+Creating a TrustStore requires that the `CONJUR_SSL_CERTIFICATE` set as an environment variable.
+
+```java
+KeyStore ts = EnvKeyStore.createWithRandomPassword("CONJUR_SSL_CERTIFICATE").keyStore();
+String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+tmf.init(ts);
+SSLContext conjurSSLContext = SSLContext.getInstance("TLS");
+conjurSSLContext.init(null, tmf.getTrustManagers(), new SecureRandom());
+```
+
+#### Using a PEM file
 
 We can set up a trust between the client application and a Conjur server using
 Java `javax.net.ssl.SSLContext`. This can be done from Java code during
