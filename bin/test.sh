@@ -97,7 +97,7 @@ function initializeDapCert() {
      -alias cuke-master -v \
      -trustcacerts \
      -noprompt \
-     -keystore "${JAVA_PATH}/jre/lib/security/cacerts" \
+     -keystore "${JAVA_PATH}/lib/security/cacerts" \
      -file /test-cert/conjur-cucumber.der -storepass changeit"
   docker exec ${dap_test_cid} ${import_command}
 }

@@ -189,6 +189,13 @@
         <artifactId>junit</artifactId>
         <version>4.13.1</version>
       </dependency>
+
+      <!-- must include JAXB manually post Java 9 -->
+        <dependency>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+          <version>2.3.3</version>
+      </dependency> 
     </dependencies>
 
     <build>
@@ -214,6 +221,7 @@
                 <CONJUR_AUTHN_LOGIN>${env.CONJUR_AUTHN_LOGIN}</CONJUR_AUTHN_LOGIN>
                 <CONJUR_AUTHN_API_KEY>${env.CONJUR_AUTHN_API_KEY}</CONJUR_AUTHN_API_KEY>
               </systemPropertyVariables>
+              <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
 
