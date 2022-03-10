@@ -86,7 +86,7 @@ function initializeOssCert() {
     -alias cucumber \
     -v -trustcacerts \
     -noprompt \
-    -keystore "${JAVA_PATH}/jre/lib/security/cacerts" \
+    -keystore "${JAVA_PATH}/lib/security/cacerts" \
     -file /test-cert/conjur-cucumber.der -storepass changeit"
   docker exec ${conjur_test_cid} ${import_command}
 }
