@@ -126,7 +126,7 @@ function runOssTests() {
 
   conjur_client_cid=$(docker-compose ps -q client)
 
-  api_key_admin=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
+  api_key_admin=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
 
   # Execute OSS tests
   docker-compose run --rm \
@@ -141,9 +141,9 @@ function runOssHttpsTests() {
   echo "Running https tests"
   echo '------------------------------------------------------------'
 
-  api_key_admin=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
-  api_key_alice=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:alice@test'].api_key")
-  api_key_myapp=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:host:test/myapp'].api_key")
+  api_key_admin=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
+  api_key_alice=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:alice@test)
+  api_key_myapp=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:host:test/myapp)
 
   echo 'api keys:'
   echo 'user admin api key = ' ${api_key_admin}

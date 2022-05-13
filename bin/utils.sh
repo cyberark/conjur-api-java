@@ -23,7 +23,7 @@ function loadOssPolicy() {
 
   conjur_client_cid=$(docker-compose ps -q client)
 
-  api_key=$(docker-compose exec -T conjur rails r "print Credentials['cucumber:user:admin'].api_key")
+  api_key=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
 
   # Copy test-policy into a /tmp/test-policy within the possum container
   docker cp test-policy ${conjur_client_cid}:/tmp
