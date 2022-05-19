@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Upgraded nginx Dockerfile base image to fix CVE-2022-0778 and CVE-2022-1292.
+  [cyberark/conjur-api-java#111](https://github.com/cyberark/conjur-api-java/pull/111)
+
 ## [3.0.2] - 2020-10-28
 ### Fixed
 - Multiple unused transitive dependencies, such as `exec-maven-plugin`, were removed. 
