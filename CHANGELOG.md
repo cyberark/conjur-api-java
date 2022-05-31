@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.3] - 2022-05-31
+
 ### Security
+- Upgraded OpenJDK Dockerfile base image to `17-jdk-bullseye`.
+  [cyberark/conjur-api-java#107](https://github.com/cyberark/conjur-api-java/pull/107)
 - Upgraded nginx Dockerfile base image to fix CVE-2022-0778 and CVE-2022-1292.
   [cyberark/conjur-api-java#111](https://github.com/cyberark/conjur-api-java/pull/111)
 
@@ -83,7 +87,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.0.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.0.3...HEAD
+[3.0.3]: https://github.com/cyberark/conjur-api-java/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/cyberark/conjur-api-java/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/cyberark/conjur-api-java/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/cyberark/conjur-api-java/compare/v2.2.1...v3.0.0
