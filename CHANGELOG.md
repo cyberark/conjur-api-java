@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Security
+- Update Dockerfile base images, bump Apache cxf to 3.5.5
+  [cyberark/conjur-api-java#113](https://github.com/cyberark/conjur-api-java/issues/113)
+
 ## [3.0.3] - 2022-05-31
 
 ### Security
