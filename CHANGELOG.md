@@ -6,12 +6,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [3.0.5] - 2023-05-04
-
-### Fixed
-- Update Jenkins pipeline to utilize parseChangelog tool
-  [cyberark/conjur-api-java#116](https://github.com/cyberark/conjur-api-java/issues/116)
-
 ## [3.0.4] - 2023-02-27
 
 ### Security
