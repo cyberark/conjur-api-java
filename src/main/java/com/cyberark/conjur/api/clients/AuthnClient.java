@@ -45,7 +45,10 @@ public class AuthnClient implements AuthnProvider {
 
         // replacing the password with an API key
         this.apiKey = credentials.getPassword();
-        if(credentials.getAuthnUrl().endsWith("/authn")){
+        // login() exchanges a user's password for an API key. This is not relevant for hosts since they
+        // don't have passwords (only API keys). It's also only relevant for standard API key authentication
+        // (authn), not other authentication methods.
+        if(credentials.getAuthnUrl().endsWith("/authn") && !credentials.getUsername().startsWith("host/")){
             this.apiKey = login();
         }
     }
