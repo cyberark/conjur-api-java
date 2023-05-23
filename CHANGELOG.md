@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Security
+- Update nginx to 1.24 in Dockerfile.nginx
+  [cyberark/conjur-api-java#118](https://github.com/cyberark/conjur-api-java/issues/118)
+
 ### Changed
 - Avoid calling `login` for host
   [cyberark/conjur-api-java#117](https://github.com/cyberark/conjur-api-java/pull/117)
