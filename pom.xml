@@ -254,6 +254,7 @@
                   <goal>shade</goal>
                 </goals>
                 <configuration>
+                  <createDependencyReducedPom>false</createDependencyReducedPom>
                   <shadedClassifierName>with-dependencies</shadedClassifierName>
                   <shadedArtifactAttached>true</shadedArtifactAttached>
                   <transformers>

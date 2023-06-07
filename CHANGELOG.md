@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Fix dependency information stripped from non-shaded jar
+  [cyberark/conjur-api-java#119](https://github.com/cyberark/conjur-api-java/issues/119)
+
 ### Security
 - Update nginx to 1.24 in Dockerfile.nginx
   [cyberark/conjur-api-java#118](https://github.com/cyberark/conjur-api-java/issues/118)
