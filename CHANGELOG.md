@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.5] - 2023-06-07
+
 ### Fixed
 - Fix dependency information stripped from non-shaded jar
   [cyberark/conjur-api-java#119](https://github.com/cyberark/conjur-api-java/issues/119)
@@ -105,7 +107,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.0.4...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.0.5...HEAD
+[3.0.5]: https://github.com/cyberark/conjur-api-java/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/cyberark/conjur-api-java/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/cyberark/conjur-api-java/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/cyberark/conjur-api-java/compare/v3.0.1...v3.0.2
