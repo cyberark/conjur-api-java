@@ -18,7 +18,7 @@ docker run --rm \
   -v "$PWD:/cyberark/conjur-java-api" \
   -v "$GPG_PASSWORD:/gpg_password" \
   -v "$GPG_PRIVATE_KEY:/gpg_key" \
-  -w /cyberark/conjur-java-api maven:3-jdk-8 \
+  -w /cyberark/conjur-java-api maven:3-jdk-11 \
   /bin/bash -ec "gpg --batch --passphrase-file /gpg_password --trust-model always --import /gpg_key
                 mvn versions:set -DnewVersion=${TAG}
                 mvn --settings settings.xml clean deploy -Dmaven.test.skip=true -P ossrh,sign
