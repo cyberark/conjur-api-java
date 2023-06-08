@@ -1,12 +1,12 @@
 package com.cyberark.conjur.api.clients;
 
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import com.cyberark.conjur.api.Credentials;
 import com.cyberark.conjur.api.Endpoints;
@@ -79,8 +79,12 @@ public class ResourceClient implements ResourceProvider {
 
     private void init(Credentials credentials, SSLContext sslContext){
         ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)))
-                .sslContext(sslContext);
+                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)));
+
+                
+        if(sslContext != null) {
+            builder.sslContext(sslContext);
+        }
 
         Client client = builder.build();
 
@@ -89,8 +93,11 @@ public class ResourceClient implements ResourceProvider {
 
     private void init(Token token, SSLContext sslContext){
         ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnTokenClient(token)))
-                .sslContext(sslContext);
+                .register(new TokenAuthFilter(new AuthnTokenClient(token)));
+
+        if(sslContext != null) {
+            builder.sslContext(sslContext);
+        }
 
         Client client = builder.build();
 

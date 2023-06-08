@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [3.0.5] - 2023-06-07
+## [3.0.5] - 2023-06-08
 
 ### Fixed
 - Fix dependency information stripped from non-shaded jar
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur-api-java#118](https://github.com/cyberark/conjur-api-java/issues/118)
 
 ### Changed
+- Migrate JAX-RS to latest Jakarta version
+  [cyberark/conjur-api-java#119](https://github.com/cyberark/conjur-api-java/issues/119)
 - Avoid calling `login` for host
   [cyberark/conjur-api-java#117](https://github.com/cyberark/conjur-api-java/pull/117)
 

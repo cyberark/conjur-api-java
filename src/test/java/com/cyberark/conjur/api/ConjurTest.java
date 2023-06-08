@@ -5,8 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.UUID;
 
 /**
@@ -76,7 +75,7 @@ public class ConjurTest {
 
     @Test
     public void testLogonWithAlterativeAuthenticator() {
-        expectedException.expect(ProcessingException.class);
+        expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage(UNAUTHORIZED_STATUS_CODE);
 
         String authnUrl = System.getProperty(APPLIANCE_URL_PROPERTY) + ALTERNATIVE_AUTHN_ENDPOINT;

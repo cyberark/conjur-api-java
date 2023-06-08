@@ -637,7 +637,7 @@ to work around this:
 If you don't properly install the Conjur certificate into the Java keystore, you may encounter
 the folowing errors:
 - `org.apache.cxf.interceptor.Fault: Could not send Message.`
-- `javax.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: SSLHandshakeException`
+- `jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: SSLHandshakeException`
 - `javax.net.ssl.SSLHandshakeException: SSLHandshakeException`
 - `javax.net.ssl.SSLHandshakeException: PKIX path building failed`
 - `sun.security.validator.ValidatorException: PKIX path building failed`

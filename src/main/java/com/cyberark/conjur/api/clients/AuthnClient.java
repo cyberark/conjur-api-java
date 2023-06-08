@@ -3,12 +3,12 @@ package com.cyberark.conjur.api.clients;
 import static com.cyberark.conjur.util.EncodeUriComponent.encodeUriComponent;
 
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import com.cyberark.conjur.api.AuthnProvider;
 import com.cyberark.conjur.api.Credentials;
@@ -80,8 +80,11 @@ public class AuthnClient implements AuthnProvider {
 
     private void init(final String username, final String password, final SSLContext sslContext) {
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new HttpBasicAuthFilter(username, password))
-                .sslContext(sslContext);
+                .register(new HttpBasicAuthFilter(username, password));
+                
+        if(sslContext != null) {
+            builder.sslContext(sslContext);
+        }
 
         Client client = builder.build();
         WebTarget root = client.target(endpoints.getAuthnUri());
