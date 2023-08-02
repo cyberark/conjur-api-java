@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent { label 'executor-v2' }
+  agent { label 'conjur-enterprise-common-agent' }
 
   options {
     timestamps()
@@ -13,22 +13,36 @@ pipeline {
   }
 
   stages {
+    stage('Get InfraPool Agent') {
+      steps {
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
+        }
+      }
+    }
+
     stage('Validate Changelog') {
       steps {
-        parseChangelog()
+        parseChangelog(INFRAPOOL_EXECUTORV2_AGENT_0)
       }
     }
 
     stage('Create and archive the Maven package') {
       steps {
-        sh './bin/build.sh'
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/build.sh'
+        }
       }
     }
 
     stage('Run tests and archive test results') {
       steps {
-        lock("api-java-${env.NODE_NAME}") {
-          sh './bin/test.sh'
+        script {
+          lock("api-java-${env.NODE_NAME}") {
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash includes: 'target/surefire-reports/*.xml', name: 'test-results'
+            unstash 'test-results'
+          }
         }
 
         junit 'target/surefire-reports/*.xml'
@@ -40,7 +54,9 @@ pipeline {
         branch 'main'
       }
       steps {
-        sh 'summon ./bin/deploy-snapshot.sh'
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/deploy-snapshot.sh'
+        }
       }
     }
 
@@ -49,14 +65,16 @@ pipeline {
         buildingTag()
       }
       steps {
-        sh 'summon ./bin/deploy-release.sh'
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/deploy-release.sh'
+        }
       }
     }
   }
 
   post {
     always {
-      cleanupAndNotify(currentBuild.currentResult)
+      releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }
 }
