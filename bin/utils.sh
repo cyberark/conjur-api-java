@@ -7,13 +7,13 @@ function createOssEnvironment() {
 
   # Build OSS test container & start the cluster
   docker-compose build --pull client conjur postgres test test-https conjur-proxy-nginx
-  export CONJUR_APPLIANCE_URL="http://conjur:3000"
+  export CONJUR_APPLIANCE_URL="http://conjur"
   docker-compose up -d client conjur postgres test-https
 
   # Delay to allow time for conjur to come up
   # TODO: remove this once we have HEALTHCHECK in place
   echo 'Waiting for conjur server to be healthy'
-  docker-compose exec -T conjur conjurctl wait -r 60 -p 3000
+  docker-compose exec -T conjur conjurctl wait -r 60 -p 80
 }
 
 function loadOssPolicy() {
