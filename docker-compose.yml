@@ -1,19 +1,21 @@
 version: '2'
 services:
   postgres:
-    image: postgres:9.3
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: pa55w0rd
 
   conjur:
     image: cyberark/conjur:latest
     command: server -a cucumber
     environment:
       CONJUR_ACCOUNT: cucumber
-      PORT: 3000
-      DATABASE_URL: postgres://postgres@postgres/postgres
+      PORT: 80
+      DATABASE_URL: postgres://postgres:pa55w0rd@postgres/postgres
       CONJUR_DATA_KEY: "W0BuL8iTr/7QvtjIluJbrb5LDAnmXzmcpxkqihO3dXA="
       RAILS_ENV: development
     ports:
-      - "3000:3000"
+      - "80:80"
     depends_on:
       - postgres
 
@@ -59,7 +61,7 @@ services:
     volumes:
       - ./target:/conjurinc/api-java/target
     environment:
-      CONJUR_APPLIANCE_URL: http://conjur:3000
+      CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
 
   # Spin up container for EE testing
