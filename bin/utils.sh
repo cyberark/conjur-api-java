@@ -6,14 +6,14 @@ function createOssEnvironment() {
   echo '------------------------------------------------------------'
 
   # Build OSS test container & start the cluster
-  docker-compose build --pull client conjur postgres test test-https conjur-proxy-nginx
+  docker compose build --pull client conjur postgres test test-https conjur-proxy-nginx
   export CONJUR_APPLIANCE_URL="http://conjur"
-  docker-compose up -d client conjur postgres test-https
+  docker compose up -d client conjur postgres test-https
 
   # Delay to allow time for conjur to come up
   # TODO: remove this once we have HEALTHCHECK in place
   echo 'Waiting for conjur server to be healthy'
-  docker-compose exec -T conjur conjurctl wait -r 60 -p 80
+  docker compose exec -T conjur conjurctl wait -r 60 -p 80
 }
 
 function loadOssPolicy() {
@@ -21,9 +21,9 @@ function loadOssPolicy() {
   echo "Loading OSS test policy"
   echo '------------------------------------------------------------'
 
-  conjur_client_cid=$(docker-compose ps -q client)
+  conjur_client_cid=$(docker compose ps -q client)
 
-  api_key=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
+  api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
 
   # Copy test-policy into a /tmp/test-policy within the possum container
   docker cp test-policy ${conjur_client_cid}:/tmp
@@ -39,7 +39,7 @@ function printOssProxyConfiguration() {
   echo '------------------------------------------------------------'
   echo 'Note: in order to change configuration, you need to edit the file: default.conf '
 
-  conjur_proxy_cid=$(docker-compose ps -q conjur-proxy-nginx)
+  conjur_proxy_cid=$(docker compose ps -q conjur-proxy-nginx)
 
   exec_command='nginx-debug -T'
   docker exec ${conjur_proxy_cid} ${exec_command}
@@ -50,7 +50,7 @@ function initializeOssCert() {
   echo "Fetch certificate for OSS using client cli"
   echo '------------------------------------------------------------'
 
-  conjur_client_cid=$(docker-compose ps -q client)
+  conjur_client_cid=$(docker compose ps -q client)
 
   # Get the pem file from conjur server
   CONJUR_ACCOUNT="cucumber"
@@ -77,7 +77,7 @@ function initializeOssCert() {
   echo "import cert inside test https container"
 
   # get conjur test https container id
-  conjur_test_cid=$(docker-compose ps -q test-https)
+  conjur_test_cid=$(docker compose ps -q test-https)
 
   # Import cert converted above into keystore
   JAVA_PATH=$(docker exec ${conjur_test_cid} sh -c 'echo $JAVA_HOME')
@@ -95,5 +95,5 @@ function finish {
   echo '-----------------------test.sh------------------------------'
   echo 'Removing test environment'
   echo '------------------------------------------------------------'
-  docker-compose down -v
+  docker compose down -v
 }
