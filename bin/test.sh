@@ -31,13 +31,13 @@ function runOss () {
 
 # Build DAP test container & start the cluster
 function createDAPTestEnvironment() {
-  docker-compose build --pull client cuke-master test-dap
+  docker compose build --pull client cuke-master test-dap
   export CONJUR_APPLIANCE_URL="https://cuke-master"
-  docker-compose up -d client cuke-master test-dap
+  docker compose up -d client cuke-master test-dap
 
   # Delay to allow time for conjur to come up
   echo 'Waiting for conjur server to be healthy'
-  docker-compose exec -T cuke-master /opt/conjur/evoke/bin/wait_for_conjur
+  docker compose exec -T cuke-master /opt/conjur/evoke/bin/wait_for_conjur
 }
 
 function loadDapTestPolicy() {
@@ -45,10 +45,10 @@ function loadDapTestPolicy() {
   echo "Loading DAP test policy"
   echo '------------------------------------------------------------'
 
-  dap_client_cid=$(docker-compose ps -q client)
+  dap_client_cid=$(docker compose ps -q client)
 
   # Get certificate from cuke-master
-  ssl_cert=$(docker-compose exec -T cuke-master cat /opt/conjur/etc/ssl/conjur.pem)
+  ssl_cert=$(docker compose exec -T cuke-master cat /opt/conjur/etc/ssl/conjur.pem)
 
   docker exec \
     -e CONJUR_SSL_CERTIFICATE="$ssl_cert" \
@@ -67,7 +67,7 @@ function initializeDapCert() {
   echo "Fetch certificate for DAP using client cli"
   echo '------------------------------------------------------------'
 
-  dap_client_cid=$(docker-compose ps -q client)
+  dap_client_cid=$(docker compose ps -q client)
 
   # Get the pem file from conjur server
   CONJUR_ACCOUNT="cucumber"
@@ -88,7 +88,7 @@ function initializeDapCert() {
   docker exec ${dap_client_cid} ${convert_command}
 
   echo "import cert inside DAP test container"
-  dap_test_cid=$(docker-compose ps -q test-dap)
+  dap_test_cid=$(docker compose ps -q test-dap)
 
   # Import cert converted above into keystore
   JAVA_PATH=$(docker exec ${dap_test_cid} sh -c 'echo $JAVA_HOME')
@@ -107,9 +107,9 @@ function runDapTests() {
   echo "Running DAP tests"
   echo '------------------------------------------------------------'
 
-  dap_test_cid=$(docker-compose ps -q test-dap)
+  dap_test_cid=$(docker compose ps -q test-dap)
 
-  api_key_admin=$(docker-compose exec -T client conjur user rotate_api_key)
+  api_key_admin=$(docker compose exec -T client conjur user rotate_api_key)
 
   # Execute DAP tests
   docker exec \
@@ -124,12 +124,12 @@ function runOssTests() {
   echo "Running tests"
   echo '------------------------------------------------------------'
 
-  conjur_client_cid=$(docker-compose ps -q client)
+  conjur_client_cid=$(docker compose ps -q client)
 
-  api_key_admin=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
+  api_key_admin=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
 
   # Execute OSS tests
-  docker-compose run --rm \
+  docker compose run --rm \
     -e CONJUR_AUTHN_LOGIN="admin" \
     -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
     test \
@@ -141,15 +141,15 @@ function runOssHttpsTests() {
   echo "Running https tests"
   echo '------------------------------------------------------------'
 
-  api_key_admin=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
-  api_key_alice=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:alice@test)
-  api_key_myapp=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:host:test/myapp)
+  api_key_admin=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
+  api_key_alice=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:alice@test)
+  api_key_myapp=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:host:test/myapp)
 
   echo 'api keys:'
   echo 'user admin api key = ' ${api_key_admin}
   echo 'user alice api key = ' ${api_key_alice}
   echo 'host myapp api key = ' ${api_key_myapp}
-  conjur_test_cid=$(docker-compose ps -q test-https)
+  conjur_test_cid=$(docker compose ps -q test-https)
   tests_command="mvn test"
 
   echo "Running https tests with admin credentials"
