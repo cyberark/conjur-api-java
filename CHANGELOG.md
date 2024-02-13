@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Update nginx to 1.24 in Dockerfile.nginx
   [cyberark/conjur-api-java#118](https://github.com/cyberark/conjur-api-java/issues/118)
+- Update pom.xml dependencies (CONJSE-1839)
 
 ### Changed
 - Migrate JAX-RS to latest Jakarta version
