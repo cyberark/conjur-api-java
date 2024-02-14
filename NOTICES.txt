@@ -17,13 +17,13 @@ SECTION 2: GNU General Public License 1.1
 SECTION 3: APACHE-2.0
 
 >>> https://mvnrepository.com/artifact/commons-codec/commons-codec/1.15
->>> https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0
->>> https://mvnrepository.com/artifact/joda-time/joda-time/2.3
+>>> https://mvnrepository.com/artifact/com.google.code.gson/gson/2.10.1
+>>> https://mvnrepository.com/artifact/joda-time/joda-time/2.12.6
 >>> https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-client/3.5.1
 
 SECTION 4: Eclipse Distribution License 1.0
 
->>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/2.3.3
+>>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/4.0.1
 
 SECTION 5: Eclipse Public License 1.0
 
@@ -140,7 +140,7 @@ APACHE-2.0 is applicable to the following component(s).
    See the License for the specific language governing permissions and
    limitations under the License.
 
->>> https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0
+>>> https://mvnrepository.com/artifact/com.google.code.gson/gson/2.10.1
 
 Copyright 2008 Google Inc.
 
@@ -156,7 +156,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
->>> https://mvnrepository.com/artifact/joda-time/joda-time/2.3
+>>> https://mvnrepository.com/artifact/joda-time/joda-time/2.12.6
 
 Copyright 2001 Stephen Colebourne
 
@@ -192,7 +192,7 @@ limitations under the License.
 
 Eclipse Distribution License 1.0 is applicable to the following components:
 
->>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/2.3.3
+>>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/4.0.1
 
 --------------- SECTION 5: Eclipse Public License 1.0 ---------------------
 
