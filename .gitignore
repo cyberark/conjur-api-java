@@ -23,3 +23,6 @@ src/main/main.iml
 
 # VSCode
 /.vscode
+
+maven_cache/
+VERSION
