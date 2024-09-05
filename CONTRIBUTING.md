@@ -61,40 +61,31 @@ TTY ("teletype") is a terminal interface (from when terminals were attached to m
 
 ## Releasing
 
-### Update version, changelog, and dependency info
-1. Check whether any dependencies have changed since the last release by
-   comparing [pom.xml](pom.xml) versions to the dependencies and versions in
-   [NOTICES.txt](NOTICES.txt). If any dependencies have been added, removed, or
-   updated, update the NOTICES.txt with those corresponding changes.
-1. Review the [CHANGELOG.md](CHANGELOG.md) against the unreleased commits and
-   make sure all user-relevant changes have been captured.
-1. Based on the unreleased content, determine the new version number and update
-   the version tag in [pom.xml](pom.xml) and add the version to the
-   [CHANGELOG.md](CHANGELOG.md).
+Releases should be created by maintainers only. To create and promote a
+release, follow the instructions in this section.
+
+### Update the changelog and notices
+
+**NOTE:** If the Changelog and NOTICES.txt are already up-to-date, skip this
+step and promote the desired build from the main branch.
+
+1. Create a new branch for the version bump.
+1. Based on the changelog content, determine the new version number and update.
+1. Review the git log and ensure the [changelog](CHANGELOG.md) contains all
+   relevant recent changes with references to GitHub issues or PRs, if possible.
+1. Review the changes since the last tag, and if the dependencies have changed
+   revise the [NOTICES](NOTICES.txt) to correctly capture the included
+   dependencies and their licenses / copyrights.
 1. Commit these changes - `Bump version to x.y.z` is an acceptable commit
-   message - and open a PR for review. Your PR should include updates to
-   `pom.xml`, `CHANGELOG.md`, and if there are any dependency updates since
-   the last tag, to `NOTICES.txt`.
+   message - and open a PR for review.
 
-### Add a git tag
-1. Once your changes have been reviewed and merged into main, tag the version
-   using `git tag -s vx.y.z -m vx.y.z`. Note: this requires you to be able to
-   sign releases. Consult the [github documentation on signing commits](https://help.github.com/articles/signing-commits-with-gpg/)
-   on how to set this up.
-1. Push the tag: `git push vx.y.z` (or `git push origin vx.y.z` if you are working
-   from your local machine).
+### Release and Promote
 
-### Publish the release
-1. **From a clean checkout of main** build a tarball of the repo by running
-   `./bin/package.sh`, which outputs `output/dist/conjur-api-java.tar.gz` and
-   `output/dist/SHA256SUMS.txt`.
-1. Create a GitHub release from the tag, add a description by copying the
-   CHANGELOG entries from the version, and upload the release artifacts from
-   `output/dist/` that you created in the last step. The following artifacts
-   should also be updated to the release:
-   - CHANGELOG.md
-   - LICENSE
-   - NOTICES.txt
+1. Merging into the main branch will automatically trigger a release.
+   If successful, this release can be promoted at a later time.
+1. Jenkins build parameters can be utilized to promote a successful release
+   or manually trigger aditional releases as needed.
+1. Reference the [internal automated release doc](https://github.com/conjurinc/docs/blob/master/reference/infrastructure/automated_releases.md#release-and-promotion-process) for releasing and promoting.
 
 ## Contribution Workflow
 1. Fork or clone repository

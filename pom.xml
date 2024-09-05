@@ -3,9 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cyberark.conjur.api</groupId>
   <artifactId>conjur-api</artifactId>
-  <!-- Only bump version number,
-  SNAPSHOT is automatically removed during release deployments -->
-  <version>3.0.5-SNAPSHOT</version>
+  	<!--
+		DO NOT UPDATE THE VERSION HERE
+		The current version is stored in the changelog.
+		When the package is built this place holder
+		version will be replaced with the latest version
+		from the changelog.
+		See build-package.sh
+	-->
+	<version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Conjur</name>
@@ -42,12 +48,12 @@
         <repository>
           <id>conjurinc-releases</id>
           <name>conjurinc-releases</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-release-local</url>
+          <url>https://${env.JFROG_URL}/conjurinc/libs-release-local</url>
         </repository>
         <snapshotRepository>
           <id>conjurinc-snapshots</id>
           <name>conjurinc-snapshots</name>
-          <url>https://conjurinc.artifactoryonline.com/conjurinc/libs-snapshot-local</url>
+          <url>https://${env.JFROG_URL}/conjurinc/libs-snapshot-local</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
