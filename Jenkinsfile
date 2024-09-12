@@ -118,6 +118,9 @@ pipeline {
     }
 
     stage('Run tests and archive test results') {
+      environment {
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
+      }
       steps {
         script {
           lock("api-java-${env.NODE_NAME}") {
