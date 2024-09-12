@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: pa55w0rd
 
   conjur:
-    image: cyberark/conjur:latest
+    image: ${REGISTRY_URL:-docker.io}/cyberark/conjur:edge
     command: server -a cucumber
     environment:
       CONJUR_ACCOUNT: cucumber

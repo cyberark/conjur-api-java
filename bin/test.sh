@@ -5,6 +5,8 @@ source bin/utils.sh
 
 trap finish EXIT
 
+export REGISTRY_URL=${INFRAPOOL_REGISTRY_URL:-"docker.io"}
+
 function main() {
   finish
   runDap
