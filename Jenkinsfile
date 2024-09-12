@@ -131,17 +131,6 @@ pipeline {
       }
     }
 
-    stage('Perform Snapshot Deployment') {
-      when {
-        branch 'main'
-      }
-      steps {
-        script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/deploy-snapshot.sh'
-        }
-      }
-    }
-
     stage('Release') {
       when {
         expression {
