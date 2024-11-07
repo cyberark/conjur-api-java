@@ -132,7 +132,7 @@ public class Token {
 
     public static Token fromFile(Path filepath, Charset encoding)
         throws IOException {
-        byte[] encodedJson = Files.readAllBytes(filepath);
+        byte[] encodedJson = Files.readAllBytes(filepath.normalize());
         String json = new String(encodedJson, encoding);
         return fromJson(json);
     }
