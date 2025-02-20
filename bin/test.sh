@@ -6,6 +6,7 @@ source bin/utils.sh
 trap finish EXIT
 
 export REGISTRY_URL=${INFRAPOOL_REGISTRY_URL:-"docker.io"}
+export JDK_VERSION=${INFRAPOOL_JDK_VERSION:-8}
 
 function main() {
   finish
@@ -33,7 +34,7 @@ function runOss () {
 
 # Build DAP test container & start the cluster
 function createDAPTestEnvironment() {
-  docker compose build --pull client cuke-master test-dap
+  docker compose build --pull client cuke-master test-dap --build-arg JDK_VERSION="${JDK_VERSION:-8}"
   export CONJUR_APPLIANCE_URL="https://cuke-master"
   docker compose up -d client cuke-master test-dap
 
@@ -94,6 +95,13 @@ function initializeDapCert() {
 
   # Import cert converted above into keystore
   JAVA_PATH=$(docker exec ${dap_test_cid} sh -c 'echo $JAVA_HOME')
+
+  # If Java 8, append /jre to the path
+  JAVA_VERSION=$(docker exec ${dap_test_cid} sh -c '$JAVA_HOME/bin/java -version 2>&1 | head -n 1')
+  if [[ "$JAVA_VERSION" == *"1.8"* ]]; then
+    JAVA_PATH="${JAVA_PATH}/jre"
+  fi
+  
   import_command="keytool \
      -import \
      -alias cuke-master -v \

@@ -1,4 +1,6 @@
-FROM eclipse-temurin:23-jdk
+ARG JDK_VERSION=23
+
+FROM eclipse-temurin:${JDK_VERSION}-jdk
 
 MAINTAINER Conjur Inc
 
