@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-# Build tools image
-#FROM maven:${maven_version}-openjdk-${java_version}-slim
+# This container is used to package the library - leave the Java version arg at
+# 8 to ensure we support Java 8 which has LTS until 2030
 docker build \
-    --build-arg maven_version=3.8.4 \
+    --build-arg maven_version=3 \
     --build-arg java_version=8 \
     -t tools \
     -f tools.Dockerfile \

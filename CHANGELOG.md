@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.0.6] - 2024-02-20
 
-### Fixed 
+### Fixed
 - Restored compatibility with Java 8 (CNJR-7854)
 
 ## [3.0.5] - 2023-06-08

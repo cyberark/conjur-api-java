@@ -150,7 +150,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jaxrs.version>2.0</jaxrs.version>
+      <jaxrs.version>2.1.1</jaxrs.version>
     </properties>
     <dependencies>
       <!--
