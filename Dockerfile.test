@@ -1,15 +1,16 @@
-FROM openjdk:23-slim
+ARG JDK_VERSION=23
+
+FROM eclipse-temurin:${JDK_VERSION}-jdk
 
 MAINTAINER Conjur Inc
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
-    apt-get install -y vim wget curl git maven
-
-RUN mkdir -p /conjurinc/api-java
+    apt-get install -y --no-install-recommends vim wget curl git maven && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /conjurinc/api-java
 
-COPY . /conjurinc/api-java
+COPY . .
 
 RUN mvn compile

@@ -125,19 +125,31 @@ pipeline {
       }
     }
 
-    stage('Run tests and archive test results') {
+    stage('Run tests (JDK8)') {
       environment {
         INFRAPOOL_REGISTRY_URL = "registry.tld"
+        INFRAPOOL_JDK_VERSION = "8"
+      }
+      steps {
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
+        }
+      }
+    }
+
+    stage('Run tests and archive results (JDK23)') {
+      environment {
+        INFRAPOOL_REGISTRY_URL = "registry.tld"
+        INFRAPOOL_JDK_VERSION = "23"
       }
       steps {
         script {
           lock("api-java-${env.NODE_NAME}") {
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash includes: 'target/surefire-reports/*.xml', name: 'test-results'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash includes: 'target/surefire-reports/*.xml', name: "test-results"
             unstash 'test-results'
           }
         }
-
         junit 'target/surefire-reports/*.xml'
       }
     }

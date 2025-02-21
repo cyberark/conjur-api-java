@@ -6,7 +6,7 @@ function createOssEnvironment() {
   echo '------------------------------------------------------------'
 
   # Build OSS test container & start the cluster
-  docker compose build --pull client conjur postgres test test-https conjur-proxy-nginx
+  docker compose build --pull client conjur postgres test test-https conjur-proxy-nginx --build-arg JDK_VERSION="${JDK_VERSION:-8}"
   export CONJUR_APPLIANCE_URL="http://conjur"
   docker compose up -d client conjur postgres test-https
 
@@ -81,6 +81,13 @@ function initializeOssCert() {
 
   # Import cert converted above into keystore
   JAVA_PATH=$(docker exec ${conjur_test_cid} sh -c 'echo $JAVA_HOME')
+
+  # If Java 8, append /jre to the path
+  JAVA_VERSION=$(docker exec ${dap_test_cid} sh -c '$JAVA_HOME/bin/java -version 2>&1 | head -n 1')
+  if [[ "$JAVA_VERSION" == *"1.8"* ]]; then
+    JAVA_PATH="${JAVA_PATH}/jre"
+  fi
+
   import_command="keytool \
     -import \
     -alias cucumber \

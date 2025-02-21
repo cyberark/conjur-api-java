@@ -58,6 +58,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
+      args:
+        JDK_VERSION: ${JDK_VERSION:-8}
     volumes:
       - ./target:/conjurinc/api-java/target
     environment:
@@ -69,6 +71,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
+      args:
+        JDK_VERSION: ${JDK_VERSION:-8}
     volumes:
       - ./target:/conjurinc/api-java/target
       - ./test-cert:/test-cert
@@ -84,6 +88,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
+      args:
+        JDK_VERSION: ${JDK_VERSION:-8}
     volumes:
       - ./target:/conjurinc/api-java/target
       - ./test-cert:/test-cert
