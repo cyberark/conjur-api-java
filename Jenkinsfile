@@ -107,6 +107,7 @@ pipeline {
           INFRAPOOL_EXECUTORV2_AGENT_0.agentSh '''
             cp VERSION VERSION.original
             version="$(<VERSION)"
+            echo "Current VERSION content: ${version}"
             echo "${version}-SNAPSHOT" > VERSION
             cp VERSION VERSION.snapshot
           '''
