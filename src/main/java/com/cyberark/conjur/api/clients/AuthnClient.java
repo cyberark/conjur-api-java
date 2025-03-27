@@ -11,6 +11,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import com.cyberark.conjur.api.AuthnProvider;
+import com.cyberark.conjur.api.Configuration;
 import com.cyberark.conjur.api.Credentials;
 import com.cyberark.conjur.api.Endpoints;
 import com.cyberark.conjur.api.Token;
@@ -79,8 +80,11 @@ public class AuthnClient implements AuthnProvider {
      }
 
     private void init(final String username, final String password, final SSLContext sslContext) {
+        Configuration config = new Configuration();
+
         final ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new HttpBasicAuthFilter(username, password));
+                .register(new HttpBasicAuthFilter(username, password))
+                .register(new TelemetryHeaderFilter(config)); // Register the new telemetry header filter
                 
         if(sslContext != null) {
             builder.sslContext(sslContext);

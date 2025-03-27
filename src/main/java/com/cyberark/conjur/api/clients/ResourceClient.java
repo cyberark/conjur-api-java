@@ -8,6 +8,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import com.cyberark.conjur.api.Configuration;
 import com.cyberark.conjur.api.Credentials;
 import com.cyberark.conjur.api.Endpoints;
 import com.cyberark.conjur.api.ResourceProvider;
@@ -78,9 +79,11 @@ public class ResourceClient implements ResourceProvider {
     }
 
     private void init(Credentials credentials, SSLContext sslContext){
-        ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)));
+        Configuration config = new Configuration();
 
+        ClientBuilder builder = ClientBuilder.newBuilder()
+            .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)))
+            .register(new TelemetryHeaderFilter(config)); // Register TelemetryHeaderFilter
                 
         if(sslContext != null) {
             builder.sslContext(sslContext);
@@ -92,8 +95,11 @@ public class ResourceClient implements ResourceProvider {
     }
 
     private void init(Token token, SSLContext sslContext){
+        Configuration config = new Configuration();
+
         ClientBuilder builder = ClientBuilder.newBuilder()
-                .register(new TokenAuthFilter(new AuthnTokenClient(token)));
+                .register(new TokenAuthFilter(new AuthnTokenClient(token)))
+                .register(new TelemetryHeaderFilter(config)); // Register TelemetryHeaderFilter
 
         if(sslContext != null) {
             builder.sslContext(sslContext);
