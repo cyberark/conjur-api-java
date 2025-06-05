@@ -138,23 +138,38 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jaxrs.version>2.1.1</jaxrs.version>
+      <jakarta.version>3.0.0</jakarta.version>
+      <jersey.version>3.0.17</jersey.version>
     </properties>
     <dependencies>
-      <!--
-        JAXRS Implementation
-        You can change any of this, for example if you use Jersey 2.0 or a different implementation
-        (codehaus has one, I think).
+    
+      <!-- 
+        JAX-RX Interface, compatible with Java 8.
       -->
       <dependency>
-        <groupId>javax.ws.rs</groupId>
-        <artifactId>javax.ws.rs-api</artifactId>
-        <version>${jaxrs.version}</version>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>${jakarta.version}</version>
+      </dependency>
+
+      <!--
+        JAX-RS Implementation Jersey, exclude and override to use another implementation.
+      -->
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-client</artifactId>
-        <version>3.5.10</version>
+          <groupId>org.glassfish.jersey.inject</groupId>
+          <artifactId>jersey-hk2</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>2.0.1</version>
       </dependency>
 
       <!-- JSON support -->
