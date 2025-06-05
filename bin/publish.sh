@@ -24,16 +24,16 @@ fi
 mkdir -p maven_cache
 
 if [[ "${MODE:-}" == "PROMOTE" ]]; then
-    echo "PROMOTE build, publishing to internal artifactory and ossrh (maven central)"
-    maven_profiles="artifactory,ossrh,sign"
+    echo "PROMOTE build, publishing to internal artifactory and central portal (maven central)"
+    maven_profiles="artifactory,central-portal,sign"
 else
     echo "Release build, publishing to internal artifactory"
     maven_profiles="artifactory,sign"
 fi
 
 docker run \
-    -e OSSRH_USERNAME \
-    -e OSSRH_PASSWORD \
+    -e CENTRAL_PORTAL_USERNAME \
+    -e CENTRAL_PORTAL_TOKEN \
     -e JFROG_USERNAME \
     -e JFROG_APIKEY \
     -e JFROG_URL \
