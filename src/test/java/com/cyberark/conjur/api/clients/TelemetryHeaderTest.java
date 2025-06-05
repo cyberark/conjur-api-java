@@ -2,8 +2,8 @@ package com.cyberark.conjur.api.clients;
 
 import java.io.IOException;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ public class TelemetryHeaderTest {
     @Test
 public void testTelemetryHeaderAdded() throws IOException {
     ClientRequestContext requestContext = mock(ClientRequestContext.class);
-    MultivaluedMap<String, Object> headers = new javax.ws.rs.core.MultivaluedHashMap<>();
+    MultivaluedMap<String, Object> headers = new jakarta.ws.rs.core.MultivaluedHashMap<>();
     
     when(requestContext.getHeaders()).thenReturn(headers);
 
