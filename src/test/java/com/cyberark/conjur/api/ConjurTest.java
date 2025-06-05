@@ -1,12 +1,9 @@
 package com.cyberark.conjur.api;
 
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
+
 import java.util.UUID;
 
 /**
@@ -66,26 +63,27 @@ public class ConjurTest {
 
     @Test
     public void testSetVariableWithoutVariableInPolicy() {
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(NOT_FOUND_STATUS_CODE);
-
-        Conjur conjur = new Conjur();
-
-        conjur.variables().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
+        WebApplicationException thrown = Assert.assertThrows(
+            WebApplicationException.class,
+            () -> {
+                Conjur conjur = new Conjur();
+                conjur.variables().addSecret(NON_EXISTING_VARIABLE_KEY, VARIABLE_VALUE);
+            }
+        );
+        Assert.assertTrue(thrown.getMessage().contains(NOT_FOUND_STATUS_CODE));
     }
 
     @Test
     public void testLogonWithAlterativeAuthenticator() {
-        expectedException.expect(ProcessingException.class);
-        expectedException.expectMessage(UNAUTHORIZED_STATUS_CODE);
-
         String authnUrl = System.getProperty(APPLIANCE_URL_PROPERTY) + ALTERNATIVE_AUTHN_ENDPOINT;
 
-        Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, authnUrl);
-        conjur.variables().retrieveSecret(VARIABLE_KEY);
+        WebApplicationException thrown = Assert.assertThrows(
+            WebApplicationException.class,
+            () -> {
+                Conjur conjur = new Conjur(ALTERNATIVE_USERNAME, ALTERNATIVE_API_KEY, authnUrl);
+                conjur.variables().retrieveSecret(VARIABLE_KEY);
+            }
+        );
+        Assert.assertTrue(thrown.getMessage().contains(UNAUTHORIZED_STATUS_CODE));
     }
-
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 }
