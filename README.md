@@ -608,7 +608,10 @@ String secret = conjur.variables().retrieveSecret("<VARIABLE_ID>");
 The Conjur API client uses the JAX-RS standard to make requests to the Conjur web services.
 In the future we plan to remove this dependency, but for the time being you may need to
 change the JAX-RS implementation to conform to your environment and application dependencies.
-Conjur API uses Apache CXF by default but for example, in a JBoss server environment, you
+Conjur API uses Jersey as the default JAX-RS implementation, as specified in the [`pom.xml`](/pom.xml)
+If you need to use a different JAX-RS implementation, you can exclude the Jersey dependencies and add your preferred implementation in your application's pom.xml.
+
+For example, in a JBoss server environment, you
 should use the RESTlet implementation. You can replace that dependency in `pom.xml` to use an
 alternative implementation.
 
