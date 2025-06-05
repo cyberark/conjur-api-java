@@ -2,9 +2,9 @@ package com.cyberark.conjur.util.rs;
 
 import org.apache.commons.codec.binary.Base64;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
