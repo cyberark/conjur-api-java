@@ -603,14 +603,14 @@ Conjur conjur = new Conjur();
 String secret = conjur.variables().retrieveSecret("<VARIABLE_ID>");
 ```
 
-## JAX-RS Implementations
+## Jakarta REST (JAX-RS) Implementations
+The Conjur API client uses the Jakarta REST (formerly JAX-RS) standard to make requests to the Conjur web services.
+It is compatible with Jakarta EE environments and may not work in Java EE environments that still use the
+older javax.ws.rs packages.
 
-The Conjur API client uses the JAX-RS standard to make requests to the Conjur web services.
-In the future we plan to remove this dependency, but for the time being you may need to
-change the JAX-RS implementation to conform to your environment and application dependencies.
-Conjur API uses Apache CXF by default but for example, in a JBoss server environment, you
-should use the RESTlet implementation. You can replace that dependency in `pom.xml` to use an
-alternative implementation.
+Conjur API uses Jersey as the default Jakarta REST implementation for client requests. While it is broadly compatible,
+some application servers (e.g., JBoss EAP or WildFly) may require overriding the Jersey dependency in `pom.xml` to
+avoid conflicts.
 
 ## Troubleshooting
 
