@@ -1,4 +1,4 @@
-# Contributing to the Conjur API for Java
+# Contributing to the Secrets Manager API for Java
 
 For general contribution and community guidelines, please see the [community repo](https://github.com/cyberark/community).
 
@@ -16,20 +16,12 @@ To work in this codebase, you will need the latest version of the [Java JDK](htt
 ### Docker
 This project is container-based and therefore, you will need [Docker](https://hub.docker.com/) in order to make and view your changes.
 
-### Access to Conjur Registry (for contributing to testing ONLY)
-To contribute to testing, you will need both the Conjur Open Source and Enterprise. You shouldn't have a problem pulling down the Open Source image, but to pull the Enterprise image, you must be granted access to the Conjur registry.
-
-You will want to get in contact with the Infrastructure team via the [CyberArk Commons](https://discuss.cyberarkcommons.org/) to be granted access. If you have been granted access, run: `docker login registry.tld`.
- 
-_NOTE:_ Your password should be the API key given to you by the Infrastructure team.
- 
-
 ## Building and Testing
 Before making changes, it is recommended that the test script is run first to ensure that Java and the provided dependencies are not out-of-date.
 You can run the test script in your shell like so:
 `./test.sh`
 
-_NOTE:_ The tests (for both Conjur Open Source and Enterprise) are part of the build so if a change is made to the actual API, but the tests fail, the build will also fail.
+_NOTE:_ The tests (for both Conjur OSS and Secrets Manager, Self-Hosted) are part of the build so if a change is made to the actual API, but the tests fail, the build will also fail.
 
 ## Troubleshooting Steps
 This section includes helpful troubleshooting hints to help you navigate the codebase and resolve problems that you might be experiencing during development.
@@ -45,7 +37,7 @@ This section includes helpful troubleshooting hints to help you navigate the cod
     To do so: 
     1. `docker exec` into the test container and run `keytool -list -keystore $JRE_HOME/lib/security/cacerts -alias <IMPORTED_CERT_ALIAS>`. The alias of the certificate can be found in the test script.
         1. If import was successful, the certificate fingerprint (SHA) should be returned.
-    2. Navigate to `https://localhost:<PORT_OF_CONJUR_CONTAINER>` in your browser (make sure the Conjur container is still up and running). 
+    2. Navigate to `https://localhost:<PORT_OF_CONJUR_CONTAINER>` in your browser (make sure the Conjur OSS container is still up and running). 
         1. You can find the exact ports by taking a look at each container's exposed ports in the `docker-compose.yml` file. 
         2. You can keep containers up by commenting out the `finish` function in the test script.
     3. For instructions on how to view certificates in browsers, take a look [here](https://www.globalsign.com/en/blog/how-to-view-ssl-certificate-details/).
