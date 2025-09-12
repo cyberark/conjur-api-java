@@ -1,8 +1,8 @@
-Conjur API for Java
+Secrets Manager API for Java
 ===================
-Programmatic Java access to the Conjur API (for both Conjur Open Source and Enterprise versions).
+Programmatic Java access to the Secrets Manager API (for both Conjur OSS and Secrets Manager, Self-Hosted).
 This Java SDK allows developers to build new apps in Java that communicate with Conjur by
-invoking our Conjur API to perform operations on stored data (add, retrieve, etc).
+invoking our Secrets Manager API to perform operations on stored data (add, retrieve, etc).
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [System Properties](#system-properties)
-- [Set Up Trust Between App and Conjur](#set-up-trust-between-app-and-conjur)
+- [Set Up Trust Between App and Secrets Manager](#set-up-trust-between-app-and-secrets-manager)
   * [Client-level trust](#client-level-trust)
   * [JVM-level trust](#jvm-level-trust)
 - [Authorization Examples](#authorization-examples)
@@ -28,15 +28,15 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
   * [Credentials](#credentials)
   * [Authorization Token](#authorization-token)
 - [Client APIs](#client-apis)
-  * [Conjur Client Instance (`com.cyberark.conjur.api.Conjur`)](#conjur-client-instance---comcyberarkconjurapiconjur--)
-  * [Variables (`client.variables()`)](#variables---clientvariables----)
-    + [`void addSecret(String variableId, String secret)`](#-void-addsecret-string-variableid--string-secret--)
-    + [`String retrieveSecret(String variableId)`](#-string-retrievesecret-string-variableid--)
-- [JAX-RS Implementations](#jax-rs-implementations)
+  * [Secrets Manager Client Instance (`com.cyberark.conjur.api.Conjur`)](#secrets-manager-client-instance-comcyberarkconjurapiconjur)
+  * [Variables (`client.variables()`)](#variables-clientvariables)
+    + [`void addSecret(String variableId, String secret)`](#void-addsecretstring-variableid-string-secret)
+    + [`String retrieveSecret(String variableId)`](#string-retrievesecretstring-variableid)
+- [Jakarta REST JAX-RS Implementations](#jakarta-rest-jax-rs-implementations)
 - [Troubleshooting](#troubleshooting)
-  * [`error: package com.cyberark.conjur does not exist`](#-error--package-comcyberarkconjur-does-not-exist-)
-  * [`java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException`](#-javalangnoclassdeffounderror--javax-xml-bind-jaxbexception-)
-  * [SSL/TLS/Certificate Issues](#ssl-tls-certificate-issues)
+  * [`error: package com.cyberark.conjur does not exist`](#error-package-comcyberarkconjur-does-not-exist)
+  * [`java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException`](#javalangnoclassdeffounderror-javaxxmlbindjaxbexception)
+  * [SSL/TLS/Certificate Issues](#ssltlscertificate-issues)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -46,13 +46,13 @@ invoking our Conjur API to perform operations on stored data (add, retrieve, etc
 
 ## Prerequisites
 
-It is assumed that Conjur (OSS or Enterprise) and the Conjur CLI have already been
+It is assumed that Conjur OSS or Secrets Manager, Self-Hosted and the Secrets Manager CLI have already been
 installed in the environment and running in the background. If you haven't done so,
-follow these instructions for installation of the [OSS](https://docs.conjur.org/Latest/en/Content/OSS/Installation/Install_methods.htm)
-and these for installation of [Enterprise](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/HomeTilesLPs/LP-Tile2.htm).
+follow these instructions for installation of the [OSS](https://docs.cyberark.com/conjur-open-source/latest/en/content/hometileslps/lp-tile2.htm?tocpath=Setup%7C_____0)
+and these for installation of [Secrets Manager, Self-Hosted](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/HomeTilesLPs/LP-Tile2.htm).
 
-Once Conjur and the Conjur CLI are running in the background, you are ready to start
-setting up your Java app to work with our Conjur Java API!
+Once Secrets Manager and the Secrets Manager CLI are running in the background, you are ready to start
+setting up your Java app to work with our Secrets Manager Java API!
 
 ### Using conjur-api-java with Conjur Open Source 
 
@@ -66,7 +66,7 @@ when using integrations, choose the latest suite release that matches your Conju
 questions, please contact us on [Discourse](https://discuss.cyberarkcommons.org/c/conjur/5).
 
 ## Setup
-The Conjur Java API can be imported manually through building the source code locally, 
+The Secrets Manager Java API can be imported manually through building the source code locally, 
 or by using a dependency configuration to import from Maven Central. Please refer to
 the following instructions for your specific use case.
 
@@ -79,7 +79,7 @@ To do so from the source using Maven, following the setup steps below:
 
 1. Create new Maven project using an IDE of your choice
 2. If you are using Maven to manage your project's dependencies, include the following
-   Conjur API dependency snippet in your `pom.xml` under `<project>`/`<dependencies>`:
+   Secrets Manager API dependency snippet in your `pom.xml` under `<project>`/`<dependencies>`:
 
 ```xml
     <dependency>
@@ -100,7 +100,7 @@ Java 8:
   </properties>
 ```
 
-3. Run `mvn install -DskipTests` in this repo's directory to install Conjur API into your
+3. Run `mvn install -DskipTests` in this repo's directory to install Secrets Manager API into your
    local maven repository.
 
 ### Using the Jarfile
@@ -108,13 +108,13 @@ Java 8:
 If generating a JAR is preferred, you can build the library locally and add the dependency
 to the project manually by following the setup steps below:
 
-1. Clone the Conjur Java API repo locally: `git clone {repo}`
+1. Clone the Secrets Manager Java API repo locally: `git clone {repo}`
 2. Go into the cloned repository with `cd conjur-api-java`
 3. Run `mvn package -DskipTests` to generate a JAR file. The output `.jar` files will be located
    in the `target` directory of the repo
 
 _NOTE:_ The above command runs `mvn package` without running the integration tests, since
-these require access to a Conjur instance. You can run the integration tests with mvn package
+these require access to a Secrets Manager instance. You can run the integration tests with mvn package
 once you finish the configuration. For more information on how to run the tests, take a look at
 our [Contributing](https://github.com/cyberark/conjur-api-java/blob/main/CONTRIBUTING.md) guide.
 
@@ -208,13 +208,13 @@ in the version tag.
 
 ### Using Other Dependency Management Configurations
 Please refer to the instructions available on [Maven Central](https://search.maven.org/artifact/com.cyberark.conjur.api/conjur-api) 
-and select a version for specific instructions on including the Conjur Java API in your
+and select a version for specific instructions on including the Secrets Manager Java API in your
 project through Gradle, Kotlin, and more!
 
 ## Configuration
 
 Once the setup steps have been successfully run, we will now define the variables needed
-to make the connection between the new app and Conjur. You can do this by setting
+to make the connection between the new app and Secrets Manager. You can do this by setting
 [environment variables](#environment-variables), [system properties](#system-properties),
 or some combination of both.
 
@@ -223,19 +223,19 @@ variable.
 
 ### Environment Variables
 
-In Conjur (both Open Source and Enterprise), environment variables are mapped to configuration variables
+In Secrets Manager and Conjur OSS, environment variables are mapped to configuration variables
 by prepending `CONJUR_` to the all-caps name of the configuration variable. For example,
 `appliance_url` is `CONJUR_APPLIANCE_URL`, `account` is `CONJUR_ACCOUNT` etc.
 
 The following environment variables need to be included in the app's runtime environment in
-order use the Conjur API if no other configuration is done (e.g. over system properties or
+order use the Secrets Manager API if no other configuration is done (e.g. over system properties or
 CLI parameters):
 
-- `CONJUR_APPLIANCE_URL` - The URL of the Conjur instance you are connecting to. When connecting to
-  Conjur Enterprise configured for high availability, this should be the URL of the master load balancer (if
+- `CONJUR_APPLIANCE_URL` - The URL of the Secrets Manager instance you are connecting to. When connecting to
+  Secrets Manager, Self-Hosted configured for high availability, this should be the URL of the master load balancer (if
   performing read and write operations) or the URL of a follower load balancer (if performing
   read-only operations).
-- `CONJUR_ACCOUNT` - Conjur account that you are connecting to. This value is set during Conjur deployment.
+- `CONJUR_ACCOUNT` - Secrets Manager account that you are connecting to. This value is set during Secrets Manager deployment.
 - `CONJUR_AUTHN_LOGIN` - User/host identity
 - `CONJUR_AUTHN_API_KEY` - User/host API key (or password; see notes on `CONJUR_AUTHN_URL`)
 - `CONJUR_AUTHN_URL` - (optional) Alternate authentication endpoint. By default the client
@@ -262,8 +262,7 @@ $ CONJUR_APPLIANCE_URL=https://conjur.myorg.com/api \
   CONJUR_AUTHN_API_KEY=sb0ncv1yj9c4w2e9pb1a2s \
   java -jar myConjurClient.jar
 ```
-If you are using a host-based user like this example shows, you will need to add the host
-to Conjur with the proper privileges in policy in order to know the appropriate
+If you are using a host-based user like this example shows, you will need to add the host to Secrets Manager with the proper privileges in policy in order to know the appropriate
 `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` values.
 
 ### System Properties
@@ -292,25 +291,25 @@ mvn exec:java \
      -Dexec.mainClass="com.myorg.client.App"
 ```
 
-_NOTE:_ When using properties to configure Conjur APIs, be careful not to persist sensitive
+_NOTE:_ When using properties to configure Secrets Manager APIs, be careful not to persist sensitive
 values (like the API key) in source-controlled property files!
 
-## Set Up Trust Between App and Conjur
+## Set Up Trust Between App and Secrets Manager
 
-By default, the Conjur appliance generates and uses self-signed SSL certificates. Without
-trusting them, your Java app will not be able to connect to the Conjur server over APIs
+By default, the Secrets Manager appliance generates and uses self-signed SSL certificates. Without
+trusting them, your Java app will not be able to connect to the Secrets Manager server over APIs
 and so you will need to configure your app to trust them. You can accomplish this by using
 the [Client-level `SSLContext`](#client--level-trust) when creating the client or with a
-[JVM-level trust](#jvm--level-trust) by loading the Conjur certificate into Java's CA
+[JVM-level trust](#jvm--level-trust) by loading the Secrets Manager certificate into Java's CA
 keystore that holds the list of all the allowed certificates for https connections.
 
 ### Client-level trust
 
-We can set up a trust between the client application and a Conjur server using
+We can set up a trust between the client application and a Secrets Manager server using
 Java `javax.net.ssl.SSLContext`. This can be done from Java code during
-Conjur class initialization.
+Secrets Manager class initialization.
 
-Usable in Kubernetes/OpenShift environment to setup TLS trust with Conjur
+Usable in Kubernetes/OpenShift environment to setup TLS trust with Secrets Manager
 server dynamically from the Kubernetes secret and/or configmap data.
 
 ```java
@@ -333,12 +332,12 @@ conjurSSLContext.init(null, tmf.getTrustManagers(), null);
 
 ### JVM-level trust
 
-For a JVM-level trust between Conjur and the API client, you need to load the Conjur
+For a JVM-level trust between Secrets Manager and the API client, you need to load the Secrets Manager
 certificate into Java's CA keystore that holds the list of all the allowed certificates
 for https connections.
 
 First, we need to get a copy of this certificate, which you can get using `openssl`. Run the
-following step from a terminal with OpenSSL that has access to Conjur:
+following step from a terminal with OpenSSL that has access to Secrets Manager:
 
 ```sh-session
 $ openssl s_client -showcerts -servername myconjurserver.com \
@@ -401,18 +400,18 @@ $ sudo -E keytool -list \
 conjur-default, May 6, 2020, trustedCertEntry,
 ```
 
-There you have it! Now you are all configured to start leveraging the Conjur Java API in
+There you have it! Now you are all configured to start leveraging the Secrets Manager Java API in
 your Java program.
 
 ## Authorization Examples
 
 As mentioned in the [Configuration](#configuration) section, you can provide varying ways
-for your app to authenticate against a Conjur server. Generally environment variables are
+for your app to authenticate against a Secrets Manager server. Generally environment variables are
 most common but this isn't the only way. In addition to explicitly setting these environment
 variables, you can do so by providing [properties](#system-properties), using the Credentials
 object, or by providing an Authorization Token. Once you have chosen from one of the
 patterns below that works for you, you can now create a `Conjur` class instance values to
-access Conjur services and make RESTful API calls.
+access Secrets Manager services and make RESTful API calls.
 
 _Note:_ **As mentioned before, if you use the default `CONJUR_AUTHN_URL` value or your
 `CONJUR_AUTHN_URL` ends with `/authn`, the `CONJUR_AUTHN_API_KEY` is treated as a password
@@ -421,8 +420,8 @@ otherwise `CONJUR_AUTHN_API_KEY` is treated as an API key.**
 ### Environment Variables
 
 ```bash
-export CONJUR_ACCOUNT=<account specified during Conjur setup>
-export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
 export CONJUR_AUTHN_LOGIN=<user/host identity>
 export CONJUR_AUTHN_API_KEY=<user/host API key or password - see notes about `CONJUR_AUTHN_URL`>
 ```
@@ -439,8 +438,8 @@ Conjur conjur = new Conjur(conjurSSLContext);
 
 ```sh-session
 $ java -jar myConjurClient.jar \
-     -DCONJUR_ACCOUNT=<account specified during Conjur setup> \
-     -DCONJUR_APPLIANCE_URL=<Conjur endpoint URL> \
+     -DCONJUR_ACCOUNT=<account specified during Secrets Manager setup> \
+     -DCONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL> \
      -DCONJUR_AUTHN_LOGIN=<user/host identity> \
      -DCONJUR_AUTHN_API_KEY=<user/host API key - see notes about `CONJUR_AUTHN_URL`>
 ```
@@ -457,8 +456,8 @@ Conjur conjur = new Conjur(conjurSSLContext);
 
 ```sh-session
 $ mvn exec:java \
-  -DCONJUR_ACCOUNT=<account specified during Conjur setup> \
-  -DCONJUR_APPLIANCE_URL=<Conjur endpoint URL> \
+  -DCONJUR_ACCOUNT=<account specified during Secrets Manager setup> \
+  -DCONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL> \
   -DCONJUR_AUTHN_LOGIN=<user/host identity> \
   -DCONJUR_AUTHN_API_KEY=<user/host API key - see notes about `CONJUR_AUTHN_URL`> \
   -Dexec.mainClass="com.myorg.client.App"
@@ -475,8 +474,8 @@ Conjur conjur = new Conjur(conjurSSLContext);
 ### Username and Password
 
 ```bash
-export CONJUR_ACCOUNT=<account specified during Conjur setup>
-export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
 ```
 
 ```java
@@ -494,8 +493,8 @@ Conjur conjur = new Conjur('username', 'password-or-api-key', conjurSSLContext);
 ### Credentials
 
 ```bash
-export CONJUR_ACCOUNT=<account specified during Conjur setup>
-export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
 ```
 
 ```java
@@ -513,8 +512,8 @@ Conjur conjur = new Conjur(credentials, conjurSSLContext);
 ### Authorization Token
 
 ```bash
-export CONJUR_ACCOUNT=<account specified during Conjur setup>
-export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
 # Optional path for non-standard authenticators (e.g. `$CONJUR_APPLIANCE_URL/authn-k8s/myauthenticator`)
 # export CONJUR_AUTHN_URL="<authenticator authn url>"
 ```
@@ -531,8 +530,8 @@ Conjur conjur = new Conjur(token, conjurSSLContext);
 
 Alternatively, use the `CONJUR_AUTHN_TOKEN_FILE` environment variable:
 ```bash
-export CONJUR_ACCOUNT=<account specified during Conjur setup>
-export CONJUR_APPLIANCE_URL=<Conjur endpoint URL>
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
 # Optional path for non-standard authenticators (e.g. `$CONJUR_APPLIANCE_URL/authn-k8s/myauthenticator`)
 # export CONJUR_AUTHN_URL="<authenticator authn url>"
 export CONJUR_AUTHN_TOKEN_FILE="path/to/conjur/authentication/token.json"
@@ -550,10 +549,10 @@ Conjur conjur = new Conjur(token, conjurSSLContext);
 ## Client APIs
 
 To use the client, you will first create an instance of the client and then call methods
-to send requests to the Conjur API. The most common use case is adding and retrieving
-a secret from Conjur, so we provide some sample code for this use case below.
+to send requests to the Secrets Manager API. The most common use case is adding and retrieving
+a secret from Secrets Manager, so we provide some sample code for this use case below.
 
-### Conjur Client Instance (`com.cyberark.conjur.api.Conjur`)
+### Secrets Manager Client Instance (`com.cyberark.conjur.api.Conjur`)
 
 The client can be instantiated with any of these methods:
 ```java
@@ -587,7 +586,7 @@ Conjur conjur = new Conjur();
 conjur.variables().addSecret(VARIABLE_ID, VARIABLE_VALUE);
 ```
 
-_NOTE:_ For a variable to be set, it first needs to be created by a policy in Conjur
+_NOTE:_ For a variable to be set, it first needs to be created by a policy in Secrets Manager
 otherwise this operation will fail. To do so, you will need a policy that resembles
 the one supplied in the [Configuration](#configuration) section above.
 
@@ -604,11 +603,11 @@ String secret = conjur.variables().retrieveSecret("<VARIABLE_ID>");
 ```
 
 ## Jakarta REST (JAX-RS) Implementations
-The Conjur API client uses the Jakarta REST (formerly JAX-RS) standard to make requests to the Conjur web services.
+The Secrets Manager API client uses the Jakarta REST (formerly JAX-RS) standard to make requests to the Secrets Manager web services.
 It is compatible with Jakarta EE environments and may not work in Java EE environments that still use the
 older javax.ws.rs packages.
 
-Conjur API uses Jersey as the default Jakarta REST implementation for client requests. While it is broadly compatible,
+Secrets Manager API uses Jersey as the default Jakarta REST implementation for client requests. While it is broadly compatible,
 some application servers (e.g., JBoss EAP or WildFly) may require overriding the Jersey dependency in `pom.xml` to
 avoid conflicts.
 
@@ -616,7 +615,7 @@ avoid conflicts.
 
 ### `error: package com.cyberark.conjur does not exist`
 
-This is caused by Maven's (or your dependency resolution tooling) inability to find Conjur
+This is caused by Maven's (or your dependency resolution tooling) inability to find Secrets Manager
 APIs. Please ensure that you have followed the [setup](#setup) section to properly install
 this as a dependency.
 
@@ -634,7 +633,7 @@ to work around this:
 
 ### SSL/TLS/Certificate Issues
 
-If you don't properly install the Conjur certificate into the Java keystore, you may encounter
+If you don't properly install the Secrets Manager certificate into the Java keystore, you may encounter
 the folowing errors:
 - `org.apache.cxf.interceptor.Fault: Could not send Message.`
 - `jakarta.ws.rs.ProcessingException: javax.net.ssl.SSLHandshakeException: SSLHandshakeException`
@@ -644,7 +643,7 @@ the folowing errors:
 - `sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target`
 
 If you encounter these errors, please ensure that you have followed [this section](#set-up-trust-between-app-and-conjur)
-on how to install Conjur's SSL cetificate into your Java keystore correctly. You should also
+on how to install Secrets Manager's SSL cetificate into your Java keystore correctly. You should also
 ensure that the SSL certificate was added to the correct `cacerts` file if you have multiple
 JDKs/JREs installed.
 
