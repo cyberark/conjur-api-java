@@ -126,7 +126,7 @@ function runDapTests() {
   -e CONJUR_AUTHN_API_KEY=${api_key_admin} \
   -e CONJUR_AUTHN_LOGIN="admin" \
   ${dap_test_cid} \
-    mvn test
+    bash -c "mvn test && mvn jacoco:report"
 }
 
 function runOssTests() {
@@ -143,7 +143,7 @@ function runOssTests() {
     -e CONJUR_AUTHN_LOGIN="admin" \
     -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
     test \
-      bash -c "mvn test"
+      bash -c "mvn test && mvn jacoco:report"
 }
 
 function runOssHttpsTests() {
@@ -160,25 +160,25 @@ function runOssHttpsTests() {
   echo 'user alice api key = ' ${api_key_alice}
   echo 'host myapp api key = ' ${api_key_myapp}
   conjur_test_cid=$(docker compose ps -q test-https)
-  tests_command="mvn test"
+  tests_command="mvn test && mvn jacoco:report"
 
   echo "Running https tests with admin credentials"
   docker exec \
   -e CONJUR_AUTHN_LOGIN="admin" \
   -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
-  ${conjur_test_cid} ${tests_command}
+  ${conjur_test_cid} bash -c "${tests_command}"
 
   echo "Running https tests with user credentials"
   docker exec \
   -e CONJUR_AUTHN_LOGIN="alice@test" \
   -e CONJUR_AUTHN_API_KEY="$api_key_alice" \
-  ${conjur_test_cid} ${tests_command}
+  ${conjur_test_cid} bash -c "${tests_command}"
 
   echo "Running https tests with host credentials"
   docker exec \
   -e CONJUR_AUTHN_LOGIN="host/test/myapp" \
   -e CONJUR_AUTHN_API_KEY="$api_key_myapp" \
-  ${conjur_test_cid} ${tests_command}
+  ${conjur_test_cid} bash -c "${tests_command}"
 }
 
 main

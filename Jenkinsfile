@@ -148,6 +148,11 @@ pipeline {
         script {
           lock("api-java-${env.NODE_NAME}") {
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
+
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'jacoco', includes: 'target/site/jacoco/jacoco.xml'
+            unstash 'jacoco'
+            codacy action: 'reportCoverage', filePath: "target/site/jacoco/jacoco.xml"
+
             INFRAPOOL_EXECUTORV2_AGENT_0.agentStash includes: 'target/surefire-reports/*.xml', name: "test-results"
             unstash 'test-results'
           }
@@ -178,6 +183,9 @@ pipeline {
   post {
     always {
       releaseInfraPoolAgent(".infrapool/release_agents")
+      // Resolve ownership issue before running infra post hook
+      sh 'git config --global --add safe.directory ${PWD}'
+      infraPostHook()
     }
   }
 }
