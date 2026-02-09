@@ -6,10 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [3.1.2] - 2025-11-12
+## [3.1.2] - 2026-02-09
 
 ### Added
 - Added JaCoCo plugin for code coverage reporting
+
+### Changed
+- Updated to JDK 25
 
 ## [3.1.1] - 2025-09-11
 

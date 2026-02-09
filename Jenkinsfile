@@ -139,10 +139,10 @@ pipeline {
       }
     }
 
-    stage('Run tests and archive results (JDK23)') {
+    stage('Run tests and archive results (JDK25)') {
       environment {
         INFRAPOOL_REGISTRY_URL = "registry.tld"
-        INFRAPOOL_JDK_VERSION = "23"
+        INFRAPOOL_JDK_VERSION = "25"
       }
       steps {
         script {

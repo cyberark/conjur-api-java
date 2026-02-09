@@ -1,6 +1,6 @@
 FROM nginx:latest
 
-MAINTAINER Conjur Inc
+LABEL org.opencontainers.image.authors="CyberArk Software Ltd."
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
