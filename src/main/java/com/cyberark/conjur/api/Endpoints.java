@@ -15,6 +15,7 @@ import java.net.URI;
  *   <li>Authentication: {@code {applianceUrl}/authn/{account}}</li>
  *   <li>Secrets (single): {@code {applianceUrl}/secrets/{account}/variable}</li>
  *   <li>Secrets (batch): {@code {applianceUrl}/secrets}</li>
+ *   <li>Resources: {@code {applianceUrl}/resources/{account}}</li>
  * </ul>
  *
  * <p>For non-standard authenticators (LDAP, OIDC, etc.), supply a custom authn URL.</p>
@@ -68,6 +69,15 @@ public class Endpoints implements Serializable {
      */
     public URI getBatchSecretsUri() {
         return URI.create(applianceUrl + "/secrets");
+    }
+
+    /**
+     * Returns the URI for listing resources: {@code {applianceUrl}/resources/{account}}
+     *
+     * @return the resources URI
+     */
+    public URI getResourcesUri() {
+        return URI.create(String.format("%s/resources/%s", applianceUrl, account));
     }
 
     /**

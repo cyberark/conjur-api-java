@@ -10,12 +10,15 @@ import jakarta.ws.rs.core.Response;
 
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import com.cyberark.conjur.api.ConjurResource;
 import com.cyberark.conjur.api.Configuration;
 import com.cyberark.conjur.api.Credentials;
 import com.cyberark.conjur.api.Endpoints;
@@ -31,6 +34,8 @@ public class ResourceClient implements ResourceProvider {
 
     private static final Type MAP_STRING_STRING_TYPE =
             new TypeToken<Map<String, String>>(){}.getType();
+    private static final Type LIST_RESOURCE_TYPE =
+            new TypeToken<List<ConjurResource>>(){}.getType();
     private static final Gson GSON = new Gson();
 
     private Client client;
@@ -138,6 +143,109 @@ public class ResourceClient implements ResourceProvider {
             }
         }
         return result;
+    }
+
+    /**
+     * List all resources visible to the authenticated identity.
+     *
+     * @return list of all resources
+     * @see <a href="https://docs.cyberark.com/conjur-open-source/latest/en/content/developer/conjur_api_list_resources.htm">List Resources</a>
+     */
+    @Override
+    public List<ConjurResource> listResources() {
+        return listResources(null, null, null, null);
+    }
+
+    /**
+     * List resources filtered by kind.
+     *
+     * @param kind the resource kind (e.g. "variable", "host", "user", "group", "layer", "policy", "webservice")
+     * @return resources matching the given kind
+     */
+    @Override
+    public List<ConjurResource> listResources(String kind) {
+        return listResources(kind, null, null, null);
+    }
+
+    /**
+     * List resources with full query parameter control.
+     *
+     * @param kind   resource kind filter (null for all kinds)
+     * @param search text search filter (null for no search)
+     * @param limit  max results per page (null for server default, max 1000)
+     * @param offset pagination offset (null for no offset)
+     * @return resources matching the query
+     * @throws WebApplicationException if the server returns an error response
+     */
+    @Override
+    public List<ConjurResource> listResources(String kind, String search, Integer limit, Integer offset) {
+        URI resourcesUri = endpoints.getResourcesUri();
+        StringBuilder uriBuilder = new StringBuilder(resourcesUri.toString());
+        String separator = "?";
+
+        if (kind != null && !kind.isEmpty()) {
+            uriBuilder.append(separator).append("kind=").append(encodeVariableId(kind));
+            separator = "&";
+        }
+        if (search != null && !search.isEmpty()) {
+            uriBuilder.append(separator).append("search=").append(encodeVariableId(search));
+            separator = "&";
+        }
+        if (limit != null) {
+            uriBuilder.append(separator).append("limit=").append(limit);
+            separator = "&";
+        }
+        if (offset != null) {
+            uriBuilder.append(separator).append("offset=").append(offset);
+        }
+
+        URI targetUri = URI.create(uriBuilder.toString());
+        Response response = client.target(targetUri).request().get(Response.class);
+        validateResponse(response);
+
+        String json = response.readEntity(String.class);
+        List<ConjurResource> resources = GSON.fromJson(json, LIST_RESOURCE_TYPE);
+        return resources != null ? resources : Collections.<ConjurResource>emptyList();
+    }
+
+    /**
+     * Count resources visible to the authenticated identity.
+     *
+     * @param kind   resource kind filter (null for all kinds)
+     * @param search text search filter (null for no search)
+     * @return the number of matching resources
+     * @throws WebApplicationException if the server returns an error response
+     */
+    @Override
+    public int countResources(String kind, String search) {
+        URI resourcesUri = endpoints.getResourcesUri();
+        StringBuilder uriBuilder = new StringBuilder(resourcesUri.toString());
+        uriBuilder.append("?count=true");
+
+        if (kind != null && !kind.isEmpty()) {
+            uriBuilder.append("&kind=").append(encodeVariableId(kind));
+        }
+        if (search != null && !search.isEmpty()) {
+            uriBuilder.append("&search=").append(encodeVariableId(search));
+        }
+
+        URI targetUri = URI.create(uriBuilder.toString());
+        Response response = client.target(targetUri).request().get(Response.class);
+        validateResponse(response);
+
+        String body = response.readEntity(String.class).trim();
+
+        // The server may return a plain integer or a JSON object like {"count":N}
+        if (body.startsWith("{")) {
+            @SuppressWarnings("unchecked")
+            Map<String, Double> parsed = GSON.fromJson(body, Map.class);
+            Double count = parsed.get("count");
+            if (count == null) {
+                throw new IllegalStateException("Unexpected count response: " + body);
+            }
+            return count.intValue();
+        }
+        return Integer.parseInt(body);
     }
 
     /**
