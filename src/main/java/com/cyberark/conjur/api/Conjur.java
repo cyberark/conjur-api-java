@@ -1,6 +1,7 @@
 package com.cyberark.conjur.api;
 
 import javax.net.ssl.SSLContext;
+import java.util.Map;
 
 /**
  * Entry point for the Conjur API client.
@@ -104,5 +105,15 @@ public class Conjur {
      */
     public Variables variables() {
         return variables;
+    }
+
+    /**
+     * Fetch multiple secret values in one invocation.
+     *
+     * @param variableIds the variable IDs to retrieve
+     * @return a map of variable ID to secret value
+     */
+    public Map<String, String> retrieveBatchSecrets(String... variableIds) {
+        return variables.retrieveBatchSecrets(variableIds);
     }
 }
