@@ -23,6 +23,8 @@ import com.cyberark.conjur.api.Configuration;
 import com.cyberark.conjur.api.Credentials;
 import com.cyberark.conjur.api.Endpoints;
 import com.cyberark.conjur.api.ResourceProvider;
+import com.cyberark.conjur.api.ResourceQuery;
+import com.cyberark.conjur.api.ResourcesProvider;
 import com.cyberark.conjur.api.Token;
 import com.cyberark.conjur.util.EncodeUriComponent;
 import com.cyberark.conjur.util.rs.TokenAuthFilter;
@@ -30,7 +32,7 @@ import com.cyberark.conjur.util.rs.TokenAuthFilter;
 /**
  * Conjur service client.
  */
-public class ResourceClient implements ResourceProvider {
+public class ResourceClient implements ResourceProvider, ResourcesProvider {
 
     private static final Type MAP_STRING_STRING_TYPE =
             new TypeToken<Map<String, String>>(){}.getType();
@@ -77,18 +79,20 @@ public class ResourceClient implements ResourceProvider {
 
     @Override
     public String retrieveSecret(String variableId) {
-        Response response = secrets.path(encodeVariableId(variableId))
-          .request().get(Response.class);
-        validateResponse(response);
+        try (Response response = secrets.path(encodeVariableId(variableId))
+                .request().get(Response.class)) {
+            validateResponse(response);
 
-        return response.readEntity(String.class);
+            return response.readEntity(String.class);
+        }
     }
 
     @Override
     public void addSecret(String variableId, String secret) {
-        Response response = secrets.path(encodeVariableId(variableId)).request()
-          .post(Entity.text(secret), Response.class);
-        validateResponse(response);
+        try (Response response = secrets.path(encodeVariableId(variableId)).request()
+                .post(Entity.text(secret), Response.class)) {
+            validateResponse(response);
+        }
     }
 
     /**
@@ -100,8 +104,6 @@ public class ResourceClient implements ResourceProvider {
      *
      * @param variableIds the variable IDs to retrieve (without account/kind prefix)
      * @return a map of variable ID (as passed by caller) to secret value
-     * @throws IllegalArgumentException if no variable IDs are provided or account is not configured
-     * @throws WebApplicationException if the server returns an error response
      * @see <a href="https://docs.cyberark.com/conjur-open-source/latest/en/content/developer/conjur_api_batch_retrieve.htm">Batch Secret Retrieval</a>
      */
     @Override
@@ -111,9 +113,7 @@ public class ResourceClient implements ResourceProvider {
         }
 
         String account = endpoints.getAccount();
-        if (account == null || account.isEmpty()) {
-            throw new IllegalArgumentException("Account is not configured in Endpoints");
-        }
+        URI batchBaseUri = endpoints.getBatchSecretsUri();
 
         // Build the comma-delimited fully-qualified variable IDs for the query parameter.
         // Format: {account}:variable:{encoded_id1},{account}:variable:{encoded_id2}
@@ -122,130 +122,79 @@ public class ResourceClient implements ResourceProvider {
         String queryValue = buildBatchQueryParam(account, variableIds);
 
         // Build the full URI manually to avoid double-encoding by JAX-RS queryParam()
-        URI batchUri = URI.create(endpoints.getBatchSecretsUri().toString()
+        URI batchUri = URI.create(batchBaseUri.toString()
                 + "?variable_ids=" + queryValue);
 
-        Response response = client.target(batchUri).request().get(Response.class);
-        validateResponse(response);
+        try (Response response = client.target(batchUri).request().get(Response.class)) {
+            validateResponse(response);
 
-        String json = response.readEntity(String.class);
-        Map<String, String> raw = GSON.fromJson(json, MAP_STRING_STRING_TYPE);
-
-        // Map fully-qualified IDs back to the caller's variable IDs
-        String prefix = account + ":variable:";
-        Map<String, String> result = new LinkedHashMap<String, String>();
-        for (Map.Entry<String, String> entry : raw.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(prefix)) {
-                result.put(key.substring(prefix.length()), entry.getValue());
-            } else {
-                result.put(key, entry.getValue());
+            String json = response.readEntity(String.class);
+            Map<String, String> raw = GSON.fromJson(json, MAP_STRING_STRING_TYPE);
+            if (raw == null || raw.isEmpty()) {
+                return Collections.emptyMap();
             }
+
+            // Map fully-qualified IDs back to the caller's variable IDs
+            String prefix = account + ":variable:";
+            Map<String, String> result = new LinkedHashMap<>();
+            for (Map.Entry<String, String> entry : raw.entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith(prefix)) {
+                    result.put(key.substring(prefix.length()), entry.getValue());
+                } else {
+                    result.put(key, entry.getValue());
+                }
+            }
+            return result;
         }
-        return result;
     }
 
     /**
-     * List all resources visible to the authenticated identity.
+     * List resources using the provided query parameters.
      *
-     * @return list of all resources
-     * @see <a href="https://docs.cyberark.com/conjur-open-source/latest/en/content/developer/conjur_api_list_resources.htm">List Resources</a>
-     */
-    @Override
-    public List<ConjurResource> listResources() {
-        return listResources(null, null, null, null);
-    }
-
-    /**
-     * List resources filtered by kind.
-     *
-     * @param kind the resource kind (e.g. "variable", "host", "user", "group", "layer", "policy", "webservice")
-     * @return resources matching the given kind
-     */
-    @Override
-    public List<ConjurResource> listResources(String kind) {
-        return listResources(kind, null, null, null);
-    }
-
-    /**
-     * List resources with full query parameter control.
-     *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
-     * @param limit  max results per page (null for server default, max 1000)
-     * @param offset pagination offset (null for no offset)
+     * @param query resource query parameters (nullable for no filters)
      * @return resources matching the query
      * @throws WebApplicationException if the server returns an error response
      */
     @Override
-    public List<ConjurResource> listResources(String kind, String search, Integer limit, Integer offset) {
-        URI resourcesUri = endpoints.getResourcesUri();
-        StringBuilder uriBuilder = new StringBuilder(resourcesUri.toString());
-        String separator = "?";
+    public List<ConjurResource> listResources(ResourceQuery query) {
+        URI targetUri = ResourceQueryMapper.toListUri(endpoints.getResourcesUri(), query);
+        try (Response response = client.target(targetUri).request().get(Response.class)) {
+            validateResponse(response);
 
-        if (kind != null && !kind.isEmpty()) {
-            uriBuilder.append(separator).append("kind=").append(encodeVariableId(kind));
-            separator = "&";
+            String json = response.readEntity(String.class);
+            List<ConjurResource> resources = GSON.fromJson(json, LIST_RESOURCE_TYPE);
+            return resources != null ? resources : Collections.<ConjurResource>emptyList();
         }
-        if (search != null && !search.isEmpty()) {
-            uriBuilder.append(separator).append("search=").append(encodeVariableId(search));
-            separator = "&";
-        }
-        if (limit != null) {
-            uriBuilder.append(separator).append("limit=").append(limit);
-            separator = "&";
-        }
-        if (offset != null) {
-            uriBuilder.append(separator).append("offset=").append(offset);
-        }
-
-        URI targetUri = URI.create(uriBuilder.toString());
-        Response response = client.target(targetUri).request().get(Response.class);
-        validateResponse(response);
-
-        String json = response.readEntity(String.class);
-        List<ConjurResource> resources = GSON.fromJson(json, LIST_RESOURCE_TYPE);
-        return resources != null ? resources : Collections.<ConjurResource>emptyList();
     }
 
     /**
-     * Count resources visible to the authenticated identity.
+     * Count resources using the provided query parameters.
      *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
+     * @param query resource query parameters (nullable for no filters)
      * @return the number of matching resources
      * @throws WebApplicationException if the server returns an error response
      */
     @Override
-    public int countResources(String kind, String search) {
-        URI resourcesUri = endpoints.getResourcesUri();
-        StringBuilder uriBuilder = new StringBuilder(resourcesUri.toString());
-        uriBuilder.append("?count=true");
+    public int countResources(ResourceQuery query) {
+        URI targetUri = ResourceQueryMapper.toCountUri(endpoints.getResourcesUri(), query);
+        try (Response response = client.target(targetUri).request().get(Response.class)) {
+            validateResponse(response);
 
-        if (kind != null && !kind.isEmpty()) {
-            uriBuilder.append("&kind=").append(encodeVariableId(kind));
-        }
-        if (search != null && !search.isEmpty()) {
-            uriBuilder.append("&search=").append(encodeVariableId(search));
-        }
+            String body = response.readEntity(String.class).trim();
 
-        URI targetUri = URI.create(uriBuilder.toString());
-        Response response = client.target(targetUri).request().get(Response.class);
-        validateResponse(response);
-
-        String body = response.readEntity(String.class).trim();
-
-        // The server may return a plain integer or a JSON object like {"count":N}
-        if (body.startsWith("{")) {
-            @SuppressWarnings("unchecked")
-            Map<String, Double> parsed = GSON.fromJson(body, Map.class);
-            Double count = parsed.get("count");
-            if (count == null) {
-                throw new IllegalStateException("Unexpected count response: " + body);
+            // The server may return a plain integer or a JSON object like {"count":N}
+            if (body.startsWith("{")) {
+                @SuppressWarnings("unchecked")
+                Map<String, Double> parsed = GSON.fromJson(body, Map.class);
+                Double count = parsed.get("count");
+                if (count == null) {
+                    throw new IllegalStateException("Unexpected count response: " + body);
+                }
+                return count.intValue();
             }
-            return count.intValue();
+            return Integer.parseInt(body);
         }
-        return Integer.parseInt(body);
     }
 
     /**
@@ -257,10 +206,11 @@ public class ResourceClient implements ResourceProvider {
         for (int i = 0; i < variableIds.length; i++) {
             if (i > 0) sb.append(",");
             sb.append(account).append(":variable:")
-              .append(encodeVariableId(variableIds[i]));
+                    .append(encodeVariableId(variableIds[i]));
         }
         return sb.toString();
     }
+
 
     // The "encodeUriComponent" method encodes plus signs into %2B and spaces
     // into '+'. However, our server decodes plus signs into plus signs in the
@@ -278,9 +228,9 @@ public class ResourceClient implements ResourceProvider {
         Configuration config = new Configuration();
 
         ClientBuilder builder = ClientBuilder.newBuilder()
-            .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)))
-            .register(new TelemetryHeaderFilter(config)); // Register TelemetryHeaderFilter
-                
+                .register(new TokenAuthFilter(new AuthnClient(credentials, endpoints, sslContext)))
+                .register(new TelemetryHeaderFilter(config)); // Register TelemetryHeaderFilter
+
         if(sslContext != null) {
             builder.sslContext(sslContext);
         }

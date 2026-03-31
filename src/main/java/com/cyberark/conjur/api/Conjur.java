@@ -1,15 +1,16 @@
 package com.cyberark.conjur.api;
 
+import com.cyberark.conjur.api.clients.ResourceClient;
+
 import javax.net.ssl.SSLContext;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Entry point for the Conjur API client.
  */
 public class Conjur {
 
-    private Variables variables;
+    private final Variables variables;
+    private final Resources resources;
 
     /**
      * Create a Conjur instance that uses credentials from the system properties
@@ -80,7 +81,7 @@ public class Conjur {
      * @param sslContext the {@link SSLContext} to use for connections to Conjur server
      */
     public Conjur(Credentials credentials, SSLContext sslContext) {
-        variables = new Variables(credentials, sslContext);
+        this(new ResourceClient(credentials, Endpoints.fromCredentials(credentials), sslContext));
     }
 
     /**
@@ -97,7 +98,12 @@ public class Conjur {
      * @param sslContext the {@link SSLContext} to use for connections to Conjur server
      */
     public Conjur(Token token, SSLContext sslContext) {
-        variables = new Variables(token, sslContext);
+        this(new ResourceClient(token, Endpoints.fromSystemProperties(), sslContext));
+    }
+
+    Conjur(ResourceClient resourceClient) {
+        variables = new Variables(resourceClient);
+        resources = new Resources(resourceClient);
     }
 
     /**
@@ -109,55 +115,10 @@ public class Conjur {
     }
 
     /**
-     * Fetch multiple secret values in one invocation.
-     *
-     * @param variableIds the variable IDs to retrieve
-     * @return a map of variable ID to secret value
+     * Get a Resources instance configured with the same parameters as this instance.
+     * @return the resources instance
      */
-    public Map<String, String> retrieveBatchSecrets(String... variableIds) {
-        return variables.retrieveBatchSecrets(variableIds);
-    }
-
-    /**
-     * List all resources visible to the authenticated identity.
-     *
-     * @return list of all resources
-     */
-    public List<ConjurResource> listResources() {
-        return variables.listResources();
-    }
-
-    /**
-     * List resources filtered by kind.
-     *
-     * @param kind the resource kind (e.g. "variable", "host")
-     * @return resources matching the given kind
-     */
-    public List<ConjurResource> listResources(String kind) {
-        return variables.listResources(kind);
-    }
-
-    /**
-     * List resources with full query parameter control.
-     *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
-     * @param limit  max results (null for server default)
-     * @param offset pagination offset (null for no offset)
-     * @return resources matching the query
-     */
-    public List<ConjurResource> listResources(String kind, String search, Integer limit, Integer offset) {
-        return variables.listResources(kind, search, limit, offset);
-    }
-
-    /**
-     * Count resources visible to the authenticated identity.
-     *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
-     * @return the number of matching resources
-     */
-    public int countResources(String kind, String search) {
-        return variables.countResources(kind, search);
+    public Resources resources() {
+        return resources;
     }
 }

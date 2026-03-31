@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Batch secret retrieval API support [cyberark/conjur-api-java#126](https://github.com/cyberark/conjur-api-java/issues/126)
+- List resources API support [cyberark/conjur-api-java#128](https://github.com/cyberark/conjur-api-java/issues/128)
+
 ## [3.1.2] - 2026-02-09
 
 ### Added

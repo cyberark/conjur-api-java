@@ -15,17 +15,23 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.cyberark.conjur.api.ConjurResource;
 import com.cyberark.conjur.api.Endpoints;
+import com.cyberark.conjur.api.ResourceQuery;
 
 /**
  * Unit tests for {@link ResourceClient}, particularly the batch secret retrieval feature.
  * Uses Mockito to mock the JAX-RS client stack so no Conjur server is needed.
  */
 public class ResourceClientTest {
+
+    private static final String ACCOUNT_PROPERTY = "CONJUR_ACCOUNT";
+    private static final String APPLIANCE_URL_PROPERTY = "CONJUR_APPLIANCE_URL";
+    private static final String AUTHN_URL_PROPERTY = "CONJUR_AUTHN_URL";
 
     private Client mockClient;
     private WebTarget mockSecrets;
@@ -47,7 +53,11 @@ public class ResourceClientTest {
         mockClient = mock(Client.class);
         mockSecrets = mock(WebTarget.class);
 
-        endpoints = new Endpoints("https://conjur.example.com", "myaccount");
+        System.setProperty(ACCOUNT_PROPERTY, "myaccount");
+        System.setProperty(APPLIANCE_URL_PROPERTY, "https://conjur.example.com");
+        System.setProperty(AUTHN_URL_PROPERTY, "https://conjur.example.com/authn");
+
+        endpoints = Endpoints.fromSystemProperties();
 
         // Batch request mock chain
         mockBatchTarget = mock(WebTarget.class);
@@ -65,6 +75,13 @@ public class ResourceClientTest {
         when(mockPathTarget.request()).thenReturn(mockSingleBuilder);
 
         resourceClient = new ResourceClient(mockClient, mockSecrets, endpoints);
+    }
+
+    @AfterEach
+    void clearSystemProperties() {
+        System.clearProperty(ACCOUNT_PROPERTY);
+        System.clearProperty(APPLIANCE_URL_PROPERTY);
+        System.clearProperty(AUTHN_URL_PROPERTY);
     }
 
     // ========================================================================
@@ -87,24 +104,24 @@ public class ResourceClientTest {
 
             // Verify correct URI was built
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals(
-                    "https://conjur.example.com/secrets?variable_ids=myaccount:variable:db-password"
-                )
+                    uri.toString().equals(
+                            "https://conjur.example.com/secrets?variable_ids=myaccount:variable:db-password"
+                    )
             ));
         }
 
         @Test
         void multipleVariables() {
             String json = "{"
-                + "\"myaccount:variable:secret1\": \"value1\","
-                + "\"myaccount:variable:secret2\": \"value2\","
-                + "\"myaccount:variable:secret3\": \"value3\""
-                + "}";
+                    + "\"myaccount:variable:secret1\": \"value1\","
+                    + "\"myaccount:variable:secret2\": \"value2\","
+                    + "\"myaccount:variable:secret3\": \"value3\""
+                    + "}";
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(json);
 
             Map<String, String> result = resourceClient.retrieveBatchSecrets(
-                "secret1", "secret2", "secret3");
+                    "secret1", "secret2", "secret3");
 
             assertEquals(3, result.size());
             assertEquals("value1", result.get("secret1"));
@@ -126,7 +143,7 @@ public class ResourceClientTest {
 
             // Verify slashes were percent-encoded in the request URI
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().contains("prod%2Faws%2Fdb-password")
+                    uri.toString().contains("prod%2Faws%2Fdb-password")
             ));
         }
 
@@ -134,15 +151,15 @@ public class ResourceClientTest {
         void variableWithSpecialCharacters() {
             // @ encoded to %40, + encoded to %2B, & encoded to %26
             String json = "{"
-                + "\"myaccount:variable:alice@devops\": \"val1\","
-                + "\"myaccount:variable:research+development\": \"val2\","
-                + "\"myaccount:variable:sales&marketing\": \"val3\""
-                + "}";
+                    + "\"myaccount:variable:alice@devops\": \"val1\","
+                    + "\"myaccount:variable:research+development\": \"val2\","
+                    + "\"myaccount:variable:sales&marketing\": \"val3\""
+                    + "}";
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(json);
 
             Map<String, String> result = resourceClient.retrieveBatchSecrets(
-                "alice@devops", "research+development", "sales&marketing");
+                    "alice@devops", "research+development", "sales&marketing");
 
             assertEquals(3, result.size());
             assertEquals("val1", result.get("alice@devops"));
@@ -153,8 +170,8 @@ public class ResourceClientTest {
             verify(mockClient).target(argThat((URI uri) -> {
                 String s = uri.toString();
                 return s.contains("alice%40devops")
-                    && s.contains("research%2Bdevelopment")
-                    && s.contains("sales%26marketing");
+                        && s.contains("research%2Bdevelopment")
+                        && s.contains("sales%26marketing");
             }));
         }
 
@@ -171,8 +188,8 @@ public class ResourceClientTest {
 
             // Spaces should be encoded as %20 (not +)
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().contains("my%20secret")
-                && !uri.toString().contains("my+secret")
+                    uri.toString().contains("my%20secret")
+                            && !uri.toString().contains("my+secret")
             ));
         }
 
@@ -182,7 +199,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Variable not found");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.retrieveBatchSecrets("nonexistent"));
+                    () -> resourceClient.retrieveBatchSecrets("nonexistent"));
 
             assertTrue(ex.getMessage().contains("404"));
         }
@@ -193,7 +210,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Forbidden");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.retrieveBatchSecrets("forbidden-secret"));
+                    () -> resourceClient.retrieveBatchSecrets("forbidden-secret"));
 
             assertTrue(ex.getMessage().contains("403"));
         }
@@ -204,7 +221,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Unauthorized");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.retrieveBatchSecrets("some-secret"));
+                    () -> resourceClient.retrieveBatchSecrets("some-secret"));
 
             assertTrue(ex.getMessage().contains("401"));
         }
@@ -215,7 +232,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Missing parameter");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.retrieveBatchSecrets("bad-request"));
+                    () -> resourceClient.retrieveBatchSecrets("bad-request"));
 
             assertTrue(ex.getMessage().contains("422"));
         }
@@ -223,30 +240,39 @@ public class ResourceClientTest {
         @Test
         void nullVariableIdsThrowsException() {
             assertThrows(IllegalArgumentException.class,
-                () -> resourceClient.retrieveBatchSecrets((String[]) null));
+                    () -> resourceClient.retrieveBatchSecrets((String[]) null));
         }
 
         @Test
         void emptyVariableIdsThrowsException() {
             assertThrows(IllegalArgumentException.class,
-                () -> resourceClient.retrieveBatchSecrets(new String[0]));
+                    () -> resourceClient.retrieveBatchSecrets(new String[0]));
         }
 
+        @Test
+        void nullJsonBodyReturnsEmptyMap() {
+            when(mockBatchResponse.getStatus()).thenReturn(200);
+            when(mockBatchResponse.readEntity(String.class)).thenReturn("null");
 
+            Map<String, String> result = resourceClient.retrieveBatchSecrets("db-password");
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
 
         @Test
         void preservesResponseOrder() {
             // Verify that the result map preserves insertion order (LinkedHashMap)
             String json = "{"
-                + "\"myaccount:variable:zebra\": \"z\","
-                + "\"myaccount:variable:alpha\": \"a\","
-                + "\"myaccount:variable:middle\": \"m\""
-                + "}";
+                    + "\"myaccount:variable:zebra\": \"z\","
+                    + "\"myaccount:variable:alpha\": \"a\","
+                    + "\"myaccount:variable:middle\": \"m\""
+                    + "}";
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(json);
 
             Map<String, String> result = resourceClient.retrieveBatchSecrets(
-                "zebra", "alpha", "middle");
+                    "zebra", "alpha", "middle");
 
             // Verify all values present
             assertEquals("z", result.get("zebra"));
@@ -265,7 +291,7 @@ public class ResourceClientTest {
             assertEquals("deep", result.get("a/b/c/d/e/f"));
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().contains("a%2Fb%2Fc%2Fd%2Fe%2Ff")
+                    uri.toString().contains("a%2Fb%2Fc%2Fd%2Fe%2Ff")
             ));
         }
     }
@@ -348,75 +374,9 @@ public class ResourceClientTest {
             when(mockSingleResponse.readEntity(String.class)).thenReturn("Not found");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.retrieveSecret("missing"));
+                    () -> resourceClient.retrieveSecret("missing"));
 
             assertTrue(ex.getMessage().contains("404"));
-        }
-    }
-
-    // ========================================================================
-    // Endpoints Integration Tests
-    // ========================================================================
-
-    @Nested
-    class EndpointsTests {
-
-        @Test
-        void batchSecretsUriDerivedCorrectly() {
-            Endpoints ep = new Endpoints("https://conjur.example.com", "myorg");
-            assertEquals(
-                URI.create("https://conjur.example.com/secrets"),
-                ep.getBatchSecretsUri()
-            );
-        }
-
-        @Test
-        void batchSecretsUriWithPort() {
-            Endpoints ep = new Endpoints("https://conjur.example.com:8443", "myorg");
-            assertEquals(
-                URI.create("https://conjur.example.com:8443/secrets"),
-                ep.getBatchSecretsUri()
-            );
-        }
-
-        @Test
-        void accountAndApplianceUrlStored() {
-            Endpoints ep = new Endpoints("https://host", "custom-account");
-            assertEquals("custom-account", ep.getAccount());
-            assertEquals("https://host", ep.getApplianceUrl());
-        }
-
-        @Test
-        void uriDerivedFromApplianceUrlAndAccount() {
-            Endpoints ep = new Endpoints("https://host", "myorg");
-            assertEquals(URI.create("https://host/authn/myorg"), ep.getAuthnUri());
-            assertEquals(URI.create("https://host/secrets/myorg/variable"), ep.getSecretsUri());
-            assertEquals(URI.create("https://host/secrets"), ep.getBatchSecretsUri());
-        }
-
-        @Test
-        void customAuthnUrl() {
-            Endpoints ep = new Endpoints("https://host", "myorg", "https://host/authn-ldap/my-svc");
-            assertEquals(URI.create("https://host/authn-ldap/my-svc/myorg"), ep.getAuthnUri());
-            assertEquals(URI.create("https://host/secrets/myorg/variable"), ep.getSecretsUri());
-        }
-
-        @Test
-        void resourcesUriDerivedCorrectly() {
-            Endpoints ep = new Endpoints("https://conjur.example.com", "myorg");
-            assertEquals(
-                URI.create("https://conjur.example.com/resources/myorg"),
-                ep.getResourcesUri()
-            );
-        }
-
-        @Test
-        void resourcesUriWithPort() {
-            Endpoints ep = new Endpoints("https://conjur.example.com:8443", "myorg");
-            assertEquals(
-                URI.create("https://conjur.example.com:8443/resources/myorg"),
-                ep.getResourcesUri()
-            );
         }
     }
 
@@ -428,43 +388,43 @@ public class ResourceClientTest {
     class ListResources {
 
         private static final String SAMPLE_RESOURCES_JSON = "["
-            + "{"
-            + "  \"created_at\": \"2024-01-15T10:30:00Z\","
-            + "  \"id\": \"myaccount:variable:demo/db-password\","
-            + "  \"owner\": \"myaccount:policy:demo\","
-            + "  \"policy\": \"myaccount:policy:root\","
-            + "  \"permissions\": [{\"privilege\": \"read\", \"role\": \"myaccount:host:demo/app\", \"policy\": \"myaccount:policy:demo\"}],"
-            + "  \"annotations\": [{\"name\": \"description\", \"value\": \"Database password\", \"policy\": \"myaccount:policy:demo\"}],"
-            + "  \"secrets\": [{\"version\": 1}]"
-            + "},"
-            + "{"
-            + "  \"created_at\": \"2024-01-15T10:31:00Z\","
-            + "  \"id\": \"myaccount:variable:demo/api-key\","
-            + "  \"owner\": \"myaccount:policy:demo\","
-            + "  \"policy\": \"myaccount:policy:root\","
-            + "  \"permissions\": [],"
-            + "  \"annotations\": [],"
-            + "  \"secrets\": []"
-            + "}"
-            + "]";
+                + "{"
+                + "  \"created_at\": \"2024-01-15T10:30:00Z\","
+                + "  \"id\": \"myaccount:variable:demo/db-password\","
+                + "  \"owner\": \"myaccount:policy:demo\","
+                + "  \"policy\": \"myaccount:policy:root\","
+                + "  \"permissions\": [{\"privilege\": \"read\", \"role\": \"myaccount:host:demo/app\", \"policy\": \"myaccount:policy:demo\"}],"
+                + "  \"annotations\": [{\"name\": \"description\", \"value\": \"Database password\", \"policy\": \"myaccount:policy:demo\"}],"
+                + "  \"secrets\": [{\"version\": 1}]"
+                + "},"
+                + "{"
+                + "  \"created_at\": \"2024-01-15T10:31:00Z\","
+                + "  \"id\": \"myaccount:variable:demo/api-key\","
+                + "  \"owner\": \"myaccount:policy:demo\","
+                + "  \"policy\": \"myaccount:policy:root\","
+                + "  \"permissions\": [],"
+                + "  \"annotations\": [],"
+                + "  \"secrets\": []"
+                + "}"
+                + "]";
 
         private static final String SINGLE_RESOURCE_JSON = "["
-            + "{"
-            + "  \"created_at\": \"2024-01-15T10:30:00Z\","
-            + "  \"id\": \"myaccount:host:demo/app/web\","
-            + "  \"owner\": \"myaccount:policy:demo\","
-            + "  \"policy\": \"myaccount:policy:root\","
-            + "  \"permissions\": [],"
-            + "  \"annotations\": []"
-            + "}"
-            + "]";
+                + "{"
+                + "  \"created_at\": \"2024-01-15T10:30:00Z\","
+                + "  \"id\": \"myaccount:host:demo/app/web\","
+                + "  \"owner\": \"myaccount:policy:demo\","
+                + "  \"policy\": \"myaccount:policy:root\","
+                + "  \"permissions\": [],"
+                + "  \"annotations\": []"
+                + "}"
+                + "]";
 
         @Test
         void listAllResources() {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SAMPLE_RESOURCES_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources();
+            List<ConjurResource> result = resourceClient.listResources(ResourceQuery.all());
 
             assertEquals(2, result.size());
             assertEquals("myaccount:variable:demo/db-password", result.get(0).getId());
@@ -472,7 +432,7 @@ public class ResourceClientTest {
 
             // Verify the correct URI was used — no query params
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount")
             ));
         }
 
@@ -481,12 +441,13 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SAMPLE_RESOURCES_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources("variable");
+            List<ConjurResource> result = resourceClient.listResources(
+                    ResourceQuery.builder().kind("variable").build());
 
             assertEquals(2, result.size());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable")
             ));
         }
 
@@ -495,14 +456,15 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SINGLE_RESOURCE_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources("host");
+            List<ConjurResource> result = resourceClient.listResources(
+                    ResourceQuery.builder().kind("host").build());
 
             assertEquals(1, result.size());
             assertEquals("host", result.get(0).getKind());
             assertEquals("demo/app/web", result.get(0).getIdentifier());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=host")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=host")
             ));
         }
 
@@ -511,12 +473,13 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SAMPLE_RESOURCES_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources("variable", "demo", null, null);
+            List<ConjurResource> result = resourceClient.listResources(
+                    ResourceQuery.builder().kind("variable").search("demo").build());
 
             assertEquals(2, result.size());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable&search=demo")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable&search=demo")
             ));
         }
 
@@ -525,12 +488,13 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SINGLE_RESOURCE_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources(null, null, 10, 20);
+            List<ConjurResource> result = resourceClient.listResources(
+                    ResourceQuery.builder().limit(10).offset(20).build());
 
             assertEquals(1, result.size());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?limit=10&offset=20")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?limit=10&offset=20")
             ));
         }
 
@@ -539,12 +503,13 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SAMPLE_RESOURCES_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources("variable", "api", 5, 0);
+            List<ConjurResource> result = resourceClient.listResources(
+                    ResourceQuery.builder().kind("variable").search("api").limit(5).offset(0).build());
 
             assertEquals(2, result.size());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable&search=api&limit=5&offset=0")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?kind=variable&search=api&limit=5&offset=0")
             ));
         }
 
@@ -553,7 +518,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("[]");
 
-            List<ConjurResource> result = resourceClient.listResources();
+            List<ConjurResource> result = resourceClient.listResources(ResourceQuery.all());
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
@@ -565,7 +530,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Unauthorized");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.listResources());
+                    () -> resourceClient.listResources(ResourceQuery.all()));
 
             assertTrue(ex.getMessage().contains("401"));
         }
@@ -576,7 +541,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Forbidden");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.listResources("variable"));
+                    () -> resourceClient.listResources(ResourceQuery.builder().kind("variable").build()));
 
             assertTrue(ex.getMessage().contains("403"));
         }
@@ -586,7 +551,7 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn(SAMPLE_RESOURCES_JSON);
 
-            List<ConjurResource> result = resourceClient.listResources();
+            List<ConjurResource> result = resourceClient.listResources(ResourceQuery.all());
 
             ConjurResource first = result.get(0);
             assertEquals("2024-01-15T10:30:00Z", first.getCreatedAt());
@@ -618,10 +583,10 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("[]");
 
-            resourceClient.listResources(null, "foo/bar", null, null);
+            resourceClient.listResources(ResourceQuery.builder().search("foo/bar").build());
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().contains("search=foo%2Fbar")
+                    uri.toString().contains("search=foo%2Fbar")
             ));
         }
     }
@@ -638,12 +603,12 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("{\"count\":42}");
 
-            int count = resourceClient.countResources(null, null);
+            int count = resourceClient.countResources(ResourceQuery.all());
 
             assertEquals(42, count);
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true")
             ));
         }
 
@@ -653,12 +618,12 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("42");
 
-            int count = resourceClient.countResources(null, null);
+            int count = resourceClient.countResources(ResourceQuery.all());
 
             assertEquals(42, count);
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true")
             ));
         }
 
@@ -667,12 +632,12 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("{\"count\":7}");
 
-            int count = resourceClient.countResources("variable", null);
+            int count = resourceClient.countResources(ResourceQuery.builder().kind("variable").build());
 
             assertEquals(7, count);
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true&kind=variable")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true&kind=variable")
             ));
         }
 
@@ -681,12 +646,33 @@ public class ResourceClientTest {
             when(mockBatchResponse.getStatus()).thenReturn(200);
             when(mockBatchResponse.readEntity(String.class)).thenReturn("{\"count\":3}");
 
-            int count = resourceClient.countResources("variable", "demo");
+            int count = resourceClient.countResources(
+                    ResourceQuery.builder().kind("variable").search("demo").build());
 
             assertEquals(3, count);
 
             verify(mockClient).target(argThat((URI uri) ->
-                uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true&kind=variable&search=demo")
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true&kind=variable&search=demo")
+            ));
+        }
+
+        @Test
+        void countIgnoresLimitAndOffset() {
+            when(mockBatchResponse.getStatus()).thenReturn(200);
+            when(mockBatchResponse.readEntity(String.class)).thenReturn("{\"count\":3}");
+
+            int count = resourceClient.countResources(
+                    ResourceQuery.builder()
+                            .kind("variable")
+                            .search("demo")
+                            .limit(10)
+                            .offset(20)
+                            .build());
+
+            assertEquals(3, count);
+
+            verify(mockClient).target(argThat((URI uri) ->
+                    uri.toString().equals("https://conjur.example.com/resources/myaccount?count=true&kind=variable&search=demo")
             ));
         }
 
@@ -696,9 +682,10 @@ public class ResourceClientTest {
             when(mockBatchResponse.readEntity(String.class)).thenReturn("Unauthorized");
 
             WebApplicationException ex = assertThrows(WebApplicationException.class,
-                () -> resourceClient.countResources(null, null));
+                    () -> resourceClient.countResources(ResourceQuery.all()));
 
             assertTrue(ex.getMessage().contains("401"));
         }
     }
+
 }

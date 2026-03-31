@@ -1,36 +1,88 @@
 package com.cyberark.conjur.api;
 
-import javax.net.ssl.SSLContext;
-import java.util.List;
-import java.util.Map;
-
 import com.cyberark.conjur.api.clients.ResourceClient;
 
+import javax.net.ssl.SSLContext;
+import java.util.Map;
+
+/**
+ * Facade for Conjur variable secret operations.
+ *
+ * <p>This class provides APIs to retrieve and set individual variable secrets,
+ * as well as fetch multiple secrets in a single batch request. Instances are
+ * typically obtained via {@link Conjur#variables()}.</p>
+ */
 public class Variables {
 
-    private ResourceClient resourceClient;
+    private final ResourceClient resourceClient;
 
+    /**
+     * Create a Variables instance using explicit credentials.
+     *
+     * @param credentials credentials used to authenticate requests
+     * @deprecated Prefer {@link Conjur#variables()} so variables and resources can share a single underlying client.
+     */
+    @Deprecated
     public Variables(Credentials credentials) {
         this(credentials, null);
     }
 
+    /**
+     * Create a Variables instance using explicit credentials and SSL context.
+     *
+     * @param credentials credentials used to authenticate requests
+     * @param sslContext the {@link SSLContext} to use for HTTPS connections
+     * @deprecated Prefer {@link Conjur#variables()} so variables and resources can share a single underlying client.
+     */
+    @Deprecated
     public Variables(Credentials credentials, SSLContext sslContext) {
         resourceClient =
                 new ResourceClient(credentials, Endpoints.fromCredentials(credentials), sslContext);
     }
 
+    /**
+     * Create a Variables instance using a pre-existing Conjur token.
+     *
+     * @param token authorization token used for requests
+     * @deprecated Prefer {@link Conjur#variables()} so variables and resources can share a single underlying client.
+     */
+    @Deprecated
     public Variables(Token token) {
         this(token, null);
     }
 
+    /**
+     * Create a Variables instance using a pre-existing Conjur token and SSL context.
+     *
+     * @param token authorization token used for requests
+     * @param sslContext the {@link SSLContext} to use for HTTPS connections
+     * @deprecated Prefer {@link Conjur#variables()} so variables and resources can share a single underlying client.
+     */
+    @Deprecated
     public Variables(Token token, SSLContext sslContext) {
         resourceClient = new ResourceClient(token, Endpoints.fromSystemProperties(), sslContext);
     }
 
+    Variables(ResourceClient resourceClient) {
+        this.resourceClient = resourceClient;
+    }
+
+    /**
+     * Retrieve the secret value for a Conjur variable.
+     *
+     * @param variableId variable identifier (without account/kind prefix)
+     * @return secret value stored in the specified variable
+     */
     public String retrieveSecret(String variableId) {
         return resourceClient.retrieveSecret(variableId);
     }
 
+    /**
+     * Set the secret value for a Conjur variable.
+     *
+     * @param variableId variable identifier (without account/kind prefix)
+     * @param secret secret value to store
+     */
     public void addSecret(String variableId, String secret){
         resourceClient.addSecret(variableId, secret);
     }
@@ -43,48 +95,5 @@ public class Variables {
      */
     public Map<String, String> retrieveBatchSecrets(String... variableIds) {
         return resourceClient.retrieveBatchSecrets(variableIds);
-    }
-
-    /**
-     * List all resources visible to the authenticated identity.
-     *
-     * @return list of all resources
-     */
-    public List<ConjurResource> listResources() {
-        return resourceClient.listResources();
-    }
-
-    /**
-     * List resources filtered by kind.
-     *
-     * @param kind the resource kind (e.g. "variable", "host")
-     * @return resources matching the given kind
-     */
-    public List<ConjurResource> listResources(String kind) {
-        return resourceClient.listResources(kind);
-    }
-
-    /**
-     * List resources with full query parameter control.
-     *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
-     * @param limit  max results (null for server default)
-     * @param offset pagination offset (null for no offset)
-     * @return resources matching the query
-     */
-    public List<ConjurResource> listResources(String kind, String search, Integer limit, Integer offset) {
-        return resourceClient.listResources(kind, search, limit, offset);
-    }
-
-    /**
-     * Count resources visible to the authenticated identity.
-     *
-     * @param kind   resource kind filter (null for all kinds)
-     * @param search text search filter (null for no search)
-     * @return the number of matching resources
-     */
-    public int countResources(String kind, String search) {
-        return resourceClient.countResources(kind, search);
     }
 }
