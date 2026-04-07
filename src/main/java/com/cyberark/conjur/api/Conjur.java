@@ -1,5 +1,7 @@
 package com.cyberark.conjur.api;
 
+import com.cyberark.conjur.api.clients.ResourceClient;
+
 import javax.net.ssl.SSLContext;
 
 /**
@@ -7,7 +9,8 @@ import javax.net.ssl.SSLContext;
  */
 public class Conjur {
 
-    private Variables variables;
+    private final Variables variables;
+    private final Resources resources;
 
     /**
      * Create a Conjur instance that uses credentials from the system properties
@@ -78,7 +81,7 @@ public class Conjur {
      * @param sslContext the {@link SSLContext} to use for connections to Conjur server
      */
     public Conjur(Credentials credentials, SSLContext sslContext) {
-        variables = new Variables(credentials, sslContext);
+        this(new ResourceClient(credentials, Endpoints.fromCredentials(credentials), sslContext));
     }
 
     /**
@@ -95,7 +98,12 @@ public class Conjur {
      * @param sslContext the {@link SSLContext} to use for connections to Conjur server
      */
     public Conjur(Token token, SSLContext sslContext) {
-        variables = new Variables(token, sslContext);
+        this(new ResourceClient(token, Endpoints.fromSystemProperties(), sslContext));
+    }
+
+    Conjur(ResourceClient resourceClient) {
+        variables = new Variables(resourceClient);
+        resources = new Resources(resourceClient);
     }
 
     /**
@@ -104,5 +112,13 @@ public class Conjur {
      */
     public Variables variables() {
         return variables;
+    }
+
+    /**
+     * Get a Resources instance configured with the same parameters as this instance.
+     * @return the resources instance
+     */
+    public Resources resources() {
+        return resources;
     }
 }

@@ -32,6 +32,10 @@ invoking our Secrets Manager API to perform operations on stored data (add, retr
   * [Variables (`client.variables()`)](#variables-clientvariables)
     + [`void addSecret(String variableId, String secret)`](#void-addsecretstring-variableid-string-secret)
     + [`String retrieveSecret(String variableId)`](#string-retrievesecretstring-variableid)
+    + [`Map<String, String> retrieveBatchSecrets(String... variableIds)`](#mapstring-string-retrievebatchsecretsstring-variableids)
+  * [Resources (`client.resources()`)](#resources-clientresources)
+    + [`List<ConjurResource> listResources(ResourceQuery query)`](#listconjurresource-listresourcesresourcequery-query)
+    + [`int countResources(ResourceQuery query)`](#int-countresourcesresourcequery-query)
 - [Jakarta REST JAX-RS Implementations](#jakarta-rest-jax-rs-implementations)
 - [Troubleshooting](#troubleshooting)
   * [`error: package com.cyberark.conjur does not exist`](#error-package-comcyberarkconjur-does-not-exist)
@@ -600,6 +604,83 @@ import com.cyberark.conjur.api.Conjur;
 
 Conjur conjur = new Conjur();
 String secret = conjur.variables().retrieveSecret("<VARIABLE_ID>");
+```
+
+#### `Map<String, String> retrieveBatchSecrets(String... variableIds)`
+
+Retrieves multiple variables in one request using the Conjur Batch Secret Retrieval API.
+Pass variable IDs without the account/kind prefix (for example, `test/testVariable`).
+
+Example:
+```java
+import com.cyberark.conjur.api.Conjur;
+
+import java.util.Map;
+
+Conjur conjur = new Conjur();
+
+Map<String, String> secrets = conjur.variables().retrieveBatchSecrets(
+    "test/testVariable",
+    "test/var with spaces"
+);
+
+String testVariable = secrets.get("test/testVariable");
+String variableWithSpaces = secrets.get("test/var with spaces");
+```
+
+### Resources (`client.resources()`)
+
+#### `List<ConjurResource> listResources(ResourceQuery query)`
+
+Lists resources visible to the authenticated identity. 
+
+Example — list all resources:
+```java
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.ConjurResource;
+import com.cyberark.conjur.api.ResourceQuery;
+
+import java.util.List;
+
+Conjur conjur = new Conjur();
+
+List<ConjurResource> all = conjur.resources().listResources(ResourceQuery.all());
+```
+
+Example — list only variables whose ID contains "db", returning up to 10 starting at offset 0:
+```java
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.ConjurResource;
+import com.cyberark.conjur.api.ResourceQuery;
+
+import java.util.List;
+
+Conjur conjur = new Conjur();
+
+ResourceQuery query = ResourceQuery.builder()
+    .kind("variable")
+    .search("db")
+    .limit(10)
+    .offset(0)
+    .build();
+
+List<ConjurResource> variables = conjur.resources().listResources(query);
+```
+
+#### `int countResources(ResourceQuery query)`
+
+Returns the count of resources matching the query without fetching the full resource list.
+
+Example — count only host resources:
+```java
+import com.cyberark.conjur.api.Conjur;
+import com.cyberark.conjur.api.ResourceQuery;
+
+Conjur conjur = new Conjur();
+
+int hostCount = conjur.resources().countResources(
+    ResourceQuery.builder().kind("host").build()
+);
 ```
 
 ## Jakarta REST (JAX-RS) Implementations

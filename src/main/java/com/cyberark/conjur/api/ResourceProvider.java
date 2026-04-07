@@ -1,7 +1,13 @@
 package com.cyberark.conjur.api;
 
+import java.util.Map;
+
 /**
- * Provides methods for retrieving and setting Conjur resources
+ * Provides methods for retrieving and setting Conjur variable secrets.
+ *
+ * <p>Despite its broad name, this interface is scoped to variable/secret operations.
+ * For general Conjur resource interactions (listing, counting, etc.) see
+ * {@link ResourcesProvider}.</p>
  */
 public interface ResourceProvider {
 
@@ -18,5 +24,18 @@ public interface ResourceProvider {
      * @param secret - Secret value within the specified variable
      */
     void addSecret(String variableId, String secret);
+
+    /**
+     * Fetch multiple secret values in one invocation.
+     * It's faster to fetch secrets in batches than to fetch them one at a time.
+     *
+     * @param variableIds the variable IDs to retrieve (without account prefix)
+     * @return a map of variable ID to secret value
+     * @see <a href="https://docs.cyberark.com/conjur-open-source/latest/en/content/developer/conjur_api_batch_retrieve.htm">Batch Secret Retrieval</a>
+     */
+    default Map<String, String> retrieveBatchSecrets(String... variableIds) {
+        throw new UnsupportedOperationException("Batch secret retrieval not supported");
+    }
+
 
 }
