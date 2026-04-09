@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-04-09
+
 ### Added
 - Batch secret retrieval API support [cyberark/conjur-api-java#126](https://github.com/cyberark/conjur-api-java/issues/126)
 - List resources API support [cyberark/conjur-api-java#128](https://github.com/cyberark/conjur-api-java/issues/128)
@@ -142,7 +144,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.1.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/cyberark/conjur-api-java/compare/v3.1.2...v3.2.0
 [3.1.2]: https://github.com/cyberark/conjur-api-java/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/cyberark/conjur-api-java/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/cyberark/conjur-api-java/compare/v3.0.7...v3.1.0
