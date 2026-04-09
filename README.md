@@ -89,7 +89,7 @@ To do so from the source using Maven, following the setup steps below:
     <dependency>
       <groupId>com.cyberark.conjur.api</groupId>
       <artifactId>conjur-api</artifactId>
-      <version>3.0.5</version>
+      <version>3.2.0</version>
     </dependency>
 ```
 

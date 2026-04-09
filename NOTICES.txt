@@ -23,7 +23,7 @@ SECTION 3: APACHE-2.0
 
 SECTION 4: Eclipse Distribution License 1.0
 
->>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/4.0.1
+>>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/3.0.1
 
 SECTION 5: Eclipse Public License 1.0
 
@@ -192,7 +192,7 @@ limitations under the License.
 
 Eclipse Distribution License 1.0 is applicable to the following components:
 
->>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/4.0.1
+>>> https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api/3.0.1
 
 --------------- SECTION 5: Eclipse Public License 1.0 ---------------------
 
