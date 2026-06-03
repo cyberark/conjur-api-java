@@ -131,6 +131,29 @@ public class Endpoints implements Serializable {
     }
 
     /**
+     * Returns the base URI for the authn-cert authenticator endpoint:
+     * {@code {applianceUrl}/authn-cert/{serviceId}/{account}}
+     *
+     * <p>Append {@code /{encodedHostId}/authenticate} for request mode, or just
+     * {@code /authenticate} for SPIFFE mode.</p>
+     *
+     * @param serviceId the cert authenticator service ID (e.g. {@code "acme-vm"})
+     * @return the authn-cert base URI
+     * @throws IllegalStateException when appliance URL or account is unavailable
+     */
+    public URI getCertAuthnBaseUri(String serviceId) {
+        if (applianceUrl == null || account == null) {
+            throw new IllegalStateException(
+                    "Cert authn URI is unavailable for Endpoints instances created with deprecated constructors"
+            );
+        }
+        return URI.create(String.format("%s/authn-cert/%s/%s",
+                applianceUrl,
+                java.net.URLEncoder.encode(serviceId, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"),
+                account));
+    }
+
+    /**
      * Creates endpoints from system properties / environment variables.
      *
      * <p>Reads the following configuration values:</p>

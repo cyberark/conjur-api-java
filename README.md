@@ -27,6 +27,7 @@ invoking our Secrets Manager API to perform operations on stored data (add, retr
   * [Username and Password](#username-and-password)
   * [Credentials](#credentials)
   * [Authorization Token](#authorization-token)
+  * [Certificate (authn-cert / mTLS)](#certificate-authn-cert--mtls)
 - [Client APIs](#client-apis)
   * [Secrets Manager Client Instance (`com.cyberark.conjur.api.Conjur`)](#secrets-manager-client-instance-comcyberarkconjurapiconjur)
   * [Variables (`client.variables()`)](#variables-clientvariables)
@@ -550,6 +551,67 @@ Conjur conjur = new Conjur(token);
 Conjur conjur = new Conjur(token, conjurSSLContext);
 ```
 
+### Certificate (authn-cert / mTLS)
+
+The certificate authenticator uses mutual TLS (`authn-cert`) to authenticate. The client
+certificate is presented automatically during the TLS handshake.
+
+**Request mode** — host ID is supplied explicitly:
+
+```bash
+export CONJUR_ACCOUNT=<account specified during Secrets Manager setup>
+export CONJUR_APPLIANCE_URL=<Secrets Manager endpoint URL>
+export CONJUR_AUTHN_CERT_SERVICE_ID=acme-vm
+export CONJUR_AUTHN_CERT_FILE=/path/to/client.pem
+export CONJUR_AUTHN_CERT_KEY_FILE=/path/to/client-key-pkcs8.pem
+export CONJUR_AUTHN_CERT_HOST_ID=host/vm-workloads/vm-01
+```
+```java
+import com.cyberark.conjur.api.Conjur;
+
+// Configured using environment variables
+Conjur conjur = Conjur.newFromCertificate();
+// or with a custom server SSLContext (custom CA trust for the Conjur server)
+Conjur conjur = Conjur.newFromCertificate(conjurServerSslContext);
+```
+
+**SPIFFE mode** — host is derived from the certificate's SPIFFE SAN URI, leave `CONJUR_AUTHN_CERT_HOST_ID` unset or empty:
+
+```bash
+export CONJUR_AUTHN_CERT_HOST_ID=
+```
+
+**Explicit parameters** — supply certificate PEM content or files directly:
+
+```java
+import com.cyberark.conjur.api.Conjur;
+import java.io.File;
+
+// Using file paths
+Conjur conjur = Conjur.newFromCertificate(
+    "acme-vm",                        // service ID
+    "host/vm-workloads/vm-01",        // host ID ("" for SPIFFE mode)
+    new File("/path/to/client.pem"),
+    new File("/path/to/client-key-pkcs8.pem"),
+    null                              // server SSLContext, null = JVM default trust store
+);
+
+// Using inline PEM strings
+Conjur conjur = Conjur.newFromCertificate(
+    "acme-vm",
+    "host/vm-workloads/vm-01",
+    certPemString,
+    keyPemString,
+    null
+);
+```
+
+_NOTE:_ The private key must be in **PKCS#8 format** (`-----BEGIN PRIVATE KEY-----`).
+Convert from PKCS#1 with:
+```sh-session
+$ openssl pkcs8 -topk8 -nocrypt -in client-key.pem -out client-key-pkcs8.pem
+```
+
 ## Client APIs
 
 To use the client, you will first create an instance of the client and then call methods
@@ -570,6 +632,12 @@ Conjur client = Conjur(Credentials credentials);
 Conjur client = Conjur(Credentials credentials, SSLContext sslContext);
 Conjur client = Conjur(Token token);
 Conjur client = Conjur(Token token, SSLContext sslContext);
+
+// Certificate authenticator (authn-cert / mTLS)
+Conjur client = Conjur.newFromCertificate();
+Conjur client = Conjur.newFromCertificate(SSLContext serverSslContext);
+Conjur client = Conjur.newFromCertificate(String serviceId, String hostId, String certPem, String keyPem, SSLContext serverSslContext);
+Conjur client = Conjur.newFromCertificate(String serviceId, String hostId, File certFile, File keyFile, SSLContext serverSslContext);
 ```
 
 _Note:_ **As mentioned before, if you use the default `CONJUR_AUTHN_URL` value or your
