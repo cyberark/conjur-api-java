@@ -1,4 +1,4 @@
-﻿package com.cyberark.conjur.api;
+package com.cyberark.conjur.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 

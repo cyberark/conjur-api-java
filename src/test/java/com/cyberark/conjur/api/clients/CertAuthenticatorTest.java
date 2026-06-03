@@ -1,4 +1,4 @@
-﻿package com.cyberark.conjur.api.clients;
+package com.cyberark.conjur.api.clients;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;

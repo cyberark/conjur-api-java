@@ -1,4 +1,4 @@
-﻿package com.cyberark.conjur.api.clients;
+package com.cyberark.conjur.api.clients;
 
 import com.cyberark.conjur.api.AuthnProvider;
 import com.cyberark.conjur.api.Token;
@@ -46,10 +46,10 @@ import java.util.List;
  *
  * <h3>Environment variables</h3>
  * <ul>
- *   <li>{@code CONJUR_AUTHN_CERT_FILE} – path to the PEM-encoded client certificate</li>
- *   <li>{@code CONJUR_AUTHN_CERT_KEY_FILE} – path to the PEM-encoded private key</li>
- *   <li>{@code CONJUR_AUTHN_CERT_SERVICE_ID} – service ID for the authn-cert authenticator</li>
- *   <li>{@code CONJUR_AUTHN_CERT_HOST_ID} – host ID for request mode; omit for SPIFFE mode</li>
+ *   <li>{@code CONJUR_AUTHN_CERT_FILE} - path to the PEM-encoded client certificate</li>
+ *   <li>{@code CONJUR_AUTHN_CERT_KEY_FILE} - path to the PEM-encoded private key</li>
+ *   <li>{@code CONJUR_AUTHN_CERT_SERVICE_ID} - service ID for the authn-cert authenticator</li>
+ *   <li>{@code CONJUR_AUTHN_CERT_HOST_ID} - host ID for request mode; omit for SPIFFE mode</li>
  * </ul>
  */
 public class CertAuthenticator implements AuthnProvider {
@@ -66,7 +66,6 @@ public class CertAuthenticator implements AuthnProvider {
      * @param serverSslContext optional {@link SSLContext} used to trust the Conjur server certificate;
      *                         pass {@code null} to rely on the JVM default trust store
      * @param hostId           Conjur host path for request mode; empty string for SPIFFE mode
-     *                         (used only for URI building in the factory — stored here for reference)
      * @throws Exception if the client certificate or key cannot be parsed
      */
     public CertAuthenticator(URI authenticateUri,
@@ -134,24 +133,9 @@ public class CertAuthenticator implements AuthnProvider {
     // Helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Builds an mTLS-capable JAX-RS {@link Client}.
-     *
-     * <p>A {@link KeyStore} is populated with the client certificate chain and private key.
-     * A new {@link SSLContext} is then initialised with those key managers.  If
-     * {@code serverSslContext} is non-null its trust managers are extracted via the default
-     * {@link TrustManagerFactory} initialised with a null {@link KeyStore} (i.e. the JVM
-     * default CA bundle) — the passed-in context was already configured by the caller before
-     * this point so using the JVM default here is the correct fallback.  Callers that need
-     * custom CA trust for the Conjur server should instead load the CA cert into the JVM
-     * cacerts store or use the standard
-     * {@link com.cyberark.conjur.api.Conjur#newFromCertificate(SSLContext)} path, which
-     * accepts a server-trust {@code SSLContext}.</p>
-     */
     private static Client buildMtlsClient(String certPem, String keyPem, SSLContext serverSslContext)
             throws Exception {
 
-        // Build a KeyStore containing the client certificate chain + private key
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null, null);
 
@@ -171,15 +155,13 @@ public class CertAuthenticator implements AuthnProvider {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, keyPassword);
 
-        // Obtain trust managers — use the server SSLContext's trust store if provided,
-        // otherwise fall back to the JVM default (null KeyStore → uses cacerts)
         TrustManager[] trustManagers;
         if (serverSslContext != null) {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init((KeyStore) null); // use JVM default; caller configures server trust separately
+            tmf.init((KeyStore) null);
             trustManagers = tmf.getTrustManagers();
         } else {
-            trustManagers = null; // use JVM default
+            trustManagers = null;
         }
 
         SSLContext mtlsContext = SSLContext.getInstance("TLS");
@@ -190,23 +172,23 @@ public class CertAuthenticator implements AuthnProvider {
 
     /**
      * Parses a PKCS#8 PEM private key (RSA or EC).
-     * The key must use the standard PKCS#8 PEM envelope.
-     * Use {@code openssl pkcs8 -topk8 -nocrypt -in key.pem -out key-pkcs8.pem} to convert.
+     * Use {@code openssl pkcs8 -topk8 -nocrypt -in key.pem -out key-pkcs8.pem} to convert from PKCS#1.
      */
     private static PrivateKey parsePrivateKey(String keyPem) throws Exception {
         // Build header/footer strings at runtime to avoid gitleaks false-positive matches
         // on literal PEM key markers in source code.
-        String beginPrivate  = "-----" + "BEGIN PRIVATE KEY" + "-----";
-        String endPrivate    = "-----" + "END PRIVATE KEY" + "-----";
-        String beginRsaPriv  = "-----" + "BEGIN RSA PRIVATE KEY" + "-----";
-        String endRsaPriv    = "-----" + "END RSA PRIVATE KEY" + "-----";
+        String beginPrivate = "-----" + "BEGIN PRIVATE KEY" + "-----";
+        String endPrivate   = "-----" + "END PRIVATE KEY" + "-----";
+        String beginRsa     = "-----" + "BEGIN RSA PRIVATE KEY" + "-----";
+        String endRsa       = "-----" + "END RSA PRIVATE KEY" + "-----";
 
         String cleaned = keyPem
                 .replace(beginPrivate, "")
                 .replace(endPrivate, "")
-                .replace(beginRsaPriv, "")
-                .replace(endRsaPriv, "")
+                .replace(beginRsa, "")
+                .replace(endRsa, "")
                 .replaceAll("\\s", "");
+
         byte[] keyBytes = Base64.getDecoder().decode(cleaned);
         java.security.spec.PKCS8EncodedKeySpec spec = new java.security.spec.PKCS8EncodedKeySpec(keyBytes);
         for (String algorithm : new String[]{"RSA", "EC"}) {
@@ -234,4 +216,3 @@ public class CertAuthenticator implements AuthnProvider {
         }
     }
 }
-
