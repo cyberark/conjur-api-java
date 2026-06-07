@@ -71,6 +71,14 @@ public class ResourceClient implements ResourceProvider, ResourcesProvider {
         init(token, sslContext);
     }
 
+    // Build ResourceClient using any AuthnProvider (e.g. CertAuthenticator)
+    public ResourceClient(final AuthnProvider authnProvider,
+                          final Endpoints endpoints,
+                          final SSLContext sslContext) {
+        this.endpoints = endpoints;
+        initWithAuthnProvider(authnProvider, sslContext);
+    }
+
     // Package-private constructor for unit testing with mock clients
     ResourceClient(Client client, WebTarget secrets, Endpoints endpoints) {
         this.client = client;
