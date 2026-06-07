@@ -229,9 +229,12 @@ public class Conjur {
     static URI buildCertAuthenticateUri(Endpoints endpoints, String serviceId, String hostId) {
         URI base = endpoints.getCertAuthnBaseUri(serviceId);
         if (hostId != null && !hostId.isEmpty()) {
-            String encodedHostId = java.net.URLEncoder.encode(hostId, java.nio.charset.StandardCharsets.UTF_8)
-                    .replace("+", "%20");
-            return URI.create(base.toString() + "/" + encodedHostId + "/authenticate");
+            try {
+                String encodedHostId = java.net.URLEncoder.encode(hostId, "UTF-8").replace("+", "%20");
+                return URI.create(base.toString() + "/" + encodedHostId + "/authenticate");
+            } catch (java.io.UnsupportedEncodingException e) {
+                throw new IllegalStateException("UTF-8 encoding not supported", e);
+            }
         }
         return URI.create(base.toString() + "/authenticate");
     }

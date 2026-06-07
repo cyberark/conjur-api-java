@@ -147,10 +147,14 @@ public class Endpoints implements Serializable {
                     "Cert authn URI is unavailable for Endpoints instances created with deprecated constructors"
             );
         }
-        return URI.create(String.format("%s/authn-cert/%s/%s",
-                applianceUrl,
-                java.net.URLEncoder.encode(serviceId, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"),
-                account));
+        try {
+            return URI.create(String.format("%s/authn-cert/%s/%s",
+                    applianceUrl,
+                    java.net.URLEncoder.encode(serviceId, "UTF-8").replace("+", "%20"),
+                    account));
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 encoding not supported", e);
+        }
     }
 
     /**
