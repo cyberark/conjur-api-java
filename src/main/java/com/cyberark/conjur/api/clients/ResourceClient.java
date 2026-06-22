@@ -18,6 +18,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import com.cyberark.conjur.api.AuthnProvider;
 import com.cyberark.conjur.api.ConjurResource;
 import com.cyberark.conjur.api.Configuration;
 import com.cyberark.conjur.api.Credentials;
@@ -68,6 +69,14 @@ public class ResourceClient implements ResourceProvider, ResourcesProvider {
         this.endpoints = endpoints;
 
         init(token, sslContext);
+    }
+
+    // Build ResourceClient using any AuthnProvider (e.g. CertAuthenticator)
+    public ResourceClient(final AuthnProvider authnProvider,
+                          final Endpoints endpoints,
+                          final SSLContext sslContext) {
+        this.endpoints = endpoints;
+        initWithAuthnProvider(authnProvider, sslContext);
     }
 
     // Package-private constructor for unit testing with mock clients
@@ -253,6 +262,21 @@ public class ResourceClient implements ResourceProvider, ResourcesProvider {
 
         this.client = builder.build();
 
+        secrets = client.target(getEndpoints().getSecretsUri());
+    }
+
+    private void initWithAuthnProvider(AuthnProvider authnProvider, SSLContext sslContext) {
+        Configuration config = new Configuration();
+
+        ClientBuilder builder = ClientBuilder.newBuilder()
+                .register(new TokenAuthFilter(authnProvider))
+                .register(new TelemetryHeaderFilter(config));
+
+        if (sslContext != null) {
+            builder.sslContext(sslContext);
+        }
+
+        this.client = builder.build();
         secrets = client.target(getEndpoints().getSecretsUri());
     }
 
