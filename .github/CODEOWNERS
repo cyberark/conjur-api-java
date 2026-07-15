@@ -1,4 +1,4 @@
-* @conjur-enterprise/r-d-developers @conjur-enterprise/transition-tech
+* @conjur-enterprise/r-d-developers @conjur-enterprise/transition-tech @conjur-enterprise/transition-tech-contractor
 
 # Changes to .trivyignore require Security Architect approval
 .trivyignore @conjur-enterprise/conjur-security
