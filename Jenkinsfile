@@ -28,7 +28,7 @@ if (params.MODE == "PROMOTE") {
       cp VERSION VERSION.original
       ./bin/build-tools-image.sh
       ./bin/build-package.sh
-      summon ./bin/publish.sh
+      summon -e release ./bin/publish.sh
       cp target/*.jar "${assetDirectory}"
     """
 
@@ -60,6 +60,12 @@ pipeline {
     cron(getDailyCronString())
     parameterizedCron(getWeeklyCronString("H(1-5)","%MODE=RELEASE"))
   }
+
+  parameters {
+    booleanParam(name: 'RUN_AZURE_TESTS', defaultValue: false, description: 'Run Azure tests')
+    booleanParam(name: 'RUN_GCP_TESTS', defaultValue: false, description: 'Run GCP tests')
+    booleanParam(name: 'RUN_AWS_TESTS', defaultValue: false, description: 'Run AWS IAM tests')
+  }
   
   stages {
     // Aborts any builds triggered by another project that wouldn't include any changes
@@ -89,6 +95,24 @@ pipeline {
       steps {
         script {
           INFRAPOOL_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
+
+          if (params.RUN_AZURE_TESTS) {
+            INFRAPOOL_AZURE_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "AzureExecutorV2", quantity: 1, duration: 1)
+            INFRAPOOL_AZURE_EXECUTORV2_AGENT_0 = INFRAPOOL_AZURE_EXECUTORV2_AGENTS[0]
+            azureInfrapool = infraPoolConnect(INFRAPOOL_AZURE_EXECUTORV2_AGENT_0, {})
+          }
+
+          if (params.RUN_GCP_TESTS) {
+            INFRAPOOL_GCP_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "GcpExecutorV2", quantity: 1, duration: 1)
+            INFRAPOOL_GCP_EXECUTORV2_AGENT_0 = INFRAPOOL_GCP_EXECUTORV2_AGENTS[0]
+            gcpInfrapool = infraPoolConnect(INFRAPOOL_GCP_EXECUTORV2_AGENT_0, {})
+          }
+
+          if (params.RUN_AWS_TESTS) {
+            INFRAPOOL_AWS_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "ExecutorV2", quantity: 1, duration: 1)
+            INFRAPOOL_AWS_EXECUTORV2_AGENT_0 = INFRAPOOL_AWS_EXECUTORV2_AGENTS[0]
+            awsInfrapool = infraPoolConnect(INFRAPOOL_AWS_EXECUTORV2_AGENT_0, {})
+          }
         }
       }
     }
@@ -161,6 +185,77 @@ pipeline {
       }
     }
 
+    stage('Run Azure tests') {
+      when {
+        expression { params.RUN_AZURE_TESTS }
+      }
+      steps {
+        script {
+          azureInfrapool.agentSh '''
+            set +e
+            export RUN_AZURE_TESTS=true
+            export TEST_FILTER="AzureAuthenticatorIntegrationTests"
+            summon -e azure ./bin/test.sh
+            rc=$?
+            exit $rc
+          '''
+        }
+      }
+    }
+
+    stage('Run GCP tests') {
+      when {
+        expression { params.RUN_GCP_TESTS }
+      }
+      steps {
+        script {
+          // Fetch token from GCP metadata on the GCP agent
+          gcpInfrapool.agentSh './ci/get_gcp_token.sh "data/test/gcp-apps/test-app" "conjur" gcp-ctx'
+          GCP_ID_TOKEN = gcpInfrapool.agentSh(script: 'cat gcp-ctx/token', returnStdout: true).trim()
+          GCP_PROJECT_ID = gcpInfrapool.agentSh(script: 'cat gcp-ctx/project-id', returnStdout: true).trim()
+
+          // Run tests on the main ExecutorV2 agent (which has Docker)
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh """
+            set +e
+            export RUN_GCP_TESTS=true
+            export TEST_FILTER="GCPAuthenticatorIntegrationTests"
+            export GCP_ID_TOKEN="${GCP_ID_TOKEN}"
+            export GCP_PROJECT_ID="${GCP_PROJECT_ID}"
+            ./bin/test.sh
+            rc=\$?
+            exit \$rc
+          """
+        }
+      }
+    }
+
+    stage('Run AWS tests') {
+      when {
+        expression { params.RUN_AWS_TESTS }
+      }
+      steps {
+        script {
+          // Fetch AWS identity from the instance profile on the AWS agent
+          def callerIdentityJson = awsInfrapool.agentSh(script: 'aws sts get-caller-identity', returnStdout: true).trim()
+          // JSON: {"UserId":"...","Account":"123456789012","Arn":"arn:aws:sts::123456789012:assumed-role/RoleName/session"}
+          def awsAccountId = (callerIdentityJson =~ /"Account"\s*:\s*"([^"]+)"/)[0][1]
+          def awsArn      = (callerIdentityJson =~ /"Arn"\s*:\s*"([^"]+)"/)[0][1]
+          def awsRoleName = awsArn.tokenize('/')[1]  // arn:.../assumed-role/RoleName/session → index 1
+
+          awsInfrapool.agentSh """
+            set +e
+            export RUN_AWS_TESTS=true
+            export TEST_FILTER="AWSIAMAuthenticatorIntegrationTests"
+            export AWS_ACCOUNT_ID="${awsAccountId}"
+            export AWS_ROLE_NAME="${awsRoleName}"
+            ./bin/test.sh
+            rc=\$?
+            exit \$rc
+          """
+        }
+      }
+    }
+
     stage('Release') {
       when {
         expression {
@@ -173,7 +268,7 @@ pipeline {
           release(INFRAPOOL_EXECUTORV2_AGENT_0) { billOfMaterialsDirectory, assetDirectory ->
             // Publish release artifacts to all the appropriate locations
             // Copy any artifacts to assetDirectory to attach them to the Github release
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "ASSET_DIR=\"${assetDirectory}\" summon ./bin/publish.sh"
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "ASSET_DIR=\"${assetDirectory}\" summon -e release ./bin/publish.sh"
           }
         }
       }

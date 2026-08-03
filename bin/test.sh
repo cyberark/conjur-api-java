@@ -7,11 +7,254 @@ trap finish EXIT
 
 export REGISTRY_URL=${INFRAPOOL_REGISTRY_URL:-"docker.io"}
 export JDK_VERSION=${INFRAPOOL_JDK_VERSION:-8}
+export CLOUD_SUMMARY_PRINTED=0
+export AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-${INFRAPOOL_AZURE_SUBSCRIPTION_ID:-}}"
+export AZURE_RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-${INFRAPOOL_AZURE_RESOURCE_GROUP:-}}"
+export USER_ASSIGNED_IDENTITY="${USER_ASSIGNED_IDENTITY:-${INFRAPOOL_USER_ASSIGNED_IDENTITY:-}}"
+export USER_ASSIGNED_IDENTITY_CLIENT_ID="${USER_ASSIGNED_IDENTITY_CLIENT_ID:-${INFRAPOOL_USER_ASSIGNED_IDENTITY_CLIENT_ID:-}}"
+export GCP_ID_TOKEN="${GCP_ID_TOKEN:-${INFRAPOOL_GCP_ID_TOKEN:-}}"
+export GCP_PROJECT_ID="${GCP_PROJECT_ID:-${INFRAPOOL_GCP_PROJECT_ID:-}}"
+export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-${INFRAPOOL_AWS_ACCOUNT_ID:-}}"
+export AWS_ROLE_NAME="${AWS_ROLE_NAME:-${INFRAPOOL_AWS_ROLE_NAME:-}}"
+
+
+function printCloudAuthTestSummary() {
+  set +x
+  echo "---------------- Cloud authenticator test summary ----------------"
+
+  local reports_dir="target/surefire-reports"
+  if [[ ! -d "${reports_dir}" ]]; then
+    echo "MISSING: ${reports_dir} directory not found"
+    echo "-----------------------------------------------------------------"
+    set -x
+    return 0
+  fi
+
+  local matches
+  matches=$(
+    find "${reports_dir}" -maxdepth 1 -type f -name "TEST-*.xml" | while IFS= read -r report; do
+      if grep -Eq 'classname=".*(AzureAuthenticatorTest|AzureAuthenticatorTests|AzureAuthenticatorIntegrationTest|AzureAuthenticatorIntegrationTests|GCPAuthenticatorTest|GCPAuthenticatorTests|GCPAuthenticatorIntegrationTest|GCPAuthenticatorIntegrationTests|AWSIAMAuthenticatorTest|AWSIAMAuthenticatorTests|AWSIAMAuthenticatorIntegrationTest|AWSIAMAuthenticatorIntegrationTests)"' "${report}"; then
+        echo "${report}"
+      fi
+    done
+  )
+
+  if [[ -z "${matches}" ]]; then
+    echo "MISSING: no Azure/GCP authenticator test reports found"
+    echo "Tip: check actual class names and package paths under src/test/java"
+  else
+    while IFS= read -r report; do
+      local suite tests failures errors skipped
+      suite=$(sed -n 's/.*name="\([^"]*\)".*/\1/p' "${report}" | head -n1)
+      tests=$(sed -n 's/.*tests="\([^"]*\)".*/\1/p' "${report}" | head -n1)
+      failures=$(sed -n 's/.*failures="\([^"]*\)".*/\1/p' "${report}" | head -n1)
+      errors=$(sed -n 's/.*errors="\([^"]*\)".*/\1/p' "${report}" | head -n1)
+      skipped=$(sed -n 's/.*skipped="\([^"]*\)".*/\1/p' "${report}" | head -n1)
+
+      echo "FOUND: ${report}"
+      echo "  suite=${suite} tests=${tests} failures=${failures} errors=${errors} skipped=${skipped}"
+    done <<< "${matches}"
+  fi
+
+  echo "-----------------------------------------------------------------"
+  set -x
+}
+
+function printCloudAuthTestSummaryOnce() {
+  if [[ "${CLOUD_SUMMARY_PRINTED}" -eq 0 ]]; then
+    printCloudAuthTestSummary
+    CLOUD_SUMMARY_PRINTED=1
+  fi
+}
+
+function logCloudAuthDiagnostics() {
+  set +x
+  echo "---------------- Cloud authenticator diagnostics ----------------"
+
+  local azure_file="src/test/java/com/cyberark/conjur/api/clients/AzureAuthenticatorTests.java"
+  local gcp_file="src/test/java/com/cyberark/conjur/api/clients/GCPAuthenticatorTests.java"
+  local aws_file="src/test/java/com/cyberark/conjur/api/clients/AWSIAMAuthenticatorTests.java"
+
+  for f in "${azure_file}" "${gcp_file}" "${aws_file}"; do
+    if [[ -f "${f}" ]]; then
+      echo "SOURCE: FOUND ${f}"
+      echo "  first_line: $(head -n 1 "${f}")"
+      echo "  @Test_count: $(grep -Ec '^[[:space:]]*@Test' "${f}")"
+    else
+      echo "SOURCE: MISSING ${f}"
+    fi
+  done
+
+  local reports_dir="target/surefire-reports"
+  if [[ ! -d "${reports_dir}" ]]; then
+    echo "REPORTS: MISSING ${reports_dir}"
+    echo "-----------------------------------------------------------------"
+    set -x
+    return 0
+  fi
+
+  local matches
+  matches=$(
+    find "${reports_dir}" -maxdepth 1 -type f -name "TEST-*.xml" | while IFS= read -r report; do
+      if grep -Eq 'classname=".*(AzureAuthenticatorTest|AzureAuthenticatorTests|AzureAuthenticatorIntegrationTest|AzureAuthenticatorIntegrationTests|GCPAuthenticatorTest|GCPAuthenticatorTests|GCPAuthenticatorIntegrationTest|GCPAuthenticatorIntegrationTests|AWSIAMAuthenticatorTest|AWSIAMAuthenticatorTests|AWSIAMAuthenticatorIntegrationTest|AWSIAMAuthenticatorIntegrationTests)"' "${report}"; then
+      echo "${report}"
+      fi
+    done
+  )
+
+  if [[ -z "${matches}" ]]; then
+    echo "REPORTS: no Azure/GCP surefire XML matches"
+  else
+    while IFS= read -r report; do
+      local suite tests failures errors skipped
+      suite=$(sed -n 's/.*name="\([^"]*\)".*/\1/p' "${report}" | head -n 1)
+      tests=$(sed -n 's/.*tests="\([^"]*\)".*/\1/p' "${report}" | head -n 1)
+      failures=$(sed -n 's/.*failures="\([^"]*\)".*/\1/p' "${report}" | head -n 1)
+      errors=$(sed -n 's/.*errors="\([^"]*\)".*/\1/p' "${report}" | head -n 1)
+      skipped=$(sed -n 's/.*skipped="\([^"]*\)".*/\1/p' "${report}" | head -n 1)
+      echo "REPORT: ${report}"
+      echo "  suite=${suite} tests=${tests} failures=${failures} errors=${errors} skipped=${skipped}"
+    done <<< "${matches}"
+  fi
+
+  echo "-----------------------------------------------------------------"
+  set -x
+}
+
+function runCloudAuthenticatorSmokeTests() {
+  echo "================ CLOUD AUTH TEST SMOKE START ================"
+  logCloudAuthDiagnostics
+
+  local smoke_exit=0
+  mvn -DskipTests=true test-compile
+  mvn \
+    -Dtest=AzureAuthenticatorTests,GCPAuthenticatorTests \
+    -DfailIfNoTests=true \
+    -DfailIfNoSpecifiedTests=true \
+    -Dsurefire.useFile=false \
+    -Dsurefire.printSummary=true \
+    test || smoke_exit=$?
+
+  logCloudAuthDiagnostics
+  echo "================ CLOUD AUTH TEST SMOKE END =================="
+  return "${smoke_exit}"
+}
+
+function verifyCloudAuthenticatorTestsTriggered() {
+  local reports_dir="target/surefire-reports"
+  local matches
+
+  if [[ ! -d "${reports_dir}" ]]; then
+    echo "ERROR: ${reports_dir} directory not found"
+    return 1
+  fi
+
+  matches=$(
+    find "${reports_dir}" -maxdepth 1 -type f -name "TEST-*.xml" | while IFS= read -r report; do
+      if grep -Eq 'classname=".*(AzureAuthenticatorTest|AzureAuthenticatorTests|AzureAuthenticatorIntegrationTest|AzureAuthenticatorIntegrationTests|GCPAuthenticatorTest|GCPAuthenticatorTests|GCPAuthenticatorIntegrationTest|GCPAuthenticatorIntegrationTests|AWSIAMAuthenticatorTest|AWSIAMAuthenticatorTests|AWSIAMAuthenticatorIntegrationTest|AWSIAMAuthenticatorIntegrationTests)"' "${report}"; then
+        echo "${report}"
+      fi
+    done
+  )
+
+  if [[ -z "${matches}" ]]; then
+    echo "ERROR: Azure/GCP authenticator tests were not triggered by mvn test"
+    return 1
+  fi
+
+  echo "Verified Azure/GCP authenticator tests:"
+  echo "${matches}"
+}
+
+function verifyRepoCheckoutIncludesCloudAuthTests() {
+  set +x
+  echo "---------------- Cloud auth check: CI checkout ----------------"
+  echo "PWD: $(pwd)"
+  git rev-parse HEAD || true
+  git status --short || true
+
+  local azure_path="src/test/java/com/cyberark/conjur/api/clients/AzureAuthenticatorTests.java"
+  local gcp_path="src/test/java/com/cyberark/conjur/api/clients/GCPAuthenticatorTests.java"
+  local aws_path="src/test/java/com/cyberark/conjur/api/clients/AWSIAMAuthenticatorTests.java"
+
+  echo "Tracked files in checked out commit:"
+  git ls-tree -r --name-only HEAD | grep -E 'AzureAuthenticatorTests\.java|GCPAuthenticatorTests\.java|AWSIAMAuthenticatorTests\.java' || echo "  none"
+
+  for f in "${azure_path}" "${gcp_path}" "${aws_path}"; do
+    if [[ -f "${f}" ]]; then
+      echo "WORKSPACE: FOUND ${f}"
+    else
+      echo "WORKSPACE: MISSING ${f}"
+    fi
+  done
+
+  ls -la src/test/java/com/cyberark/conjur/api/clients || true
+  echo "----------------------------------------------------------------"
+  set -x
+}
+
+function verifyDockerBuildContextIncludesCloudAuthTests() {
+  set +x
+  echo "---------------- Cloud auth check: Docker build context --------"
+
+  if [[ -f ".dockerignore" ]]; then
+    echo ".dockerignore:"
+    cat .dockerignore
+  else
+    echo ".dockerignore not found"
+  fi
+
+  echo "Files present in docker build context tar stream:"
+  tar -cf - . | tar -tf - | grep -E '^src/test/java/com/cyberark/conjur/api/clients/(AzureAuthenticatorTests|GCPAuthenticatorTests|AWSIAMAuthenticatorTests)\.java$' || echo "  none"
+
+  echo "----------------------------------------------------------------"
+  set -x
+}
+
+function logContainerCloudAuthSourceState() {
+  set +x
+  echo "---------------- Cloud auth check: runtime container -----------"
+  local azure_file="src/test/java/com/cyberark/conjur/api/clients/AzureAuthenticatorTests.java"
+  local gcp_file="src/test/java/com/cyberark/conjur/api/clients/GCPAuthenticatorTests.java"
+  local aws_file="src/test/java/com/cyberark/conjur/api/clients/AWSIAMAuthenticatorTests.java"
+
+  pwd
+  ls -la src/test/java/com/cyberark/conjur/api/clients || true
+
+  for f in "${azure_file}" "${gcp_file}" "${aws_file}"; do
+    if [[ -f "${f}" ]]; then
+      echo "CONTAINER: FOUND ${f}"
+    else
+      echo "CONTAINER: MISSING ${f}"
+    fi
+  done
+
+  echo "----------------------------------------------------------------"
+  set -x
+}
 
 function main() {
   finish
-  runDap
+  if [[ "${RUN_AZURE_TESTS:-false}" == "true" ]]; then
+    : "${AZURE_SUBSCRIPTION_ID:?AZURE_SUBSCRIPTION_ID is required}"
+    : "${AZURE_RESOURCE_GROUP:?AZURE_RESOURCE_GROUP is required}"
+    : "${USER_ASSIGNED_IDENTITY:?USER_ASSIGNED_IDENTITY is required}"
+    : "${USER_ASSIGNED_IDENTITY_CLIENT_ID:?USER_ASSIGNED_IDENTITY_CLIENT_ID is required}"
+  fi
+  if [[ "${RUN_AWS_TESTS:-false}" == "true" ]]; then
+    : "${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID is required}"
+    : "${AWS_ROLE_NAME:?AWS_ROLE_NAME is required}"
+  fi
+  verifyRepoCheckoutIncludesCloudAuthTests
+  verifyDockerBuildContextIncludesCloudAuthTests
+  # The enterprise appliance (cuke-master) does not support configuring
+  # authn-azure via environment variables. Azure integration tests run
+  # against OSS Conjur only, where CONJUR_AUTHENTICATORS is set.
+  if [[ "${RUN_AZURE_TESTS:-false}" != "true" ]] && [[ "${RUN_GCP_TESTS:-false}" != "true" ]] && [[ "${RUN_AWS_TESTS:-false}" != "true" ]]; then
+    runDap
+  fi
   runOss
+  printCloudAuthTestSummaryOnce
 }
 
 # Run DAP Enterprise test suite
@@ -27,9 +270,13 @@ function runOss () {
   createOssEnvironment
   loadOssPolicy
   runOssTests
-  printOssProxyConfiguration
-  initializeOssCert
-  runOssHttpsTests
+  # Skip HTTPS proxy tests when running Azure, GCP, or AWS tests — the nginx proxy binds
+  # host ports that may already be in use on the cloud ExecutorV2 agent.
+  if [[ "${RUN_AZURE_TESTS:-false}" != "true" ]] && [[ "${RUN_GCP_TESTS:-false}" != "true" ]] && [[ "${RUN_AWS_TESTS:-false}" != "true" ]]; then
+    printOssProxyConfiguration
+    initializeOssCert
+    runOssHttpsTests
+  fi
 }
 
 # Build DAP test container & start the cluster
@@ -112,21 +359,49 @@ function initializeDapCert() {
   docker exec ${dap_test_cid} ${import_command}
 }
 
+function buildMvnTestCommand() {
+  if [[ -n "${TEST_FILTER:-}" ]]; then
+    echo "mvn -Dtest=${TEST_FILTER} -DfailIfNoTests=true -DfailIfNoSpecifiedTests=true test"
+  else
+    echo "mvn test"
+  fi
+}
+
 function runDapTests() {
   echo '-----------------------test.sh------------------------------'
   echo "Running DAP tests"
   echo '------------------------------------------------------------'
 
   dap_test_cid=$(docker compose ps -q test-dap)
-
+  set +x
   api_key_admin=$(docker compose exec -T client conjur user rotate_api_key)
+  set -x
+  mvn_test_cmd="$(buildMvnTestCommand)"
+  tests_command="$(declare -f logContainerCloudAuthSourceState verifyCloudAuthenticatorTestsTriggered); logContainerCloudAuthSourceState && ${mvn_test_cmd} && verifyCloudAuthenticatorTestsTriggered && mvn jacoco:report"
 
-  # Execute DAP tests
+  local cloud_env_args=(
+    -e RUN_AZURE_TESTS="${RUN_AZURE_TESTS:-}"
+    -e TEST_FILTER="${TEST_FILTER:-}"
+    -e AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
+    -e AZURE_RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-}"
+    -e USER_ASSIGNED_IDENTITY="${USER_ASSIGNED_IDENTITY:-}"
+    -e USER_ASSIGNED_IDENTITY_CLIENT_ID="${USER_ASSIGNED_IDENTITY_CLIENT_ID:-}"
+    -e RUN_GCP_TESTS="${RUN_GCP_TESTS:-}"
+    -e GCP_ID_TOKEN="${GCP_ID_TOKEN:-}"
+    -e GCP_PROJECT_ID="${GCP_PROJECT_ID:-}"
+    -e RUN_AWS_TESTS="${RUN_AWS_TESTS:-}"
+    -e AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}"
+    -e AWS_ROLE_NAME="${AWS_ROLE_NAME:-}"
+  )
+
+  set +x
   docker exec \
-  -e CONJUR_AUTHN_API_KEY=${api_key_admin} \
-  -e CONJUR_AUTHN_LOGIN="admin" \
-  ${dap_test_cid} \
-    bash -c "mvn test && mvn jacoco:report"
+    -e CONJUR_AUTHN_API_KEY="${api_key_admin}" \
+    -e CONJUR_AUTHN_LOGIN="admin" \
+    "${cloud_env_args[@]}" \
+    "${dap_test_cid}" \
+    bash -c "${tests_command}"
+  set -x
 }
 
 function runOssTests() {
@@ -134,16 +409,34 @@ function runOssTests() {
   echo "Running tests"
   echo '------------------------------------------------------------'
 
-  conjur_client_cid=$(docker compose ps -q client)
-
+  set +x
   api_key_admin=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
+  set -x
+  mvn_test_cmd="$(buildMvnTestCommand)"
 
-  # Execute OSS tests
+  local cloud_env_args=(
+    -e RUN_AZURE_TESTS="${RUN_AZURE_TESTS:-}"
+    -e TEST_FILTER="${TEST_FILTER:-}"
+    -e AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
+    -e AZURE_RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-}"
+    -e USER_ASSIGNED_IDENTITY="${USER_ASSIGNED_IDENTITY:-}"
+    -e USER_ASSIGNED_IDENTITY_CLIENT_ID="${USER_ASSIGNED_IDENTITY_CLIENT_ID:-}"
+    -e RUN_GCP_TESTS="${RUN_GCP_TESTS:-}"
+    -e GCP_ID_TOKEN="${GCP_ID_TOKEN:-}"
+    -e GCP_PROJECT_ID="${GCP_PROJECT_ID:-}"
+    -e RUN_AWS_TESTS="${RUN_AWS_TESTS:-}"
+    -e AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}"
+    -e AWS_ROLE_NAME="${AWS_ROLE_NAME:-}"
+  )
+
+  set +x
   docker compose run --rm \
     -e CONJUR_AUTHN_LOGIN="admin" \
     -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
+    "${cloud_env_args[@]}" \
     test \
-      bash -c "mvn test && mvn jacoco:report"
+    bash -c "$(declare -f logContainerCloudAuthSourceState verifyCloudAuthenticatorTestsTriggered); logContainerCloudAuthSourceState && ${mvn_test_cmd} && verifyCloudAuthenticatorTestsTriggered && mvn jacoco:report"
+  set -x
 }
 
 function runOssHttpsTests() {
@@ -151,34 +444,36 @@ function runOssHttpsTests() {
   echo "Running https tests"
   echo '------------------------------------------------------------'
 
+  set +x
   api_key_admin=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin)
   api_key_alice=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:alice@test)
   api_key_myapp=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:host:test/myapp)
+  set -x
 
-  echo 'api keys:'
-  echo 'user admin api key = ' ${api_key_admin}
-  echo 'user alice api key = ' ${api_key_alice}
-  echo 'host myapp api key = ' ${api_key_myapp}
   conjur_test_cid=$(docker compose ps -q test-https)
-  tests_command="mvn test && mvn jacoco:report"
+  mvn_test_cmd="$(buildMvnTestCommand)"
+  tests_command="$(declare -f logContainerCloudAuthSourceState verifyCloudAuthenticatorTestsTriggered); logContainerCloudAuthSourceState && ${mvn_test_cmd} && verifyCloudAuthenticatorTestsTriggered && mvn jacoco:report"
 
-  echo "Running https tests with admin credentials"
-  docker exec \
-  -e CONJUR_AUTHN_LOGIN="admin" \
-  -e CONJUR_AUTHN_API_KEY="$api_key_admin" \
-  ${conjur_test_cid} bash -c "${tests_command}"
+  local cloud_env_args=(
+    -e RUN_AZURE_TESTS="${RUN_AZURE_TESTS:-}"
+    -e TEST_FILTER="${TEST_FILTER:-}"
+    -e AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
+    -e AZURE_RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-}"
+    -e USER_ASSIGNED_IDENTITY="${USER_ASSIGNED_IDENTITY:-}"
+    -e USER_ASSIGNED_IDENTITY_CLIENT_ID="${USER_ASSIGNED_IDENTITY_CLIENT_ID:-}"
+    -e RUN_GCP_TESTS="${RUN_GCP_TESTS:-}"
+    -e GCP_ID_TOKEN="${GCP_ID_TOKEN:-}"
+    -e GCP_PROJECT_ID="${GCP_PROJECT_ID:-}"
+    -e RUN_AWS_TESTS="${RUN_AWS_TESTS:-}"
+    -e AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}"
+    -e AWS_ROLE_NAME="${AWS_ROLE_NAME:-}"
+  )
 
-  echo "Running https tests with user credentials"
-  docker exec \
-  -e CONJUR_AUTHN_LOGIN="alice@test" \
-  -e CONJUR_AUTHN_API_KEY="$api_key_alice" \
-  ${conjur_test_cid} bash -c "${tests_command}"
-
-  echo "Running https tests with host credentials"
-  docker exec \
-  -e CONJUR_AUTHN_LOGIN="host/test/myapp" \
-  -e CONJUR_AUTHN_API_KEY="$api_key_myapp" \
-  ${conjur_test_cid} bash -c "${tests_command}"
+  set +x
+  docker exec -e CONJUR_AUTHN_LOGIN="admin"       -e CONJUR_AUTHN_API_KEY="$api_key_admin" "${cloud_env_args[@]}" ${conjur_test_cid} bash -c "${tests_command}"
+  docker exec -e CONJUR_AUTHN_LOGIN="alice@test"   -e CONJUR_AUTHN_API_KEY="$api_key_alice" "${cloud_env_args[@]}" ${conjur_test_cid} bash -c "${tests_command}"
+  docker exec -e CONJUR_AUTHN_LOGIN="host/test/myapp" -e CONJUR_AUTHN_API_KEY="$api_key_myapp" "${cloud_env_args[@]}" ${conjur_test_cid} bash -c "${tests_command}"
+  set -x
 }
 
 main

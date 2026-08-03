@@ -13,6 +13,7 @@ services:
       DATABASE_URL: postgres://postgres:pa55w0rd@postgres/postgres
       CONJUR_DATA_KEY: "W0BuL8iTr/7QvtjIluJbrb5LDAnmXzmcpxkqihO3dXA="
       RAILS_ENV: development
+      CONJUR_AUTHENTICATORS: authn,authn-azure/prod,authn-jwt/gcp,authn-iam/prod
     ports:
       - "80:80"
     depends_on:
@@ -64,6 +65,18 @@ services:
     environment:
       CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
+      NO_PROXY: "169.254.169.254,localhost,127.0.0.1,conjur"
+      no_proxy: "169.254.169.254,localhost,127.0.0.1,conjur"
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
+      RUN_GCP_TESTS: "${RUN_GCP_TESTS:-}"
+      GCP_ID_TOKEN: "${GCP_ID_TOKEN:-}"
+      GCP_PROJECT_ID: "${GCP_PROJECT_ID:-}"
+      RUN_AWS_TESTS: "${RUN_AWS_TESTS:-}"
+      AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID:-}"
+      AWS_ROLE_NAME: "${AWS_ROLE_NAME:-}"
 
   # Spin up container for EE testing
   test-dap:
