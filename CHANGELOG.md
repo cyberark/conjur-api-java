@@ -6,6 +6,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-08-04
+
+### Added
+- `AzureAuthenticator` for authenticating via Azure IMDS, supporting both
+  system-assigned and user-assigned managed identities. (CNJR-14056)
+- `GCPAuthenticator` for authenticating with a GCP instance metadata identity
+  token, including `refreshJwt` for token renewal. (CNJR-14056)
+- `AWSIAMAuthenticator` for authenticating with AWS IAM credentials. The
+  `software.amazon.awssdk` `sts` and `auth` dependencies are marked optional, so
+  they are not pulled into consumers that do not use AWS authentication.
+- `CertAuthenticator` for certificate-based (mTLS) authentication, with
+  `Conjur.newFromCertificate` factory methods that read configuration from
+  `CONJUR_AUTHN_CERT_SERVICE_ID`, `CONJUR_AUTHN_CERT_FILE`,
+  `CONJUR_AUTHN_CERT_KEY_FILE`, and the optional `CONJUR_AUTHN_CERT_HOST_ID`
+  (omit for SPIFFE mode), or accept PEM content directly. (CNJR-14055)
+
+### Security
+- Pin `io.netty` `netty-codec`, `netty-handler`, `netty-codec-http`, and
+  `netty-codec-http2` to 4.1.136.Final via `dependencyManagement` to address CVEs
+  in the versions transitively pulled by `awssdk:netty-nio-client`.
+
 ## [3.2.0] - 2026-04-09
 
 ### Added
@@ -144,7 +165,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn tokens now use the new Conjur 5 format - [PR #21](https://github.com/cyberark/conjur-api-java/pull/21)
 - Configuration change. When using environment variables, use `CONJUR_AUTHN_LOGIN` and `CONJUR_AUTHN_API_KEY` now instead of `CONJUR_CREDENTIALS` - https://github.com/cyberark/conjur-api-java/commit/60344308fc48cb5380c626e612b91e1e720c03fb
 
-[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-api-java/compare/v3.3.0...HEAD
+[3.3.0]: https://github.com/cyberark/conjur-api-java/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/cyberark/conjur-api-java/compare/v3.1.2...v3.2.0
 [3.1.2]: https://github.com/cyberark/conjur-api-java/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/cyberark/conjur-api-java/compare/v3.1.0...v3.1.1
