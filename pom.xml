@@ -141,6 +141,33 @@
       <jakarta.version>3.0.0</jakarta.version>
       <jersey.version>3.0.17</jersey.version>
     </properties>
+
+    <!-- Force netty upgrades to address CVEs in versions pulled by awssdk:netty-nio-client -->
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-codec</artifactId>
+          <version>4.1.136.Final</version>
+        </dependency>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-handler</artifactId>
+          <version>4.1.136.Final</version>
+        </dependency>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-codec-http</artifactId>
+          <version>4.1.136.Final</version>
+        </dependency>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-codec-http2</artifactId>
+          <version>4.1.136.Final</version>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
       <!--
@@ -199,6 +226,20 @@
         <version>1.15</version>
       </dependency>
 
+      <!-- AWS SDK v2 for IAM authenticator (optional: not pulled into consumers who don't use AWS auth) -->
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sts</artifactId>
+        <version>2.25.60</version>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>auth</artifactId>
+        <version>2.25.60</version>
+        <optional>true</optional>
+      </dependency>
+
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -245,6 +286,13 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>2.22.2</version>
             <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+                <include>**/*Tests.java</include>
+                <include>**/*TestCase.java</include>
+              </includes>
+              <useFile>false</useFile>
+              <printSummary>true</printSummary>
               <systemPropertyVariables>
                 <CONJUR_ACCOUNT>${env.CONJUR_ACCOUNT}</CONJUR_ACCOUNT>
                 <CONJUR_APPLIANCE_URL>${env.CONJUR_APPLIANCE_URL}</CONJUR_APPLIANCE_URL>

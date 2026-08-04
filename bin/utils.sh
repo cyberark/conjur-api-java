@@ -5,10 +5,19 @@ function createOssEnvironment() {
   echo "Creating OSS test environment"
   echo '------------------------------------------------------------'
 
-  # Build OSS test container & start the cluster
-  docker compose build --pull client conjur postgres test test-https conjur-proxy-nginx --build-arg JDK_VERSION="${JDK_VERSION:-8}"
-  export CONJUR_APPLIANCE_URL="http://conjur"
-  docker compose up -d client conjur postgres test-https
+  # Build OSS test container & start the cluster.
+  # When running Azure tests, skip conjur-proxy-nginx and test-https — those
+  # services bind host ports (8080/8443) that may already be in use on the
+  # Azure ExecutorV2 agent, and HTTPS proxy tests are not needed for authn-azure.
+  if [[ "${RUN_AZURE_TESTS:-false}" == "true" ]]; then
+    docker compose build --pull client conjur postgres test --build-arg JDK_VERSION="${JDK_VERSION:-8}"
+    export CONJUR_APPLIANCE_URL="http://conjur"
+    docker compose up -d client conjur postgres
+  else
+    docker compose build --pull client conjur postgres test test-https conjur-proxy-nginx --build-arg JDK_VERSION="${JDK_VERSION:-8}"
+    export CONJUR_APPLIANCE_URL="http://conjur"
+    docker compose up -d client conjur postgres test-https
+  fi
 
   # Delay to allow time for conjur to come up
   # TODO: remove this once we have HEALTHCHECK in place
