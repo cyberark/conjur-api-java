@@ -1,5 +1,8 @@
 #!/usr/bin/env groovy
-@Library("product-pipelines-shared-library") _
+@Library([
+  "product-pipelines-shared-library",
+  "conjur-enterprise-sharedlib"
+]) _
 
 // Automated release, promotion and dependencies
 properties([
@@ -44,7 +47,7 @@ if (params.MODE == "PROMOTE") {
 }
 
 pipeline {
-  agent { label 'conjur-enterprise-common-agent' }
+  agent { label 'conjur-enterprise-AmznDocker' }
 
   options {
     timestamps()
@@ -91,11 +94,13 @@ pipeline {
       }
     }
 
-    stage('Get InfraPool Agent') {
+    stage('Get Cloud Test Agents') {
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 1, duration: 1)[0]
-
+          // Azure and GCP have no AmznDocker equivalent, so those pools are
+          // retained. AWS tests run directly on this AmznDocker agent (which
+          // itself runs in AWS with an instance profile) — no separate
+          // ExecutorV2 pool is requested for them.
           if (params.RUN_AZURE_TESTS) {
             INFRAPOOL_AZURE_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "AzureExecutorV2", quantity: 1, duration: 1)
             INFRAPOOL_AZURE_EXECUTORV2_AGENT_0 = INFRAPOOL_AZURE_EXECUTORV2_AGENTS[0]
@@ -107,19 +112,21 @@ pipeline {
             INFRAPOOL_GCP_EXECUTORV2_AGENT_0 = INFRAPOOL_GCP_EXECUTORV2_AGENTS[0]
             gcpInfrapool = infraPoolConnect(INFRAPOOL_GCP_EXECUTORV2_AGENT_0, {})
           }
+        }
+      }
+    }
 
-          if (params.RUN_AWS_TESTS) {
-            INFRAPOOL_AWS_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "ExecutorV2", quantity: 1, duration: 1)
-            INFRAPOOL_AWS_EXECUTORV2_AGENT_0 = INFRAPOOL_AWS_EXECUTORV2_AGENTS[0]
-            awsInfrapool = infraPoolConnect(INFRAPOOL_AWS_EXECUTORV2_AGENT_0, {})
-          }
+    stage('Mark Workspace as Safe Git Directory') {
+      steps {
+        script {
+          sh 'git config --global --add safe.directory $WORKSPACE'
         }
       }
     }
 
     stage('Validate Changelog') {
       steps {
-        parseChangelog(INFRAPOOL_EXECUTORV2_AGENT_0)
+        parseChangelog()
       }
     }
 
@@ -127,8 +134,8 @@ pipeline {
     stage('Validate Changelog and set version') {
       steps {
         script {
-          updateVersion(INFRAPOOL_EXECUTORV2_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh '''
+          updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+          sh '''
             cp VERSION VERSION.original
             version="$(<VERSION)"
             echo "Current VERSION content: ${version}"
@@ -143,10 +150,10 @@ pipeline {
       steps {
         script {
           // Build Docker Image for tools (eg mvn)
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/build-tools-image.sh'
+          sh './bin/build-tools-image.sh'
 
           // Run Docker Image to compile code and build jar
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/build-package.sh'
+          sh './bin/build-package.sh'
         }
       }
     }
@@ -158,7 +165,7 @@ pipeline {
       }
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
+          sh './bin/test.sh'
         }
       }
     }
@@ -171,13 +178,20 @@ pipeline {
       steps {
         script {
           lock("api-java-${env.NODE_NAME}") {
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './bin/test.sh'
+            sh './bin/test.sh'
 
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'jacoco', includes: 'target/site/jacoco/jacoco.xml'
+            // build-package.sh and test.sh both run mvn as root inside the
+            // tools/test images (the /root/.m2 cache mount depends on it),
+            // so target/ is root-owned. Build and test now share one
+            // workspace on AmznDocker, so fix ownership before stash/unstash
+            // touch these same paths again as the build user.
+            sh 'sudo chown -R "$(id -u):$(id -g)" target'
+
+            stash name: 'jacoco', includes: 'target/site/jacoco/jacoco.xml'
             unstash 'jacoco'
             codacy action: 'reportCoverage', filePath: "target/site/jacoco/jacoco.xml"
 
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash includes: 'target/surefire-reports/*.xml', name: "test-results"
+            stash includes: 'target/surefire-reports/*.xml', name: "test-results"
             unstash 'test-results'
           }
         }
@@ -214,8 +228,8 @@ pipeline {
           GCP_ID_TOKEN = gcpInfrapool.agentSh(script: 'cat gcp-ctx/token', returnStdout: true).trim()
           GCP_PROJECT_ID = gcpInfrapool.agentSh(script: 'cat gcp-ctx/project-id', returnStdout: true).trim()
 
-          // Run tests on the main ExecutorV2 agent (which has Docker)
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh """
+          // Run tests on this AmznDocker agent (which has Docker)
+          sh """
             set +e
             export RUN_GCP_TESTS=true
             export TEST_FILTER="GCPAuthenticatorIntegrationTests"
@@ -235,14 +249,14 @@ pipeline {
       }
       steps {
         script {
-          // Fetch AWS identity from the instance profile on the AWS agent
-          def callerIdentityJson = awsInfrapool.agentSh(script: 'aws sts get-caller-identity', returnStdout: true).trim()
+          // Fetch AWS identity from this AmznDocker agent's own instance profile
+          def callerIdentityJson = sh(script: 'aws sts get-caller-identity', returnStdout: true).trim()
           // JSON: {"UserId":"...","Account":"123456789012","Arn":"arn:aws:sts::123456789012:assumed-role/RoleName/session"}
           def awsAccountId = (callerIdentityJson =~ /"Account"\s*:\s*"([^"]+)"/)[0][1]
           def awsArn      = (callerIdentityJson =~ /"Arn"\s*:\s*"([^"]+)"/)[0][1]
           def awsRoleName = awsArn.tokenize('/')[1]  // arn:.../assumed-role/RoleName/session → index 1
 
-          awsInfrapool.agentSh """
+          sh """
             set +e
             export RUN_AWS_TESTS=true
             export TEST_FILTER="AWSIAMAuthenticatorIntegrationTests"
@@ -264,11 +278,11 @@ pipeline {
       }
       steps {
         script {
-          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'cp VERSION.original VERSION'
-          release(INFRAPOOL_EXECUTORV2_AGENT_0) { billOfMaterialsDirectory, assetDirectory ->
+          sh 'cp VERSION.original VERSION'
+          release { billOfMaterialsDirectory, assetDirectory ->
             // Publish release artifacts to all the appropriate locations
             // Copy any artifacts to assetDirectory to attach them to the Github release
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "ASSET_DIR=\"${assetDirectory}\" summon -e release ./bin/publish.sh"
+            sh "ASSET_DIR=\"${assetDirectory}\" summon -e release ./bin/publish.sh"
           }
         }
       }
