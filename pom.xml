@@ -41,23 +41,6 @@
   </scm>
 
   <profiles>
-    <!-- Profile for activating Artifactory as our deployment goal -->
-    <profile>
-      <id>artifactory</id>
-      <distributionManagement>
-        <repository>
-          <id>conjurinc-releases</id>
-          <name>conjurinc-releases</name>
-          <url>https://${env.JFROG_URL}/conjurinc/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-          <id>conjurinc-snapshots</id>
-          <name>conjurinc-snapshots</name>
-          <url>https://${env.JFROG_URL}/conjurinc/libs-snapshot-local</url>
-        </snapshotRepository>
-      </distributionManagement>
-    </profile>
-
     <!-- Profile for deploying and releasing to Maven Central through Central Portal -->
     <profile>
       <id>central-portal</id>
@@ -111,7 +94,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
+            <version>3.2.4</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -120,13 +103,7 @@
                   <goal>sign</goal>
                 </goals>
                 <configuration>
-                  <!-- This is necessary for gpg to not try to use the pinentry programs -->
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                    <arg>--passphrase-file</arg>
-                    <arg>/gpg_password</arg>
-                  </gpgArguments>
+                  <signer>bc</signer>
                 </configuration>
               </execution>
             </executions>
