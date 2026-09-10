@@ -4,79 +4,9 @@
   </pluginGroups>
   <servers>
     <server>
-      <id>conjurinc-releases</id>
-      <username>${env.JFROG_USERNAME}</username>
-      <password>${env.JFROG_APIKEY}</password>
-    </server>
-    <server>
-      <id>conjurinc-snapshots</id>
-      <username>${env.JFROG_USERNAME}</username>
-      <password>${env.JFROG_APIKEY}</password>
-    </server>
-    <server>
       <id>central</id>
       <username>${env.CENTRAL_PORTAL_USERNAME}</username>
       <password>${env.CENTRAL_PORTAL_TOKEN}</password>
     </server>
   </servers>
-  <profiles>
-    <profile>
-      <repositories>
-        <repository>
-          <id>central</id>
-          <url>https://repo1.maven.org/maven2</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-        </repository>
-        <repository>
-          <id>jcenter</id>
-          <url>https://jcenter.bintray.com/</url>
-        </repository>
-        <repository>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>conjurinc-releases</id>
-          <name>conjurinc-releases</name>
-          <url>https://${env.JFROG_URL}/artifactory/libs-release-local</url>
-        </repository>
-        <repository>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <id>conjurinc-snapshots</id>
-          <name>conjurinc-snapshots</name>
-          <url>https://${env.JFROG_URL}/artifactory/libs-snapshot-local</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <id>plugins-release</id>
-          <name>plugins-release</name>
-          <url>https://${env.JFROG_URL}/artifactory/plugins-release</url>
-        </pluginRepository>
-        <pluginRepository>
-          <snapshots />
-          <id>snapshots</id>
-          <name>plugins-snapshots</name>
-          <url>https://${env.JFROG_URL}/artifactory/plugins-snapshot</url>
-        </pluginRepository>
-        <pluginRepository>
-          <id>central</id>
-          <url>https://repo1.maven.org/maven2</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-        </pluginRepository>
-      </pluginRepositories>
-      <id>artifactory</id>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <activeProfile>artifactory</activeProfile>
-  </activeProfiles>
 </settings>
