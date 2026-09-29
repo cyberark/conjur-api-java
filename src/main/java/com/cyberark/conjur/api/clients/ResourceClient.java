@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,13 +87,19 @@ public class ResourceClient implements ResourceProvider, ResourcesProvider {
         this.endpoints = endpoints;
     }
 
+    @Deprecated
     @Override
     public String retrieveSecret(String variableId) {
+        return new String(retrieveSecretBytes(variableId), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public byte[] retrieveSecretBytes(String variableId) {
         try (Response response = secrets.path(encodeVariableId(variableId))
                 .request().get(Response.class)) {
             validateResponse(response);
 
-            return response.readEntity(String.class);
+            return response.readEntity(byte[].class);
         }
     }
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -64,6 +65,27 @@ public class ConjurTest {
             retrievedSecret = conjur.variables().retrieveSecret(variableId);
 
             Assertions.assertEquals(VARIABLE_VALUE, retrievedSecret);
+        }
+    }
+
+    @Test
+    public void testAddSecretAndRetrieveSecretBytes() {
+        Conjur conjur = new Conjur();
+
+        String[] variableIds = {
+            VARIABLE_KEY,
+            VARIABLE_KEY_WITH_SPACES
+        };
+
+        byte[] retrievedBytes;
+        for (String variableId : variableIds)
+        {
+            conjur.variables().addSecret(variableId, VARIABLE_VALUE);
+
+            retrievedBytes = conjur.variables().retrieveSecretBytes(variableId);
+
+            Assertions.assertArrayEquals(
+                VARIABLE_VALUE.getBytes(StandardCharsets.UTF_8), retrievedBytes);
         }
     }
 
