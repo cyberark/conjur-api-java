@@ -72,9 +72,26 @@ public class Variables {
      *
      * @param variableId variable identifier (without account/kind prefix)
      * @return secret value stored in the specified variable
+     * @deprecated Use {@link #retrieveSecretBytes(String)} instead to avoid keeping
+     *             secrets as immutable Strings in the JVM heap.
      */
+    @Deprecated
     public String retrieveSecret(String variableId) {
         return resourceClient.retrieveSecret(variableId);
+    }
+
+    /**
+     * Retrieve the secret value for a Conjur variable as raw bytes.
+     *
+     * <p>Prefer this method over {@link #retrieveSecret(String)} because the returned
+     * {@code byte[]} can be explicitly zeroed (e.g. {@code Arrays.fill(bytes, (byte) 0)})
+     * once the secret is no longer needed.</p>
+     *
+     * @param variableId variable identifier (without account/kind prefix)
+     * @return secret value as a byte array
+     */
+    public byte[] retrieveSecretBytes(String variableId) {
+        return resourceClient.retrieveSecretBytes(variableId);
     }
 
     /**
