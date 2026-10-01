@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-10-01
+
+### Added
+- Add secure byte[] endpoint for secret retrieval. ONYX-274626
+
+### Security
+- Upgrade sts and httpclient dependencies to resolve CVE-2026-71290, CVE-2026-93491
+
 ## [3.3.0] - 2026-08-04
 
 ### Added
