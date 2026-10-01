@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.nio.charset.StandardCharsets;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -346,7 +348,8 @@ public class ResourceClientTest {
         void retrieveSecretSuccess() {
             when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
             when(mockSingleResponse.getStatus()).thenReturn(200);
-            when(mockSingleResponse.readEntity(String.class)).thenReturn("my-secret-value");
+            when(mockSingleResponse.readEntity(byte[].class))
+                    .thenReturn("my-secret-value".getBytes(StandardCharsets.UTF_8));
 
             String result = resourceClient.retrieveSecret("db-password");
 
@@ -358,7 +361,8 @@ public class ResourceClientTest {
         void retrieveSecretWithSlashes() {
             when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
             when(mockSingleResponse.getStatus()).thenReturn(200);
-            when(mockSingleResponse.readEntity(String.class)).thenReturn("val");
+            when(mockSingleResponse.readEntity(byte[].class))
+                    .thenReturn("val".getBytes(StandardCharsets.UTF_8));
 
             String result = resourceClient.retrieveSecret("prod/aws/db-password");
 
@@ -377,6 +381,64 @@ public class ResourceClientTest {
                     () -> resourceClient.retrieveSecret("missing"));
 
             assertTrue(ex.getMessage().contains("404"));
+        }
+    }
+
+    // ========================================================================
+    // Single Secret Retrieval (byte[]) Tests
+    // ========================================================================
+
+    @Nested
+    class SingleRetrievalBytes {
+
+        @Test
+        void retrieveSecretBytesSuccess() {
+            when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
+            when(mockSingleResponse.getStatus()).thenReturn(200);
+            when(mockSingleResponse.readEntity(byte[].class))
+                    .thenReturn("my-secret-value".getBytes(StandardCharsets.UTF_8));
+
+            byte[] result = resourceClient.retrieveSecretBytes("db-password");
+
+            assertArrayEquals("my-secret-value".getBytes(StandardCharsets.UTF_8), result);
+            verify(mockSecrets).path(eq("db-password"));
+        }
+
+        @Test
+        void retrieveSecretBytesWithSlashes() {
+            when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
+            when(mockSingleResponse.getStatus()).thenReturn(200);
+            when(mockSingleResponse.readEntity(byte[].class))
+                    .thenReturn("val".getBytes(StandardCharsets.UTF_8));
+
+            byte[] result = resourceClient.retrieveSecretBytes("prod/aws/db-password");
+
+            assertArrayEquals("val".getBytes(StandardCharsets.UTF_8), result);
+            verify(mockSecrets).path(eq("prod%2Faws%2Fdb-password"));
+        }
+
+        @Test
+        void retrieveSecretBytesError404() {
+            when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
+            when(mockSingleResponse.getStatus()).thenReturn(404);
+            when(mockSingleResponse.readEntity(String.class)).thenReturn("Not found");
+
+            WebApplicationException ex = assertThrows(WebApplicationException.class,
+                    () -> resourceClient.retrieveSecretBytes("missing"));
+
+            assertTrue(ex.getMessage().contains("404"));
+        }
+
+        @Test
+        void retrieveSecretBytesBinaryContent() {
+            byte[] binarySecret = new byte[]{0x00, 0x01, (byte) 0xFF, (byte) 0xFE, 0x42};
+            when(mockSingleBuilder.get(Response.class)).thenReturn(mockSingleResponse);
+            when(mockSingleResponse.getStatus()).thenReturn(200);
+            when(mockSingleResponse.readEntity(byte[].class)).thenReturn(binarySecret);
+
+            byte[] result = resourceClient.retrieveSecretBytes("binary-secret");
+
+            assertArrayEquals(binarySecret, result);
         }
     }
 

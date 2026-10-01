@@ -1,5 +1,6 @@
 package com.cyberark.conjur.api;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -12,11 +13,32 @@ import java.util.Map;
 public interface ResourceProvider {
 
     /**
-     * Fetch the value of a secret in the specified variable
-     * @param variableId - id of the variable
-     * @return The value of a secret from the specified variable
+     * Fetch the value of a secret in the specified variable.
+     *
+     * @param variableId id of the variable
+     * @return the secret value as a String
+     * @deprecated Use {@link #retrieveSecretBytes(String)} instead. Returning a {@code String}
+     *             keeps the secret as an immutable object in the JVM heap where it cannot be
+     *             zeroed after use. The {@code byte[]} variant allows callers to overwrite the
+     *             secret data when it is no longer needed.
      */
+    @Deprecated
     String retrieveSecret(String variableId);
+
+    /**
+     * Fetch the value of a secret in the specified variable as raw bytes.
+     *
+     * <p>Prefer this method over {@link #retrieveSecret(String)} because the returned
+     * {@code byte[]} can be explicitly zeroed (e.g. {@code Arrays.fill(bytes, (byte) 0)})
+     * once the secret is no longer needed, reducing the window during which sensitive data
+     * resides in memory.</p>
+     *
+     * @param variableId id of the variable
+     * @return the secret value as a byte array
+     */
+    default byte[] retrieveSecretBytes(String variableId) {
+        return retrieveSecret(variableId).getBytes(StandardCharsets.UTF_8);
+    }
 
     /**
      * Creates a secret value within the specified variable
